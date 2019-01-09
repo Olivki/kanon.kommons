@@ -517,20 +517,256 @@ public fun Path.createTempDirectory(name: String, vararg attributes: FileAttribu
         Files.createTempDirectory(this, name, *attributes)!!
 
 // - Links
+/**
+ * Creates a symbolic link to a target *(optional operation)*.
+ *
+ * The [target] parameter is the target of the link. It may be an
+ * [absolute][Path.isAbsolute] or relative path and may not exist. When
+ * the target is a relative path then file system operations on the resulting
+ * link are relative to the path of the link.
+ *
+ * The [attributes] parameter is optional
+ * [attributes][FileAttribute] to set atomically when creating the link. Each attribute is
+ * identified by its [name][FileAttribute.name]. If more than one attribute
+ * of the same name is included in the array then all but the last occurrence
+ * is ignored.
+ *
+ * Where symbolic links are supported, but the underlying [FileStore]
+ * does not support symbolic links, then this may fail with an
+ * [IOException]. Additionally, some operating systems may require that the
+ * Java virtual machine be started with implementation specific privileges to
+ * create symbolic links, in which case this method may throw [IOException].
+ *
+ * @return  The path to the symbolic link.
+ *
+ * @throws  UnsupportedOperationException
+ *          if the implementation does not support symbolic links or the
+ *          array contains an attribute that cannot be set atomically when
+ *          creating the symbolic link
+ * @throws  FileAlreadyExistsException
+ *          if a file with the name already exists *(optional specific
+ *          exception)*
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager
+ *          is installed, it denies [LinkPermission]`("symbolic")`
+ *          or its [checkWrite(String)][SecurityManager.checkWrite]
+ *          method denies write access to the path of the symbolic link.
+ */
 public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribute<*>) =
         Files.createSymbolicLink(this, target, *attributes)!!
 
-// -- Property?
+/**
+ * Reads the target of a symbolic link *(optional operation)*.
+ *
+ * If the file system supports `symbolic
+ * links` then this method is used to read the target of the link, failing
+ * if the file is not a symbolic link. The target of the link need not exist.
+ * The returned [Path] object will be associated with the same file
+ * system as [this].
+ *
+ * @return  A [Path] object representing the target of the link.
+ *
+ * @throws  UnsupportedOperationException
+ *          if the implementation does not support symbolic links
+ * @throws  NotLinkException
+ *          if the target could otherwise not be read because the file
+ *          is not a symbolic link *(optional specific exception)*
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager
+ *          is installed, it checks that `FilePermission` has been
+ *          granted with the "`readlink`" action to read the link.
+ */
 public fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)!!
 
-public fun Path.createLink(target: Path): Path = Files.createLink(this, target)!!
+/**
+ * Creates a new link (directory entry) for an existing file *(optional
+ * operation)*.
+ *
+ * The [this] locates the directory entry to create.
+ * The [existing] parameter is the path to an existing file. This
+ * method creates a new directory entry for the file so that it can be
+ * accessed using [this] as the path. On some file systems this is
+ * known as creating a "hard link". Whether the file attributes are
+ * maintained for the file or for each directory entry is file system
+ * specific and therefore not specified. Typically, a file system requires
+ * that all links (directory entries) for a file be on the same file system.
+ * Furthermore, on some platforms, the Java virtual machine may require to
+ * be started with implementation specific privileges to create hard links
+ * or to create links to directories.
+ *
+ * @return  The path to the link (directory entry).
+ *
+ * @throws  UnsupportedOperationException
+ *          if the implementation does not support adding an existing file
+ *          to a directory
+ * @throws  FileAlreadyExistsException
+ *          if the entry could not otherwise be created because a file of
+ *          that name already exists *(optional specific exception)*
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager
+ *          is installed, it denies [LinkPermission]<tt>("hard")</tt>
+ *          or its [checkWrite(String)][SecurityManager.checkWrite]
+ *          method denies write access to either the link or the
+ *          existing file.
+ */
+public fun Path.createLink(existing: Path): Path = Files.createLink(this, existing)!!
 
 // Deletion Functions
+/**
+ * Deletes a file.
+ *
+ * An implementation may require to examine the file to determine if the
+ * file is a directory. Consequently this method may not be atomic with respect
+ * to other file system operations.  If the file is a symbolic link then the
+ * symbolic link itself, not the final target of the link, is deleted.
+ *
+ * If the file is a directory then the directory must be empty. In some
+ * implementations a directory has entries for special files or links that
+ * are created when the directory is created. In such implementations a
+ * directory is considered empty when only the special entries exist.
+ * This method can be used with the [walkFileTree][Path.walkFileTree]
+ * method to delete a directory and all entries in the directory, or an
+ * entire *file-tree* where required.
+ *
+ * On some operating systems it may not be possible to remove a file when
+ * it is open and in use by this Java virtual machine or other programs.
+ *
+ * @throws  NoSuchFileException
+ *          if the file does not exist *(optional specific exception)*
+ * @throws  DirectoryNotEmptyException
+ *          if the file is a directory and could not otherwise be deleted
+ *          because the directory is not empty <i>(optional specific
+ *          exception)</i>
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkDelete(String)][SecurityManager.checkDelete] method
+ *          is invoked to check delete access to the file
+ */
 public fun Path.delete() = Files.delete(this)
 
+/**
+ * Deletes a file if it exists.
+ *
+ * As with the [delete(Path)][Path.delete] method, an
+ * implementation may need to examine the file to determine if the file is a
+ * directory. Consequently this method may not be atomic with respect to
+ * other file system operations.  If the file is a symbolic link, then the
+ * symbolic link itself, not the final target of the link, is deleted.
+ *
+ * If the file is a directory then the directory must be empty. In some
+ * implementations a directory has entries for special files or links that
+ * are created when the directory is created. In such implementations a
+ * directory is considered empty when only the special entries exist.
+ *
+ * On some operating systems it may not be possible to remove a file when
+ * it is open and in use by this Java virtual machine or other programs.
+ *
+ * @return  `true` if the file was deleted by this method;
+ * `         false` if the file could not be deleted because it did not
+ *          exist
+ *
+ * @throws  DirectoryNotEmptyException
+ *          if the file is a directory and could not otherwise be deleted
+ *          because the directory is not empty <i>(optional specific
+ *          exception)</i>
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkDelete(String)][SecurityManager.checkDelete] method
+ *          is invoked to check delete access to the file.
+ */
 public fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
 
 // Location Changes
+/**
+ * Move or rename a file to a target file.
+ *
+ * By default, this method attempts to move the file to the target
+ * file, failing if the target file exists except if the source and
+ * target are the [same][Path.isSameFile] file, in which case this method
+ * has no effect. If the file is a symbolic link then the symbolic link
+ * itself, not the target of the link, is moved. This method may be
+ * invoked to move an empty directory. In some implementations a directory
+ * has entries for special files or links that are created when the
+ * directory is created. In such implementations a directory is considered
+ * empty when only the special entries exist. When invoked to move a
+ * directory that is not empty then the directory is moved if it does not
+ * require moving the entries in the directory.  For example, renaming a
+ * directory on the same [FileStore] will usually not require moving
+ * the entries in the directory. When moving a directory requires that its
+ * entries be moved then this method fails (by throwing an
+ * [IOException]). To move a *file tree* may involve copying rather
+ * than moving directories and this can be done using the
+ * [walkFileTree] method in conjunction with the [copy] utility method.
+ *
+ *
+ * An implementation of this interface may support additional
+ * implementation specific options.
+ *
+ * Moving a file will copy the
+ * [last-modified-time][BasicFileAttributes.lastModifiedTime] to the target
+ * file if supported by both source and target file stores. Copying of file
+ * timestamps may result in precision loss. An implementation may also
+ * attempt to copy other file attributes but is not required to fail if the
+ * file attributes cannot be copied. When the move is performed as
+ * a non-atomic operation, and an [IOException] is thrown, then the
+ * state of the files is not defined. The original file and the target file
+ * may both exist, the target file may be incomplete or some of its file
+ * attributes may not been copied from the original file.
+ *
+ * **Usage Examples:**
+ *
+ * Suppose we want to rename a file to "newname", keeping the file in the
+ * same directory: **Just use [rename][Path.rename], or just set the [name][Path.name] property.**
+ *
+ * Alternatively, suppose we want to move a file to new directory, keeping
+ * the same file name, and replacing any existing file of that name in the
+ * directory:
+ *
+ * ```Kotlin
+ *     val source: Path = ...
+ *     val newDir: Path = ...
+ *     source.move(newDir / source.name, StandardCopyOptions.REPLACE_EXISTING)
+ * ```
+ *
+ * @param   target
+ *          The path to the target file (may be associated with a different
+ *          provider to the source path)
+ * @param   options
+ *          Options specifying how the move should be done
+ *
+ * @return  the path to the target file
+ *
+ * @throws  UnsupportedOperationException
+ *          if the array contains a copy option that is not supported
+ * @throws  FileAlreadyExistsException
+ *          if the target file exists but cannot be replaced because the
+ *          `REPLACE_EXISTING` option is not specified <i>(optional
+ *          specific exception)</i>
+ * @throws  DirectoryNotEmptyException
+ *          the `REPLACE_EXISTING` option is specified but the file
+ *          cannot be replaced because it is a non-empty directory
+ *          *(optional specific exception)*
+ * @throws  AtomicMoveNotSupportedException
+ *          if the options array contains the `ATOMIC_MOVE` option but
+ *          the file cannot be moved as an atomic file system operation.
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access to both the source and
+ *          target file.
+ */
 public fun Path.move(target: Path, vararg options: CopyOption): Path = Files.move(this, target, *options)!!
 
 /**
@@ -539,7 +775,7 @@ public fun Path.move(target: Path, vararg options: CopyOption): Path = Files.mov
  * @throws IOException If [this] does not exist on the file system.
  * @see Path.name
  */
-public fun Path.rename(name: String, vararg options: CopyOption): Path = move(this.parent / name, *options)
+public fun Path.rename(name: String, vararg options: CopyOption): Path = move(this.resolveSibling(name), *options)
 
 /**
  * The file name of the path in [String] format.
@@ -603,6 +839,74 @@ public var Path.extension: String
         this.name = "$this.simpleName.$extension"
     }
 
+/**
+ * Copy a file to a target file.
+ *
+ * This method copies a file to the target file with the
+ * [options] parameter specifying how the copy is performed. By default, the
+ * copy fails if the target file already exists or is a symbolic link,
+ * except if the source and target are the [same][Path.isSameFile] file, in
+ * which case the method completes without copying the file. File attributes
+ * are not required to be copied to the target file. If symbolic links are
+ * supported, and the file is a symbolic link, then the final target of the
+ * link is copied. If the file is a directory then it creates an empty
+ * directory in the target location (entries in the directory are not
+ * copied). This method can be used with the
+ * [walkFileTree][Path.walkFileTree] method to copy a directory and all entries in the directory,
+ * or an entire *file-tree* where required.
+ *
+ *
+ * An implementation of this interface may support additional
+ * implementation specific options.
+ *
+ * Copying a file is not an atomic operation. If an [IOException]
+ * is thrown, then it is possible that the target file is incomplete or some
+ * of its file attributes have not been copied from the source file. When
+ * the `REPLACE_EXISTING` option is specified and the target file
+ * exists, then the target file is replaced. The check for the existence of
+ * the file and the creation of the new file may not be atomic with respect
+ * to other file system activities.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want to copy a file into a directory, giving it the same file
+ * name as the source file:
+ *
+ * ```Kotlin
+ *     val source: Path = ...
+ *     val newDir: Path = ...
+ *     source.copy(newDir / source.name)
+ * ```
+ *
+ * @param   target
+ *          the path to the target file (may be associated with a different
+ *          provider to the source path)
+ * @param   options
+ *          options specifying how the copy should be done
+ *
+ * @return  The path to the target file.
+ *
+ * @throws  UnsupportedOperationException
+ *          if the array contains a copy option that is not supported
+ * @throws  FileAlreadyExistsException
+ *          if the target file exists but cannot be replaced because the
+ *          `REPLACE_EXISTING` option is not specified <i>(optional
+ *          specific exception)</i>
+ * @throws  DirectoryNotEmptyException
+ *          the `REPLACE_EXISTING` option is specified but the file
+ *          cannot be replaced because it is a non-empty directory
+ *          *(optional specific exception)*
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the source file, the
+ *          [checkWrite(String)][SecurityManager.checkWrite] is invoked
+ *          to check write access to the target file. If a symbolic link is
+ *          copied the security manager is invoked to check
+ * [LinkPermission]`("symbolic")`.
+ */
 public fun Path.copy(target: Path, vararg options: CopyOption): Path = Files.copy(this, target, *options)!!
 
 // File Attributes
