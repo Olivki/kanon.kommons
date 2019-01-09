@@ -236,12 +236,12 @@ public fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: File
  */
 public fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)!!
 
-public typealias PathDirStream = DirectoryStream<Path>
+public typealias PathDirectoryStream = DirectoryStream<Path>
 
-public typealias PathDirFilter = DirectoryStream.Filter<Path>
+public typealias PathDirectoryFilter = DirectoryStream.Filter<Path>
 
 // This is a port of the one that exists in Files.java.
-internal class AcceptAllFilter private constructor() : PathDirFilter {
+internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
     
     override fun accept(entry: Path) = true
     
@@ -250,30 +250,271 @@ internal class AcceptAllFilter private constructor() : PathDirFilter {
     }
 }
 
-public fun Path.newDirectoryStream(dirFilter: PathDirFilter = AcceptAllFilter.FILTER): PathDirStream =
+/**
+ * Opens a directory, returning a [DirectoryStream] to iterate over
+ * the entries in the directory. The elements returned by the directory
+ * stream's [iterator][DirectoryStream] are of type
+ * [Path], each one representing an entry in the directory. The [Path]
+ * objects are obtained as if by [resolving][Path.resolve] the
+ * name of the directory entry against [this]. The entries returned by
+ * the iterator are filtered by the given [filter][DirectoryStream.Filter].
+ * **By default, the [dirFilter] is set to [AcceptAllFilter].**
+ *
+ * When not using the try-with-resources construct, then directory
+ * stream's [close][DirectoryStream.close] method should be invoked after iteration is
+ * completed so as to free any resources held for the open directory.
+ *
+ * Where the filter terminates due to an uncaught error or runtime
+ * exception then it is propagated to the [hasNext][Iterator.hasNext] or [next][Iterator.next] method. Where an
+ * [IOException] is thrown, it results in the `hasNext` or
+ * `next` method throwing a [DirectoryIteratorException] with the `IOException` as the cause.
+ *
+ * When an implementation supports operations on entries in the
+ * directory that execute in a race-free manner then the returned directory
+ * stream is a [SecureDirectoryStream].
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want to iterate over the files in a directory that are larger than 8k.
+ *
+ * ```Kotlin
+ *      val filter = PathDirectoryFilter { it.size > 8192L }
+ *      // The explicit cast is not needed, just there to signify that 'dir' needs to be a Path instance.
+ *      val dir: Path = ...
+ *      dir.newDirectoryStream(filter).use { ... }
+ * ```
+ *
+ * @return  A new and open [DirectoryStream] instance.
+ *
+ * @throws  NotDirectoryException If the file could not otherwise be opened because it is not
+ *          a directory *(optional specific exception)*.
+ * @throws  IOException If an I/O error occurs.
+ * @throws  SecurityException In the case of the default provider, and a security manager is
+ * installed, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
+ */
+public fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = AcceptAllFilter.FILTER): PathDirectoryStream =
         Files.newDirectoryStream(this, dirFilter)!!
 
-public fun Path.newDirectoryStream(glob: String): PathDirStream = Files.newDirectoryStream(this, glob)!!
+/**
+ * Opens a directory, returning a [DirectoryStream] to iterate over
+ * the entries in the directory. The elements returned by the directory
+ * stream's [iterator][DirectoryStream] are of type
+ * [Path], each one representing an entry in the directory. The [Path]
+ * objects are obtained as if by [resolving][Path.resolve] the
+ * name of the directory entry against [this]. The entries returned by
+ * the iterator are filtered by matching the [String] representation
+ * of their file names against the given [globbing][glob] pattern.
+ *
+ * For example, suppose we want to iterate over the files ending with ".java" in a directory:
+ *
+ * ```Kotlin
+ *      // The explicit cast is not needed, just there to signify that 'dir' needs to be a Path instance.
+ *      val dir: Path = ...
+ *      dir.newDirectoryStream("*.java").use { ... }
+ * ```
+ *
+ * The globbing pattern is specified by the [getPathMatcher][FileSystem.getPathMatcher] function.
+ *
+ * When not using the try-with-resources construct, then directory
+ * stream's [close][DirectoryStream] method should be invoked after iteration is
+ * completed so as to free any resources held for the open directory.
+ *
+ * When an implementation supports operations on entries in the
+ * directory that execute in a race-free manner then the returned directory
+ * stream is a [SecureDirectoryStream].
+ *
+ * @return  A new and open [DirectoryStream] instance.
+ *
+ * @throws  java.util.regex.PatternSyntaxException If the pattern is invalid
+ * @throws  NotDirectoryException If the file could not otherwise be opened because it is not
+ * a directory *(optional specific exception)*.
+ * @throws  IOException If an I/O error occurs
+ * @throws  SecurityException In the case of the default provider, and a security manager is
+ * installed, the [checkRead(String)][SecurityManager.checkRead]
+ * function is invoked to check read access to the directory.
+ */
+public fun Path.newDirectoryStream(glob: String): PathDirectoryStream = Files.newDirectoryStream(this, glob)!!
 
 // File System Changes
 // Creation Functions
 // - Files
+/**
+ * Creates a new and empty file, failing if the file already exists. The
+ * check for the existence of the file and the creation of the new file if
+ * it does not exist are a single operation that is atomic with respect to
+ * all other filesystem activities that might affect the directory.
+ *
+ * The [attributes] parameter is optional
+ * [file-attributes][FileAttribute] to set atomically when creating the file. Each attribute
+ * is identified by its [name][FileAttribute.name]. If more than one
+ * attribute of the same name is included in the array then all but the last
+ * occurrence is ignored.
+ *
+ * @return  The newly created file.
+ *
+ * @throws  UnsupportedOperationException If the array contains an attribute that cannot be set atomically
+ * when creating the file.
+ * @throws  FileAlreadyExistsException If a file of that name already exists
+ * *(optional specific exception)*.
+ * @throws  IOException If an I/O error occurs or the parent directory does not exist.
+ * @throws  SecurityException In the case of the default provider, and a security manager is
+ * installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ * method is invoked to check write access to the new file.
+ */
 public fun Path.createFile(vararg attributes: FileAttribute<*>) = Files.createFile(this, *attributes)!!
 
-// TODO: This creates a temp file using the current path as the directory for it, remember to document this.
-public fun Path.createTempFile(name: String, extension: String, vararg attributes: FileAttribute<*>) =
-        Files.createTempFile(this, name, extension, *attributes)!!
-
-// - Directories
+/**
+ * Creates a new directory. The check for the existence of the file and the
+ * creation of the directory if it does not exist are a single operation
+ * that is atomic with respect to all other filesystem activities that might
+ * affect the directory. The [createDirectories]
+ * method should be used where it is required to create all nonexistent
+ * parent directories first.
+ *
+ * The [attributes] parameter is optional
+ * [file-attributes][FileAttribute] to set atomically when creating the directory. Each
+ * attribute is identified by its [name][FileAttribute.name]. If more
+ * than one attribute of the same name is included in the array then all but
+ * the last occurrence is ignored.
+ *
+ * @return  The newly created directory.
+ *
+ * @throws  UnsupportedOperationException If the array contains an attribute that cannot be set atomically
+ * when creating the directory.
+ * @throws  FileAlreadyExistsException If a directory could not otherwise be created because a file of
+ * that name already exists *(optional specific exception)*.
+ * @throws  IOException If an I/O error occurs or the parent directory does not exist.
+ * @throws  SecurityException In the case of the default provider, and a security manager is
+ * installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ * method is invoked to check write access to the new directory.
+ */
 public fun Path.createDirectory(vararg attributes: FileAttribute<*>) =
         Files.createDirectory(this, *attributes)!!
 
+/**
+ * Creates a directory by creating all nonexistent parent directories first.
+ * Unlike the [createDirectory][Path.createDirectory] method, an exception
+ * is not thrown if the directory could not be created because it already
+ * exists.
+ *
+ * The [attributes] parameter is optional
+ * [file-attributes][FileAttribute] to set atomically when creating the nonexistent
+ * directories. Each file attribute is identified by its
+ * [name][FileAttribute.name]. If more than one attribute of the same name is
+ * included in the array then all but the last occurrence is ignored.
+ *
+ * If this method fails, then it may do so after creating some, but not
+ * all, of the parent directories.
+ *
+ * @return  The newly created directory.
+ *
+ * @throws  UnsupportedOperationException If the array contains an attribute that cannot be set atomically
+ *  when creating the directory.
+ * @throws  FileAlreadyExistsException If [this] exists but is not a directory *(optional specific exception)*
+ * @throws  IOException If an I/O error occurs.
+ * @throws  SecurityException In the case of the default provider, and a security manager is
+ * installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ * method is invoked prior to attempting to create a directory and
+ * its [checkRead(String)][SecurityManager.checkRead] is
+ * invoked for each parent directory that is checked. If
+ * [this] is not an absolute path then its
+ * [toAbsolutePath][Path.toAbsolutePath] may need to be invoked to get its absolute path.
+ * This may invoke the security manager's
+ * [checkPropertyAccess(String)][SecurityManager.checkPropertyAccess]
+ * method to check access to the system property `user.dir`
+ */
 public fun Path.createDirectories(vararg attributes: FileAttribute<*>) =
         Files.createDirectories(this, *attributes)!!
 
-// TODO: This creates a temp dir using the current path as the directory for it, remember to document this.
+/**
+ * Creates a new empty file in [this] directory, using the given
+ * [name] and [extension] strings to generate its name. The resulting
+ * [Path] is associated with the same [FileSystem] as the given
+ * directory.
+ *
+ * The details as to how the name of the file is constructed is
+ * implementation dependent and therefore not specified. Where possible
+ * the [name] and [extension] are used to construct candidate
+ * names in the same manner as the
+ * [createTempFile(String, String, File)][java.io.File.createTempFile] method.
+ *
+ * As with the [File.createTempFile] methods, this method is only
+ * part of a temporary-file facility. Where used as a *work files*,
+ * the resulting file may be opened using the
+ * [DELETE_ON_CLOSE][StandardOpenOption.DELETE_ON_CLOSE] option so that the
+ * file is deleted when the appropriate `close` method is invoked.
+ * Alternatively, a [shutdown-hook][Runtime.addShutdownHook], or the
+ * [deleteOnExit][java.io.File.deleteOnExit] mechanism may be used to delete the
+ * file automatically.
+ *
+ * The [attributes] parameter is optional
+ * [file-attributes][FileAttribute] to set atomically when creating the file. Each attribute
+ * is identified by its [name][FileAttribute.name]. If more than one
+ * attribute of the same name is included in the array then all but the last
+ * occurrence is ignored. When no file attributes are specified, then the
+ * resulting file may have more restrictive access permissions to files
+ * created by the [createTempFile(String, String, File)][java.io.File.createTempFile]
+ * method.
+ *
+ * @return  The path to the newly created file that did not exist before this method was invoked.
+ *
+ * @throws  IllegalArgumentException
+ *          if the prefix or suffix parameters cannot be used to generate
+ *          a candidate file name
+ * @throws  UnsupportedOperationException
+ *          if the array contains an attribute that cannot be set atomically
+ *          when creating the directory
+ * @throws  IOException
+ *          if an I/O error occurs or [this] does not exist
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access to the file.
+ *
+ * @see Files.createTempFile
+ */
+public fun Path.createTempFile(name: String, extension: String, vararg attributes: FileAttribute<*>) =
+        Files.createTempFile(this, name, extension, *attributes)!!
+
+/**
+ * Creates a new directory in the specified directory, using the given
+ * prefix to generate its name.  The resulting [Path] is associated
+ * with the same [FileSystem] as the given directory.
+ *
+ * The details as to how the name of the directory is constructed is
+ * implementation dependent and therefore not specified. Where possible
+ * the `prefix` is used to construct candidate names.
+ *
+ * As with the [createTempFile][Path.createTempFile] methods, this method is only
+ * part of a temporary-file facility. A
+ * [shutdown-hook][Runtime.addShutdownHook], or the [deleteOnExit][java.io.File.deleteOnExit] mechanism may be
+ * used to delete the directory automatically.
+ *
+ * The [attributes] parameter is optional
+ * [file-attributes][FileAttribute] to set atomically when creating the directory. Each
+ * attribute is identified by its [name][FileAttribute.name]. If more
+ * than one attribute of the same name is included in the array then all but
+ * the last occurrence is ignored.
+ *
+ * @return  The path to the newly created directory that did not exist before this method was invoked.
+ *
+ * @throws  IllegalArgumentException
+ *          if the prefix cannot be used to generate a candidate directory name
+ * @throws  UnsupportedOperationException
+ *          if the array contains an attribute that cannot be set atomically
+ *          when creating the directory
+ * @throws  IOException
+ *          if an I/O error occurs or `dir` does not exist
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access when creating the
+ *          directory.
+ *
+ * @see Files.createTempDirectory
+ */
 public fun Path.createTempDirectory(name: String, vararg attributes: FileAttribute<*>) =
-        Files.createTempDirectory(name, *attributes)!!
+        Files.createTempDirectory(this, name, *attributes)!!
 
 // - Links
 public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribute<*>) =
