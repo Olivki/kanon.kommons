@@ -90,21 +90,6 @@ public operator fun String.unaryPlus(): Path = toPath()
  */
 public operator fun File.unaryPlus(): Path = toPath()
 
-// TODO: Move from here
-public val Path.fileStore get() = Files.getFileStore(this)!!
-
-public val Path.isHidden get() = Files.isHidden(this)
-
-public val Path.contentType get() = Files.probeContentType(this)!!
-
-// Functions
-// Misc
-public fun Path.isSameFile(other: Path) = Files.isSameFile(this, other)
-
-public infix fun Path.sameFile(other: Path) = isSameFile(other)
-
-// TODO: to here to appropriate positions.
-
 // Streams
 /**
  * Opens a file, returning an input stream to read from the file. The stream will not be buffered, and is not required
@@ -778,6 +763,30 @@ public fun Path.move(target: Path, vararg options: CopyOption): Path = Files.mov
 public fun Path.rename(name: String, vararg options: CopyOption): Path = move(this.resolveSibling(name), *options)
 
 /**
+ * Returns the [FileStore] representing the file store where a file
+ * is located.
+ *
+ * Once a reference to the `FileStore` is obtained it is
+ * implementation specific if operations on the returned `FileStore`,
+ * or [FileStoreAttributeView] objects obtained from it, continue
+ * to depend on the existence of the file. In particular the behavior is not
+ * defined for the case that the file is deleted or moved to a different
+ * file store.
+ *
+ * @return  The file store where the file is stored.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file, and in
+ *          addition it checks [RuntimePermission]`
+ *          ("getFileStoreAttributes")`
+ */
+public val Path.fileStore get() = Files.getFileStore(this)!!
+
+/**
  * The file name of the path in [String] format.
  *
  * The setter for this property uses the [rename] function with the [StandardCopyOption.COPY_ATTRIBUTES] option selected.
@@ -812,7 +821,11 @@ public var Path.simpleName: String
     }
     set(simpleName) = when {
         this.name.substringBeforeLast('.') == name || isDirectory -> name = simpleName
-        simpleName.contains('.') -> throw IOException("\"Path.simpleName\" does not support the usage of '.' inside of the setter ($simpleName), use \"Path.name\" or \"Path.extension\" for such actions.")
+        simpleName.contains('.') -> throw IOException(
+                "\"Path.simpleName\" does not support the usage of '.' " +
+                        "inside of the setter ($simpleName), use \"Path.name\" " +
+                        "or \"Path.extension\" for such actions."
+        )
         else -> this.name = "$simpleName.${this.extension}"
     }
 
@@ -909,31 +922,428 @@ public var Path.extension: String
  */
 public fun Path.copy(target: Path, vararg options: CopyOption): Path = Files.copy(this, target, *options)!!
 
+/**
+ * Tests if two paths locate the same file.
+ *
+ * If both [Path] objects are [equal(Object)][Path.equals]
+ * then this method returns `true` without checking if the file exists.
+ * If the two [Path] objects are associated with different providers
+ * then this method returns `false`. Otherwise, this method checks if
+ * both [Path] objects locate the same file, and depending on the
+ * implementation, may require to open or access both files.
+ *
+ * If the file system and files remain static, then this method implements
+ * an equivalence relation for non-null [Paths][Path].
+ *
+ * - It is *reflexive*: for [Path] `f`, `isSameFile(f, f)` should return `true`.
+ * - It is *symmetric*: for two [Paths][Path] `f` and `g`, `isSameFile(f, g)` will equal `isSameFile(g, f)`.
+ * - It is *transitive*: for three [Paths][Path] `f`, `g`, and `h`, if `isSameFile(f, g)` returns `true` and
+ * `isSameFile(g, h)` returns `true`, then `isSameFile(f, h)` will also return `true`.
+ *
+ * @return  `true` if, and only if, the two paths locate the same file.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to both files.
+ *
+ * @see java.nio.file.attribute.BasicFileAttributes.fileKey
+ */
+public fun Path.isSameFile(other: Path) = Files.isSameFile(this, other)
+
+/**
+ * Tests if two paths locate the same file.
+ *
+ * If both [Path] objects are [equal(Object)][Path.equals]
+ * then this method returns `true` without checking if the file exists.
+ * If the two [Path] objects are associated with different providers
+ * then this method returns `false`. Otherwise, this method checks if
+ * both [Path] objects locate the same file, and depending on the
+ * implementation, may require to open or access both files.
+ *
+ * If the file system and files remain static, then this method implements
+ * an equivalence relation for non-null [Paths][Path].
+ *
+ * - It is *reflexive*: for [Path] `f`, `f sameFile f` should return `true`.
+ * - It is *symmetric*: for two [Paths][Path] `f` and `g`, `f sameFile g` will equal `g sameFile f`.
+ * - It is *transitive*: for three [Paths][Path] `f`, `g`, and `h`, if `f sameFile g` returns `true` and
+ * `g sameFile h` returns `true`, then `f sameFile h` will return also `true`.
+ *
+ * @return  `true` if, and only if, the two paths locate the same file.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to both files.
+ *
+ * @see java.nio.file.attribute.BasicFileAttributes.fileKey
+ */
+public infix fun Path.sameFile(other: Path) = isSameFile(other)
+
+/**
+ * Tells whether or not a file is considered *hidden*.
+ *
+ * The exact definition of hidden is platform or provider dependent. On UNIX for
+ * example a file is considered to be hidden if its name begins with a
+ * period character ('.'). On Windows a file is considered hidden if it
+ * isn't a directory and the DOS [hidden][DosFileAttributes.isHidden]
+ * attribute is set.
+ *
+ * Depending on the implementation this method may require to access
+ * the file system to determine if the file is considered hidden.
+ *
+ * @return  `true` if the file is considered hidden.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ */
+public val Path.isHidden get() = Files.isHidden(this)
+
+/**
+ * Probes the content type of a file.
+ *
+ * This method uses the installed [java.nio.file.spi.FileTypeDetector] implementations
+ * to probe the given file to determine its content type. Each file type
+ * detector's [probeContentType][java.nio.file.spi.FileTypeDetector.probeContentType] is
+ * invoked, in turn, to probe the file type. If the file is recognized then
+ * the content type is returned. If the file is not recognized by any of the
+ * installed file type detectors then a system-default file type detector is
+ * invoked to guess the content type.
+ *
+ * A given invocation of the Java virtual machine maintains a system-wide
+ * list of file type detectors. Installed file type detectors are loaded
+ * using the service-provider loading facility defined by the [ServiceLoader]
+ * class. Installed file type detectors are loaded using the system class
+ * loader. If the system class loader cannot be found then the extension class
+ * loader is used; If the extension class loader cannot be found then the
+ * bootstrap class loader is used. File type detectors are typically installed
+ * by placing them in a JAR file on the application class path or in the
+ * extension directory, the JAR file contains a provider-configuration file
+ * named [java.nio.file.spi.FileTypeDetector] in the resource directory
+ * `META-INF/services`, and the file lists one or more fully-qualified
+ * names of concrete subclass of [FileTypeDetector][java.nio.file.spi.FileTypeDetector] that have a zero
+ * argument constructor. If the process of locating or instantiating the
+ * installed file type detectors fails then an unspecified error is thrown.
+ * The ordering that installed providers are located is implementation
+ * specific.
+ *
+ * The return value of this method is the string form of the value of a
+ * Multipurpose Internet Mail Extension (MIME) content type as
+ * defined by <a href="http://www.ietf.org/rfc/rfc2045.txt"><i>RFC&nbsp;2045:
+ * Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet
+ * Message Bodies</i></a>. The string is guaranteed to be parsable according
+ * to the grammar in the RFC.
+ *
+ * @return  The content type of the file, or `null` if the content
+ *          type cannot be determined
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          If a security manager is installed and it denies an unspecified
+ *          permission required by a file type detector implementation.
+ */
+public val Path.contentType get() = Files.probeContentType(this)!!
+
 // File Attributes
 /**
- * @see Path.attributes
+ * Returns a file attribute view of a given type.
+ *
+ * A file attribute view provides a read-only or updatable view of a
+ * set of file attributes. This method is intended to be used where the file
+ * attribute view defines type-safe methods to read or update the file
+ * attributes. The `type` parameter is the type of the attribute view
+ * required and the method returns an instance of that type if supported.
+ * The [BasicFileAttributeView] type supports access to the basic
+ * attributes of a file. Invoking this method to select a file attribute
+ * view of that type will always return an instance of that class.
+ *
+ * The `options` array may be used to indicate how symbolic links
+ * are handled by the resulting file attribute view for the case that the
+ * file is a symbolic link. By default, symbolic links are followed. If the
+ * option [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then
+ * symbolic links are not followed. This option is ignored by implementations
+ * that do not support symbolic links.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want read or set a file's ACL, if supported:
+ *
+ * ```Kotlin
+ *     val path: Path = ...
+ *     val view = path.getFileAttributeView(AclFileAttributeView.class);
+ *     if (view != null) {
+ *         val acl = view.getAcl();
+ *         ...
+ *     }
+ * ```
+ *
+ * @param   V
+ *          The `FileAttributeView` type
+ * @param   type
+ *          the [Class] object corresponding to the file attribute view
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  a file attribute view of the specified type, or `null` if
+ *          the attribute view type is not available
  */
 public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
         Files.getFileAttributeView(this, type, *options)!!
 
 /**
- * @see Path.attributes
+ * Reads a file's attributes as a bulk operation.
+ *
+ * The `type` parameter is the type of the attributes required
+ * and this method returns an instance of that type if supported. All
+ * implementations support a basic set of file attributes and so invoking
+ * this method with a  `type` parameter of
+ * `BasicFileAttributes.class` will not throw
+ * [UnsupportedOperationException].
+ *
+ * The `options` array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * It is implementation specific if all file attributes are read as an
+ * atomic operation with respect to other file system operations.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want to read a file's attributes in bulk:
+ *
+ * ```Kotlin
+ *    val path: Path = ...
+ *    val attrs = path.readAttributes(BasicFileAttributes.class);
+ * ```
+ *
+ * Alternatively, suppose we want to read file's POSIX attributes without
+ * following symbolic links:
+ *
+ * ```Kotlin
+ *    val attrs = path.readAttributes(PosixFileAttributes.class, NOFOLLOW_LINKS);
+ * ```
+ *
+ * @param   A
+ *          The `BasicFileAttributes` type
+ * @param   type
+ *          the `Class` of the file attributes required
+ *          to read
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  the file attributes
+ *
+ * @throws  UnsupportedOperationException
+ *          if an attributes of the given type are not supported
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file. If this
+ *          method is invoked to read security sensitive attributes then the
+ *          security manager may be invoke to check for additional permissions.
  */
 public fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg options: LinkOption): A =
         Files.readAttributes(this, type, *options)!!
 
 /**
- * @see Path.attributes
+ * Reads a set of file attributes as a bulk operation.
+ *
+ * The `attributes` parameter identifies the attributes to be read
+ * and takes the form:
+ * <blockquote>
+ * [*view-name***:**]*attribute-list*
+ * </blockquote>
+ * where square brackets [...] delineate an optional component and the
+ * character `':'` stands for itself.
+ *
+ * *view-name* is the [name][FileAttributeView.name] of a
+ * [FileAttributeView] that identifies a set of file attributes. If not
+ * specified then it defaults to `"basic"`, the name of the file
+ * attribute view that identifies the basic set of file attributes common to
+ * many file systems.
+ *
+ * The *attribute-list* component is a comma separated list of
+ * zero or more names of attributes to read. If the list contains the value
+ * `"*"` then all attributes are read. Attributes that are not supported
+ * are ignored and will not be present in the returned map. It is
+ * implementation specific if all attributes are read as an atomic operation
+ * with respect to other file system operations.
+ *
+ *
+ * The `options` array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * @param   attributes
+ *          the attributes to read
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  a map of the attributes returned; The map's keys are the
+ *          attribute names, its values are the attribute values
+ *
+ * @throws  UnsupportedOperationException
+ *          if the attribute view is not available
+ * @throws  IllegalArgumentException
+ *          if no attributes are specified or an unrecognized attributes is
+ *          specified
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file. If this method is invoked
+ *          to read security sensitive attributes then the security manager
+ *          may be invoke to check for additional permissions.
  */
 public fun Path.readAttributes(attributes: String, vararg options: LinkOption): Map<String, Any> =
         Files.readAttributes(this, attributes, *options)
 
 /**
- * @see Path.attributes
+ * Sets the value of a file attribute.
+ *
+ * The `attribute` parameter identifies the attribute to be set
+ * and takes the form:
+ *
+ * > `[view-name:]attribute-name`
+ *
+ * where square brackets `[...]` delineate an optional component and the
+ * character `':'` stands for itself.
+ *
+ * *view-name* is the [name][FileAttributeView.name] of a
+ * [FileAttributeView] that identifies a set of file attributes. If not
+ * specified then it defaults to `"basic"`, the name of the file
+ * attribute view that identifies the basic set of file attributes common to
+ * many file systems. *attribute-name* is the name of the attribute
+ * within the set.
+ *
+ * The [options] array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is set. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want to set the DOS "hidden" attribute:
+ *
+ * ```Kotlin
+ *    val path: Path = ...
+ *    path.setAttribute("dos:hidden", true)
+ * ```
+ *
+ * *or*
+ *
+ * ```Kotlin
+ *    val path: Path = ...
+ *    path.attributes["dos:hidden"] = true
+ * ```
+ *
+ * @param   attribute
+ *          the attribute to set
+ * @param   value
+ *          the attribute value
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  the [Path] parameter
+ *
+ * @throws  UnsupportedOperationException
+ *          if the attribute view is not available
+ * @throws  IllegalArgumentException
+ *          if the attribute name is not specified, or is not recognized, or
+ *          the attribute value is of the correct type but has an
+ *          inappropriate value
+ * @throws  ClassCastException
+ *          if the attribute value is not of the expected type or is a
+ *          collection containing elements that are not of the expected
+ *          type
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkWrite(String)][SecurityManager.checkWrite]
+ *          method denies write access to the file. If this method is invoked
+ *          to set security sensitive attributes then the security manager
+ *          may be invoked to check for additional permissions.
  */
 public fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption): Path =
         Files.setAttribute(this, attribute, value, *options)!!
 
+/**
+ * Reads the value of a file attribute.
+ *
+ * The [attributes] parameter identifies the attribute to be read
+ * and takes the form:
+ *
+ * > `[view-name:]attribute-name`
+ *
+ * where square brackets `[...]` delineate an optional component and the
+ * character `':'` stands for itself.
+ *
+ * *view-name* is the [name][FileAttributeView.name] of a
+ * [FileAttributeView] that identifies a set of file attributes. If not
+ * specified then it defaults to `"basic"`, the name of the file
+ * attribute view that identifies the basic set of file attributes common to
+ * many file systems. *attribute-name* is the name of the attribute.
+ *
+ * The `options` array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we require the user ID of the file owner on a system that
+ * supports a "`unix`" view:
+ *
+ * ```Kotlin
+ *    val path: Path = ...
+ *    val uid = path.getAttribute("unix:uid") as Int
+ * ```
+ *
+ * *or*
+ * ```Kotlin
+ *    val path: Path = ...
+ *    val uid = path.attributes["unix:uid"] as Int
+ * ```
+ *
+ * @param   attribute
+ *          the attribute to read
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  The attribute value.
+ *
+ * @throws  UnsupportedOperationException
+ *          if the attribute view is not available
+ * @throws  IllegalArgumentException
+ *          if the attribute name is not specified or is not recognized
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file. If this method is invoked
+ *          to read security sensitive attributes then the security manager
+ *          may be invoked to check for additional permissions.
+ */
 public fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
         Files.getAttribute(this, attribute, *options)!!
 
