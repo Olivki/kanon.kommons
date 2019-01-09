@@ -17,7 +17,6 @@
 package moe.kanon.kextensions.io
 
 import moe.kanon.kextensions.collections.addAll
-import moe.kanon.kextensions.collections.from
 import moe.kanon.kextensions.collections.removeAll
 import moe.kanon.kextensions.math.plus
 import java.io.*
@@ -57,30 +56,6 @@ public fun pathOf(path: String, vararg more: String) = Paths.get(path, *more)!!
  * Constructs a [Path] instance out of [this] [String].
  */
 public fun String.toPath() = Paths.get(this)!!
-
-/**
- * Constructs a [Path] instance out of an [Array`<String>`][Array].
- *
- * This takes the first entry of the array as the base path, and any subsequent entries will be appended as
- * additional paths.
- *
- * This means that the array **needs** to contain `> 1` entries, otherwise an [ArrayIndexOutOfBoundsException] will
- * be thrown.
- */
-// To be expunged?
-public fun Array<String>.toPath() = Paths.get(this[0], *from(1))!!
-
-/**
- * Constructs a [Path] instance out of a [List`<String>`][List].
- *
- * This takes the first entry of the array as the base path, and any subsequent entries will be appended as
- * additional paths.
- *
- * This means that the list **needs** to contain `> 1` entries, otherwise an [ArrayIndexOutOfBoundsException] will
- * be thrown.
- */
-// To be expunged?
-public fun List<String>.toPath() = Paths.get(this[0], *from(1).toTypedArray())!!
 
 // Operators
 // - Credits for the original implementation of this goes to superbobry.
@@ -144,16 +119,16 @@ typealias PathDirStream = DirectoryStream<Path>
 typealias PathDirFilter = DirectoryStream.Filter<Path>
 
 internal class AcceptAllFilter private constructor() : PathDirFilter {
-
+    
     override fun accept(entry: Path) = true
-
+    
     companion object {
         internal val FILTER = AcceptAllFilter()
     }
 }
 
 public fun Path.newDirectoryStream(dirFilter: PathDirFilter = AcceptAllFilter.FILTER) =
-    Files.newDirectoryStream(this, dirFilter)!!
+        Files.newDirectoryStream(this, dirFilter)!!
 
 public fun Path.newDirectoryStream(glob: String) = Files.newDirectoryStream(this, glob)!!
 
@@ -164,22 +139,22 @@ public fun Path.createFile(vararg attributes: FileAttribute<*>) = Files.createFi
 
 // TODO: This creates a temp file using the current path as the directory for it, remember to document this.
 public fun Path.createTempFile(name: String, extension: String, vararg attributes: FileAttribute<*>) =
-    Files.createTempFile(this, name, extension, *attributes)!!
+        Files.createTempFile(this, name, extension, *attributes)!!
 
 // - Directories
 public fun Path.createDirectory(vararg attributes: FileAttribute<*>) =
-    Files.createDirectory(this, *attributes)!!
+        Files.createDirectory(this, *attributes)!!
 
 public fun Path.createDirectories(vararg attributes: FileAttribute<*>) =
-    Files.createDirectories(this, *attributes)!!
+        Files.createDirectories(this, *attributes)!!
 
 // TODO: This creates a temp dir using the current path as the directory for it, remember to document this.
 public fun Path.createTempDirectory(name: String, vararg attributes: FileAttribute<*>) =
-    Files.createTempDirectory(name, *attributes)!!
+        Files.createTempDirectory(name, *attributes)!!
 
 // - Links
 public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribute<*>) =
-    Files.createSymbolicLink(this, target, *attributes)!!
+        Files.createSymbolicLink(this, target, *attributes)!!
 
 // -- Property?
 public fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)!!
@@ -260,7 +235,7 @@ public var Path.extension: String
     }
     set(extension) {
         if (isDirectory) throw IOException("Can't change the extension of a directory. (${toString()})")
-    
+        
         this.name = "$this.simpleName.$extension"
     }
 
@@ -271,57 +246,64 @@ public fun Path.copy(target: Path, vararg options: CopyOption): Path = Files.cop
  * @see Path.attributes
  */
 public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
-    Files.getFileAttributeView(this, type, *options)!!
+        Files.getFileAttributeView(this, type, *options)!!
 
 /**
  * @see Path.attributes
  */
 public fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg options: LinkOption): A =
-    Files.readAttributes(this, type, *options)!!
+        Files.readAttributes(this, type, *options)!!
 
 /**
  * @see Path.attributes
  */
 public fun Path.readAttributes(attributes: String, vararg options: LinkOption): Map<String, Any> =
-    Files.readAttributes(this, attributes, *options)
+        Files.readAttributes(this, attributes, *options)
 
 /**
  * @see Path.attributes
  */
 public fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption): Path =
-    Files.setAttribute(this, attribute, value, *options)!!
+        Files.setAttribute(this, attribute, value, *options)!!
 
 public fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
-    Files.getAttribute(this, attribute, *options)!!
+        Files.getAttribute(this, attribute, *options)!!
 
 public class AttributeMap internal constructor(
-    private val path: Path,
-    private val original: Map<String, Any>
+        private val path: Path,
+        private val original: Map<String, Any>
 ) : MutableMap<String, Any> by original.toMutableMap() {
-
+    
     override fun put(key: String, value: Any): Any? = path.setAttribute(key, value)
-
+    
+    // TODO: Figure out how to actually remove attributes.
     override fun remove(key: String): Any? {
-        // Not sure how to properly remove an attribute from a file.
-        // TODO: See if I can implement this properly in the future.
         throw NotImplementedError("AttributeMap does not currently support removal operations.")
     }
-
+    
     override fun get(key: String): Any? = path.getAttribute(key)
-
-    override fun putAll(from: Map<out String, Any>) = TODO("putAll is not implemented")
-
-    override fun clear() = TODO("clear is not implemented")
-
-    override fun containsValue(value: Any): Boolean = TODO("containsValue is not implemented")
-
+    
+    override fun putAll(from: Map<out String, Any>) {
+        for (attribute in from) {
+            this += attribute.toPair()
+        }
+    }
+    
+    override fun clear() {
+        throw IOException("Invalid operation; Can't clear an attribute map.")
+    }
+    
+    override fun containsValue(value: Any): Boolean = original.any { it.value == value }
+    
+    // This is a really nasty way of checking whether or not the attribute actually exists, and using exception
+    // catching for this should generally be avoided when possible.
     override fun containsKey(key: String): Boolean = try {
         path.getAttribute(key)
         true
-    } catch (e: IllegalArgumentException) { // God help me, for I have sinned.
+    } catch (e: IllegalArgumentException) {
         false
     }
-
+    
 }
 
 /**
@@ -357,7 +339,7 @@ public val Path.isRegularFile: Boolean get() = this.isRegularFile()
 
 // Last Modified Time
 public fun Path.getLastModifiedTime(vararg options: LinkOption): FileTime =
-    Files.getLastModifiedTime(this, *options)!!
+        Files.getLastModifiedTime(this, *options)!!
 
 public var Path.lastModifiedTime: FileTime
     get() = this.getLastModifiedTime()
@@ -379,49 +361,48 @@ public fun Path.notExists(vararg options: LinkOption): Boolean = Files.notExists
 public val Path.notExists: Boolean get() = this.notExists()
 
 // Accessibility
-public val Path.readable: Boolean get() = Files.isReadable(this)
+public val Path.isReadable: Boolean get() = Files.isReadable(this)
 
-public var Path.writable: Boolean
+public var Path.isWritable: Boolean
     get() = Files.isWritable(this)
     public set(writable) {
         if (writable) {
             val perms = permissions.toMutableSet()
-
+            
             permissions = perms.removeAll(
-                PosixFilePermission.OWNER_WRITE,
-                PosixFilePermission.GROUP_WRITE,
-                PosixFilePermission.OTHERS_WRITE
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.GROUP_WRITE,
+                    PosixFilePermission.OTHERS_WRITE
             )
         } else {
             val perms = permissions.toMutableSet()
-
+            
             permissions = perms.addAll(
-                PosixFilePermission.OWNER_WRITE,
-                PosixFilePermission.GROUP_WRITE,
-                PosixFilePermission.OTHERS_WRITE
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.GROUP_WRITE,
+                    PosixFilePermission.OTHERS_WRITE
             )
         }
     }
 
-public val Path.executable: Boolean get() = Files.isExecutable(this)
+public val Path.isExecutable: Boolean get() = Files.isExecutable(this)
 
 // File Tree Visitors
-typealias PathVisitor = FileVisitor<in Path>
+public typealias PathVisitor = FileVisitor<in Path>
 
-public fun Path.walkFileTree(options: Set<FileVisitOption>, maxDepth: Int, visitor: PathVisitor) =
-    Files.walkFileTree(this, options, maxDepth, visitor)!!
+public fun Path.walkFileTree(options: Set<FileVisitOption>, maxDepth: Int, visitor: PathVisitor): Path =
+        Files.walkFileTree(this, options, maxDepth, visitor)!!
 
-public fun Path.walkFileTree(visitor: PathVisitor) = Files.walkFileTree(this, visitor)!!
+public fun Path.walkFileTree(visitor: PathVisitor): Path = Files.walkFileTree(this, visitor)!!
 
 // Buffered Things
 public fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
-    Files.newBufferedReader(this, charset)!!
+        Files.newBufferedReader(this, charset)!!
 
 public fun Path.newBufferedWriter(
-    charset: Charset = StandardCharsets.UTF_8,
-    vararg options: OpenOption
-): BufferedWriter =
-    Files.newBufferedWriter(this, charset, *options)!!
+        charset: Charset = StandardCharsets.UTF_8,
+        vararg options: OpenOption
+): BufferedWriter = Files.newBufferedWriter(this, charset, *options)!!
 
 // Copy
 public fun Path.copy(outputStream: OutputStream): Long = Files.copy(this, outputStream)
@@ -430,17 +411,16 @@ public fun Path.copy(outputStream: OutputStream): Long = Files.copy(this, output
 public fun Path.readAllBytes(): ByteArray = Files.readAllBytes(this)!!
 
 public fun Path.readAllLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
-    Files.readAllLines(this, charset)!!.toList()
+        Files.readAllLines(this, charset)!!.toList()
 
 // Writing Functions
 public fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path = Files.write(this, bytes, *options)
 
 public fun Path.writeLines(
-    lines: Iterable<CharSequence>,
-    charset: Charset = StandardCharsets.UTF_8,
-    vararg options: OpenOption
-): Path =
-    Files.write(this, lines, charset, *options)!!
+        lines: Iterable<CharSequence>,
+        charset: Charset = StandardCharsets.UTF_8,
+        vararg options: OpenOption
+): Path = Files.write(this, lines, charset, *options)!!
 
 /**
  * Appends the given [line] to [this] File using the given [charset] with the given [options].
@@ -456,9 +436,9 @@ public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_
 }
 
 // Streams
-typealias PathStream = Stream<Path>
+public typealias PathStream = Stream<Path>
 
-typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
+public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
 
 // I really don't like the original name choice for this method. "list" doesn't really entail what it does, and it's
 // quite frankly just wrong, because the return type is NOT a list, but a Stream.
@@ -473,10 +453,10 @@ public val Path.entries: PathStream
 public val Path.children: List<Path> get() = this.entries.toList()
 
 public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): PathStream =
-    Files.walk(this, maxDepth, *options)!!
+        Files.walk(this, maxDepth, *options)!!
 
 public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg options: FileVisitOption) =
-    Files.find(this, maxDepth, matcher, *options)!!
+        Files.find(this, maxDepth, matcher, *options)!!
 
 public val Path.lines: Stream<String> get() = Files.lines(this)
 
@@ -497,14 +477,14 @@ public operator fun Path.contains(path: Path): Boolean = this.children.contains(
  */
 public fun Path.cleanDirectory(deleteDirectories: Boolean = false) {
     this.checkIfDirectory("Can't clean a non-directory. (${toString()})")
-
+    
     for (child in this) {
         if (child.isDirectory) {
             child.cleanDirectory()
-
+            
             if (deleteDirectories) continue
         }
-
+        
         child.delete()
     }
 }
@@ -516,7 +496,8 @@ public fun Path.cleanDirectory(deleteDirectories: Boolean = false) {
  */
 public fun Path.pathToString(charset: Charset = StandardCharsets.UTF_8): String {
     this.checkIfExists()
-    return this.readAllLines(charset).joinToString(System.lineSeparator())
+    return this.readAllLines(charset)
+        .joinToString(System.lineSeparator())
 }
 
 /**
@@ -527,15 +508,15 @@ public fun Path.pathToString(charset: Charset = StandardCharsets.UTF_8): String 
 public val Path.directorySize: BigInteger
     get() {
         this.checkIfDirectory()
-
+        
         var size = BigInteger.ZERO
-
+        
         for (child in this) {
             if (child.isSymbolicLink) continue
-
+            
             size += child.size
         }
-
+        
         return size
     }
 
