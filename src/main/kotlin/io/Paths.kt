@@ -169,71 +169,71 @@ public fun Path.newOutputStream(vararg options: OpenOption): OutputStream = File
 /**
  * Opens or creates a file, returning a seekable byte channel to access the file.
  *
- * The {@code options} parameter determines how the file is opened. The {@link StandardOpenOption#READ READ} and
- * {@link StandardOpenOption#WRITE WRITE} options determine if the file should be opened for reading and/or writing.
- * If neither option (or the {@link StandardOpenOption#APPEND APPEND} option) is present then the file is opened for
+ * The [options] parameter determines how the file is opened. The [READ][StandardOpenOption.READ] and
+ * [WRITE][StandardOpenOption.WRITE] options determine if the file should be opened for reading and/or writing.
+ * If neither option (or the [APPEND][StandardOpenOption.APPEND] option) is present then the file is opened for
  * reading. By default reading or writing commence at the beginning of the file.
  *
  * An implementation may also support additional implementation specific options.
  *
- * The {@code attrs} parameter is optional {@link FileAttribute file-attributes} to set atomically when a new file is
- * created.
+ * The [attributes] parameter is optional [file-attributes][FileAttribute] to set atomically when a new file is created.
  *
- * In the case of the default provider, the returned seekable byte channel is a {@link java.nio.channels.FileChannel}.
+ * In the case of the default provider, the returned seekable byte channel is a [FileChannel][java.nio.channels.FileChannel].
  *
- * <p> <b>Usage Examples:</b>
- * <pre>
- *     Path path = ...
+ * **Usage Examples:**
+ * ```Kotlin
+ *  val path = ...
  *
- *     // open file for reading
- *     ReadableByteChannel rbc = Files.newByteChannel(path, EnumSet.of(READ)));
+ *  // Open file for reading.
+ *  val rbc = path.newByteChannel(EnumSet.of(READ)));
  *
- *     // open file for writing to the end of an existing file, creating
- *     // the file if it doesn't already exist
- *     WritableByteChannel wbc = Files.newByteChannel(path, EnumSet.of(CREATE,APPEND));
+ *  // Open file for writing to the end of an existing file, creating the file if it doesn't already exist.
+ *  val wbc = path.newByteChannel(EnumSet.of(CREATE, APPEND));
  *
- *     // create file with initial permissions, opening it for both reading and writing
- *     {@code FileAttribute<Set<PosixFilePermission>> perms = ...}
- *     SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(CREATE_NEW,READ,WRITE), perms);
- * </pre>
+ *  // Create file with initial permissions, opening it for both reading and writing.
+ *  val attributes = arrayOf(...)
+ *  val sbc = path.newByteChannel(
+ *          setOf(StandardOpenOption.CREATE_NEW, StandardOpenOption.READ, StandardOpenOption.WRITE),
+ *          *attributes
+ *  )
+ * ```
  *
- * @param   path
- *          the path to the file to open or create
- * @param   options
- *          options specifying how the file is opened
- * @param   attrs
- *          an optional list of file attributes to set atomically when
- *          creating the file
+ * @throws  IllegalArgumentException If the [options] set contains an invalid combination of options.
+ * @throws  UnsupportedOperationException If an unsupported open option is specified or the array contains attributes
+ * that cannot be set atomically when creating the file.
+ * @throws  FileAlreadyExistsException If a file of that name already exists and the
+ * [CREATE_NEW][StandardOpenOption.CREATE_NEW] option is specified *(optional specific exception)*.
+ * @throws  IOException If an I/O error occurs.
+ * @throws  SecurityException In the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the path if the file
+ * is opened for reading. The [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write
+ * access to the path if the file is opened for writing. The [checkDelete(String)][SecurityManager.checkDelete]
+ * method is invoked to check delete access if the file is opened with the `DELETE_ON_CLOSE` option.
  *
- * @return  a new seekable byte channel
- *
- * @throws  IllegalArgumentException
- *          if the set contains an invalid combination of options
- * @throws  UnsupportedOperationException
- *          if an unsupported open option is specified or the array contains
- *          attributes that cannot be set atomically when creating the file
- * @throws  FileAlreadyExistsException
- *          if a file of that name already exists and the {@link
- *          StandardOpenOption#CREATE_NEW CREATE_NEW} option is specified
- *          <i>(optional specific exception)</i>
- * @throws  IOException
- *          if an I/O error occurs
- * @throws  SecurityException
- *          In the case of the default provider, and a security manager is
- *          installed, the {@link SecurityManager#checkRead(String) checkRead}
- *          method is invoked to check read access to the path if the file is
- *          opened for reading. The {@link SecurityManager#checkWrite(String)
- *          checkWrite} method is invoked to check write access to the path
- *          if the file is opened for writing. The {@link
- *          SecurityManager#checkDelete(String) checkDelete} method is
- *          invoked to check delete access if the file is opened with the
- *          {@code DELETE_ON_CLOSE} option.
- *
- * @see java.nio.channels.FileChannel#open(Path,Set,FileAttribute[])
+ * @see java.nio.channels.FileChannel.open
  */
 public fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribute<*>): ByteChannel =
         Files.newByteChannel(this, options.toMutableSet(), *attributes)!!
 
+/**
+ * Opens or creates a file, returning a seekable byte channel to access the file.
+ *
+ * This method opens or creates a file in exactly the manner specified
+ * by the [newByteChannel(options, vararg attributes)][Path.newByteChannel] method.
+ *
+ * @throws  IllegalArgumentException If the set contains an invalid combination of options
+ * @throws  UnsupportedOperationException If an unsupported open option is specified
+ * @throws  FileAlreadyExistsException If a file of that name already exists and the
+ * [CREATE_NEW][StandardOpenOption.CREATE_NEW] option is specified *(optional specific exception)*.
+ * @throws  IOException If an I/O error occurs.
+ * @throws  SecurityException In the case of the default provider, and a security manager is installed,
+ * the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the path if the file is
+ * opened for reading. The [checkWrite(String)][SecurityManager.checkWrite]  method is invoked to check write
+ * access to the path if the file is opened for writing. The [checkDelete(String)][SecurityManager.checkDelete]
+ * method is invoked to check delete access if the file is opened with the `DELETE_ON_CLOSE` option.
+ *
+ * @see java.nio.channels.FileChannel.open
+ */
 public fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)!!
 
 public typealias PathDirStream = DirectoryStream<Path>
