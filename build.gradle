@@ -9,21 +9,27 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.11'
+    id "org.jetbrains.kotlin.jvm" version "1.3.11"
+    id "com.jfrog.bintray" version "1.8.4"
+    id "maven-publish"
 }
 
-apply plugin: 'java'
-apply plugin: 'kotlin'
-apply plugin: 'org.jetbrains.dokka'
+apply plugin: "java"
 
-group 'moe.kanon.kextensions'
-version '1.0.0'
+apply plugin: "kotlin"
+
+apply plugin: "org.jetbrains.dokka"
+
+
+group "moe.kanon.kextensions"
+
+version "1.0.0"
 
 System.setProperty("user.dir", project.projectDir.toString())
 
 ext {
-    kotlinVersion = '1.3.11'
-    javaTarget = '1.8'
+    kotlinVersion = "1.3.11"
+    javaTarget = "1.8"
 }
 
 repositories {
@@ -32,7 +38,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.1.11'
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.1.11"
 }
 
 test {
@@ -48,6 +54,101 @@ compileTestKotlin {
 }
 
 dokka {
-    outputFormat = 'html'
+    outputFormat = "html"
     outputDirectory = "$buildDir/javadoc"
+}
+
+
+// Publishing Stuff
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['mavenPublication']
+
+    pkg {
+        repo = "kanon"
+        name = 'kanon.kextensions'
+        licenses = ['Apache-2.0']
+        websiteUrl = "https://gitlab.com/Olivki/kanon-kextensions"
+        vcsUrl = 'https://gitlab.com/Olivki/kanon-kextensions.git'
+        publicDownloadNumbers = true
+
+        version {
+            name = '0.1.0-beta'
+            desc = 'Early beta release of 0.1.0, most likely very unstable.'
+            released = new Date()
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = javadoc.destinationDir
+    inputs.dir 'src/main/kotlin'
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+
+    developers {
+        developer {
+            id "olivki"
+            name "Oliver Berg"
+            email "oliver@berg.moe"
+        }
+    }
+
+    scm {
+        url "https://gitlab.com/Olivki/kanon-kextensions"
+    }
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+
+            artifact sourcesJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+
+            groupId 'moe.kanon.kextensions'
+            artifactId 'kanon.kextensions'
+            version '0.1.0-beta'
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Extension methods and utilities for Kotlin.')
+                root.appendNode('name', 'kanon.kextensions')
+                root.appendNode('url', 'https://gitlab.com/Olivki/kanon-kextensions')
+                root.children().last() + pomConfig
+            }
+        }
+    }
 }
