@@ -21,6 +21,7 @@ import moe.kanon.kextensions.collections.removeAll
 import moe.kanon.kextensions.math.plus
 import java.io.*
 import java.math.BigInteger
+import java.net.URI
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
@@ -53,9 +54,14 @@ public fun pathOf(path: String) = Paths.get(path)!!
 public fun pathOf(path: String, vararg more: String) = Paths.get(path, *more)!!
 
 /**
- * Constructs a [Path] instance out of [this] [String].
+ * Creates a [Path] from [this] [String].
  */
 public fun String.toPath() = Paths.get(this)!!
+
+/**
+ * Creates a [Path] from [this] [URI].
+ */
+public fun URI.toPath() = Paths.get(this)!!
 
 // Operators
 // - Credits for the original implementation of this goes to superbobry.
@@ -72,6 +78,7 @@ public operator fun String.div(other: String): Path = div(+other)
 public operator fun String.div(other: Path): Path = +this / other
 
 // Plus. (+)
+// Might change these back to '!', not sure.
 /**
  * Converts [this] [String] into a [Path].
  */
@@ -82,17 +89,8 @@ public operator fun String.unaryPlus(): Path = toPath()
  */
 public operator fun File.unaryPlus(): Path = toPath()
 
-// Wrappers.
-
 // TODO: Port Java documentation over to these wrappers.
 
-// Properties
-
-public var Path.permissions
-    get() = Files.getPosixFilePermissions(this)!!.toSet()
-    public set(perms) {
-        Files.setPosixFilePermissions(this, perms)!!
-    }
 
 public val Path.fileStore get() = Files.getFileStore(this)!!
 
@@ -314,6 +312,20 @@ public class AttributeMap internal constructor(
  * @see readAttributes
  */
 public val Path.attributes: AttributeMap get() = AttributeMap(this, readAttributes("*"))
+
+// Permissions
+public fun Path.getPosixFilePermissions(vararg options: LinkOption): Set<PosixFilePermission> =
+        Files.getPosixFilePermissions(this, *options)!!.toSet()
+
+public fun Path.setPosixFilePermissions(vararg permissions: PosixFilePermission) {
+    this.permissions = permissions.toSet()
+}
+
+public var Path.permissions: Set<PosixFilePermission>
+    get() = this.getPosixFilePermissions()
+    public set(perms) {
+        Files.setPosixFilePermissions(this, perms)!!
+    }
 
 // Owner
 public fun Path.getOwner(vararg options: LinkOption): UserPrincipal = Files.getOwner(this, *options)!!
