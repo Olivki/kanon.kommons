@@ -22,6 +22,7 @@ import moe.kanon.kextensions.math.plus
 import java.io.*
 import java.math.BigInteger
 import java.net.URI
+import java.nio.channels.ByteChannel
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
@@ -89,9 +90,7 @@ public operator fun String.unaryPlus(): Path = toPath()
  */
 public operator fun File.unaryPlus(): Path = toPath()
 
-// TODO: Port Java documentation over to these wrappers.
-
-
+// TODO: Move from here
 public val Path.fileStore get() = Files.getFileStore(this)!!
 
 public val Path.isHidden get() = Files.isHidden(this)
@@ -104,18 +103,76 @@ public fun Path.isSameFile(other: Path) = Files.isSameFile(this, other)
 
 public infix fun Path.sameFile(other: Path) = isSameFile(other)
 
+// TODO: to here to appropriate positions.
+
 // Streams
-public fun Path.newInputStream(vararg options: OpenOption) = Files.newInputStream(this, *options)!!
+/**
+ * Opens a file, returning an input stream to read from the file. The stream will not be buffered, and is not required
+ * to support the [mark][InputStream.mark] or [reset][InputStream.reset] methods. The stream will be safe for access by multiple
+ * concurrent threads. Reading commences at the beginning of the file. Whether the returned stream is
+ * *asynchronously closeable* and/or *interruptible* is highly file system provider specific and therefore
+ * not specified.
+ *
+ * The [options] parameter determines how the file is opened.
+ * If no options are present then it is equivalent to opening the file with the [READ][StandardOpenOption.READ] option.
+ * In addition to the `READ` option, an implementation may also support additional implementation specific options.
+ *
+ * @throws  IllegalArgumentException If an invalid combination of options is specified.
+ * @throws  UnsupportedOperationException If an unsupported option is specified.
+ * @throws  IOException If an I/O error occurs.
+ * @throws  SecurityException In the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
+ */
+public fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInputStream(this, *options)!!
 
-public fun Path.newOutputStream(vararg options: OpenOption) = Files.newOutputStream(this, *options)!!
+/**
+ * Opens or creates a file, returning an output stream that may be used to write bytes to the file.
+ * The resulting stream will not be buffered. The stream will be safe for access by multiple concurrent threads.
+ * Whether the returned stream is *asynchronously closeable* and/or *interruptible* is highly file system provider
+ * specific and therefore not specified.
+ *
+ * This method opens or creates a file in exactly the manner specified by the [newByteChannel] method with the
+ * exception that the [READ][StandardOpenOption.READ] option may not be present in the array of options.
+ * If no options are present then this method works as if the [CREATE][StandardOpenOption.CREATE],
+ * [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING], and [WRITE][StandardOpenOption.WRITE] options are present.
+ *
+ * In other words, it opens the file for writing, creating the file if it doesn't exist, or initially truncating an
+ * existing [regular-file][isRegularFile] to a size of `0` if it exists.
+ *
+ * **Usage Examples:**
+ * ```Kotlin
+ *      val path = ...
+ *
+ *      // Truncate and overwrite an existing file, or create the file if it doesn't initially exist.
+ *      var out = path.newOutputStream()
+ *
+ *      // Append to an existing file, fail if the file does not exist.
+ *      out = path.newOutputStream(StandardOpenOption.APPEND)
+ *
+ *      // Append to an existing file, create file if it doesn't initially exist.
+ *     out = path.newOutputStream(StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+ *
+ *     // always create new file, failing if it already exists.
+ *     out = path.newOutputStream(StandardOpenOption.CREATE_NEW);
+ * ```
+ *
+ * @throws  IllegalArgumentException If an invalid combination of options is specified.
+ * @throws  UnsupportedOperationException If an unsupported option is specified.
+ * @throws  IOException If an I/O error occurs.
+ * @throws  SecurityException In the case of the default provider, and a security manager is installed, the
+ * {@link SecurityManager#checkWrite(String) checkWrite} method is invoked to check write access to the file. The
+ * {@link SecurityManager#checkDelete(String) checkDelete} method is invoked to check delete access if the file is
+ * opened with the {@code DELETE_ON_CLOSE} option.
+ */
+public fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOutputStream(this, *options)!!
 
-public fun Path.newByteChannel(vararg options: OpenOption) = Files.newByteChannel(this, *options)!!
+public fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)!!
 
-// Because we can't access the original one, so we just gotta port it over here.
-typealias PathDirStream = DirectoryStream<Path>
+public typealias PathDirStream = DirectoryStream<Path>
 
-typealias PathDirFilter = DirectoryStream.Filter<Path>
+public typealias PathDirFilter = DirectoryStream.Filter<Path>
 
+// This is a port of the one that exists in Files.java.
 internal class AcceptAllFilter private constructor() : PathDirFilter {
     
     override fun accept(entry: Path) = true
@@ -125,10 +182,10 @@ internal class AcceptAllFilter private constructor() : PathDirFilter {
     }
 }
 
-public fun Path.newDirectoryStream(dirFilter: PathDirFilter = AcceptAllFilter.FILTER) =
+public fun Path.newDirectoryStream(dirFilter: PathDirFilter = AcceptAllFilter.FILTER): PathDirStream =
         Files.newDirectoryStream(this, dirFilter)!!
 
-public fun Path.newDirectoryStream(glob: String) = Files.newDirectoryStream(this, glob)!!
+public fun Path.newDirectoryStream(glob: String): PathDirStream = Files.newDirectoryStream(this, glob)!!
 
 // File System Changes
 // Creation Functions
