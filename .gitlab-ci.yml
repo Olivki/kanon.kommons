@@ -53,6 +53,8 @@ build:
     expire_in: 1 day
   after_script:
     - echo "Build is finished.."
+    - cd ./build/libs/
+    - ls
   only:
     - tags
     #- meme
