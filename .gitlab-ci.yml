@@ -49,20 +49,20 @@ build:
       - .gradle
   artifacts:
     paths:
-      - build/libs/*.jar
+      - ./build/libs/*.jar
     expire_in: 1 day
   after_script:
     - echo "Build is finished.."
   only:
-    #- tags
-    - meme
+    - tags
+    #- meme
 
 tag_release:
   stage: tag
   image: python:3
   script:
     - pip3 install gitlab_release
-    - python3 -m gitlab_release "$PRIVATE_TOKEN" build/libs/*.jar
+    - python3 -m gitlab_release "$PRIVATE_TOKEN" ./build/libs/*.jar
   only:
     - tags
 
