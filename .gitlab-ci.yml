@@ -24,10 +24,10 @@ test:
   stage: test
   before_script:
     - echo "Starting test.."
-  script: gradle check
+  script: gradle --build-cache check
   cache:
     key: "$CI_COMMIT_REF_NAME"
-    policy: pull
+    policy: push
     paths:
       - build
       - .gradle
@@ -41,10 +41,12 @@ build:
   stage: build
   before_script:
     - echo "Starting build.."
-  script: gradle --build-cache bintrayPublish
+  script:
+    - gradle assemble
+    - gradle bintrayPublish
   cache:
     key: "$CI_COMMIT_REF_NAME"
-    policy: push
+    policy: pull
     paths:
       - build
       - .gradle
