@@ -59,7 +59,7 @@ release:
     - yarn install --frozen-lockfile
   image: node:8
   only:
-    - master@<GROUP>/<PROJECT>
+    - master
   script:
     - $(yarn bin)/semantic-release-gitlab
 
