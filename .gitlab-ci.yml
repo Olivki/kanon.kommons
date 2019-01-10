@@ -62,7 +62,7 @@ tag_release:
   image: python:3
   script:
     - pip3 install gitlab_release
-    - python3 -m gitlab_release "$PRIVATE_TOKEN" *.jar
+    - python3 -m gitlab_release private_token "$PRIVATE_TOKEN" files *.jar
   only:
     - tags
 
