@@ -61,8 +61,8 @@ tag_release:
   stage: tag
   image: python:3
   script:
-    - pip3 install gitlab_release
-    - python3 -m gitlab_release $PRIVATE_TOKEN files *.jar
+    - pip3 install gitlab-release
+    - python3 -m gitlab-release "$PRIVATE_TOKEN" *.jar
   only:
     - tags
 
