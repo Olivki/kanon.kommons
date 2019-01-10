@@ -13,7 +13,6 @@ variables:
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
-
 stages:
   - test
   - build
@@ -24,10 +23,7 @@ test:
   stage: test
   before_script:
     - echo "Starting test.."
-  script:
-    - echo "Starting test.."
-    - gradle check
-    - echo "Test is finished.."
+  script: gradle check
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull
@@ -51,7 +47,7 @@ build:
   artifacts:
     paths:
       - build/libs/*.jar
-    expire_in: 1 week
+    expire_in: 1 day
   only:
     - master
   after_script:
