@@ -3,6 +3,7 @@
 # https://github.com/gradle/gradle
 image: gradle:4.10
 
+
 # Disable the Gradle daemon for Continuous Integration servers as correctness
 # is usually a priority over speed in CI environments. Using a fresh
 # runtime for each build is more reliable since the runtime is completely
@@ -16,8 +17,7 @@ before_script:
 stages:
   - test
   - build
-  - release
-  - publish
+  - tag
 
 test:
   stage: test
@@ -32,6 +32,9 @@ test:
       - .gradle
   after_script:
     - echo "Test is finished.."
+  only:
+    - mastermeme
+    #- tags
 
 build:
   stage: build
@@ -48,13 +51,15 @@ build:
     paths:
       - build/libs/*.jar
     expire_in: 1 day
-  only:
-    - master
   after_script:
     - echo "Build is finished.."
+  only:
+    #- tags
+    - meme
 
-publish:
-  stage: publish
+tag_release:
+  stage: tag
+  image: python:3
   script:
     - pip3 install gitlab_release
     - python3 -m gitlab_release $PRIVATE_TOKEN *.jar
