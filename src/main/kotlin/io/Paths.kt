@@ -2077,9 +2077,9 @@ public fun Path.newBufferedWriter(
  *          `REPLACE_EXISTING` option is not specified <i>(optional
  *          specific exception)</i>
  * @throws  DirectoryNotEmptyException
- *          the `REPLACE_EXISTING` option is specified but the file
+ *          The `REPLACE_EXISTING` option is specified but the file
  *          cannot be replaced because it is a non-empty directory
- *          *(optional specific exception)*     *
+ *          *(optional specific exception)*
  * @throws  UnsupportedOperationException
  *          if `options` contains a copy option that is not supported
  * @throws  SecurityException
@@ -2093,17 +2093,182 @@ public fun Path.newBufferedWriter(
 public fun Path.transform(inputStream: InputStream, vararg options: CopyOption): Long =
     Files.copy(inputStream, this, *options)
 
+/**
+ * Copies all bytes from a file to an output stream.
+ *
+ * If an I/O error occurs reading from the file or writing to the output
+ * stream, then it may do so after some bytes have been read or written.
+ * Consequently the output stream may be in an inconsistent state. It is
+ * strongly recommended that the output stream be promptly closed if an I/O
+ * error occurs.
+ *
+ * This method may block indefinitely writing to the output stream (or
+ * reading from the file). The behavior for the case that the output stream
+ * is *asynchronously closed* or the thread interrupted during the copy
+ * is highly output stream and file system provider specific and therefore
+ * not specified.
+ *
+ * Note that if the given output stream is [java.io.Flushable]
+ * then its [flush][java.io.Flushable.flush] method may need to invoked
+ * after this method completes so as to flush any buffered output.
+ *
+ * @param   outputStream
+ *          the output stream to write to
+ *
+ * @return  the number of bytes read or written
+ *
+ * @throws  IOException
+ *          if an I/O error occurs when reading or writing
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ */
 public fun Path.copy(outputStream: OutputStream): Long = Files.copy(this, outputStream)
 
 // Reading Functions
+/**
+ * Reads all the bytes from a file.
+ *
+ * The method ensures that the file is
+ * closed when all bytes have been read or an I/O error, or other runtime
+ * exception, is thrown.
+ *
+ * Note that this method is intended for simple cases where it is
+ * convenient to read all bytes into a byte array. It is not intended for
+ * reading in large files.
+ *
+ * @return  a byte array containing the bytes read from the file
+ *
+ * @throws  IOException
+ *          if an I/O error occurs reading from the stream
+ * @throws  OutOfMemoryError
+ *          if an array of the required size cannot be allocated, for
+ *          example the file is larger that `2GB`
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ */
 public fun Path.readAllBytes(): ByteArray = Files.readAllBytes(this)!!
 
+/**
+ * Read all lines from a file. This method ensures that the file is
+ * closed when all bytes have been read or an I/O error, or other runtime
+ * exception, is thrown. Bytes from the file are decoded into characters
+ * using the specified charset.
+ *
+ * This method recognizes the following as line terminators:
+ * <ul>
+ *   <li> <code>&#92;u000D</code> followed by <code>&#92;u000A</code>,
+ *     CARRIAGE RETURN followed by LINE FEED </li>
+ *   <li> <code>&#92;u000A</code>, LINE FEED </li>
+ *   <li> <code>&#92;u000D</code>, CARRIAGE RETURN </li>
+ * </ul>
+ * Additional Unicode line terminators may be recognized in future
+ * releases.
+ *
+ * Note that this method is intended for simple cases where it is
+ * convenient to read all lines in a single operation. It is not intended
+ * for reading in large files.
+ *
+ * @param   charset The charset to use for decoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ *
+ * @return  the lines from the file as a `List`; whether the
+ * `         List` is modifiable or not is implementation dependent and
+ *          therefore not specified
+ *
+ * @throws  IOException
+ *          if an I/O error occurs reading from the file or a malformed or
+ *          unmappable byte sequence is read
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ *
+ * @see newBufferedReader
+ */
 public fun Path.readAllLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
     Files.readAllLines(this, charset)!!.toList()
 
 // Writing Functions
+/**
+ * Writes bytes to a file.
+ *
+ * The [options] parameter specifies how the
+ * the file is created or opened. If no options are present then this method
+ * works as if the [CREATE][StandardOpenOption.CREATE],
+ * [WRITE][StandardOpenOption.WRITE], and [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING] options are present.
+ * In other words, it opens the file for writing, creating the file if it doesn't exist, or
+ * initially truncating an existing [regular-file][.isRegularFile] to
+ * a size of `0`. All bytes in the byte array are written to the file.
+ * The method ensures that the file is closed when all bytes have been
+ * written (or an I/O error or other runtime exception is thrown). If an I/O
+ * error occurs then it may do so after the file has created or truncated,
+ * or after some bytes have been written to the file.
+ *
+ * **Usage example**:
+ *
+ * By default the method creates a new file or
+ * overwrites an existing file. Suppose you instead want to append bytes
+ * to an existing file:
+ *
+ * ```Kotlin
+ *     Path path = ...
+ *     byte[] bytes = ...
+ *     Files.write(path, bytes, StandardOpenOption.APPEND);
+ * ```
+ *
+ * @param   bytes
+ *          the byte array with the bytes to write
+ * @param   options
+ *          options specifying how the file is opened
+ *
+ * @return  the path
+ *
+ * @throws  IOException
+ *          if an I/O error occurs writing to or creating the file
+ * @throws  UnsupportedOperationException
+ *          if an unsupported option is specified
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access to the file.
+ */
 public fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path = Files.write(this, bytes, *options)
 
+/**
+ * Write lines of text to a file. Each line is a char sequence and is
+ * written to the file in sequence with each line terminated by the
+ * platform's line separator, as defined by the system property
+ * `line.separator`. Characters are encoded into bytes using the specified
+ * charset.
+ *
+ * The `options` parameter specifies how the the file is created
+ * or opened. If no options are present then this method works as if the
+ * [CREATE][StandardOpenOption.CREATE],
+ * [StandardOpenOption#WRITE WRITE][* StandardOpenOption#TRUNCATE_EXISTING TRUNCATE_EXISTING}, and {@link] options are present. In other words, it
+ * opens the file for writing, creating the file if it doesn't exist, or
+ * initially truncating an existing [regular-file][.isRegularFile] to
+ * a size of `0`. The method ensures that the file is closed when all
+ * lines have been written (or an I/O error or other runtime exception is
+ * thrown). If an I/O error occurs then it may do so after the file has
+ * created or truncated, or after some bytes have been written to the file.
+ *
+ * @param lines An object to iterate over the char sequences.
+ * @param charset The charset to use for decoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ * @param options Options specifying how the file is opened.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs writing to or creating the file, or the
+ *          text cannot be encoded using the specified charset
+ * @throws  UnsupportedOperationException
+ *          if an unsupported option is specified
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access to the file.
+ */
 public fun Path.writeLines(
     lines: Iterable<CharSequence>,
     charset: Charset = StandardCharsets.UTF_8,
@@ -2111,7 +2276,7 @@ public fun Path.writeLines(
 ): Path = Files.write(this, lines, charset, *options)!!
 
 /**
- * Appends the given [line] to [this] File using the given [charset] with the given [options].
+ * Appends a [String] to this [Path].
  */
 public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_8, vararg options: OpenOption): Path {
     val encoder = charset.newEncoder()
@@ -2128,10 +2293,50 @@ public typealias PathStream = Stream<Path>
 
 public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
 
-// I really don't like the original name choice for this method. "list" doesn't really entail what it does, and it's
-// quite frankly just wrong, because the return type is NOT a list, but a Stream.
-//  While the action that the method *does* is "listing all entries", that's a really vague reason to name a method such
-// a bad name. And thus, I changed the name.
+/**
+ * Return a lazily populated [Stream], the elements of which are the entries in the directory.
+ * The listing is not recursive.
+ *
+ * The elements of the stream are [Path] objects that are
+ * obtained as if by [resolving(Path)][Path.resolve] the name of the
+ * directory entry against `dir`. Some file systems maintain special
+ * links to the directory itself and the directory's parent directory.
+ * Entries representing these links are not included.
+ *
+ * The stream is *weakly consistent*. It is thread safe but does
+ * not freeze the directory while iterating, so it may (or may not)
+ * reflect updates to the directory that occur after returning from this
+ * method.
+ *
+ * The returned stream encapsulates a [DirectoryStream].
+ * If timely disposal of file system resources is required, the
+ * `try`-with-resources construct should be used to ensure that the
+ * stream's [close][Stream.close] method is invoked after the stream
+ * operations are completed.
+ *
+ * Operating on a closed stream behaves as if the end of stream
+ * has been reached. Due to read-ahead, one or more elements may be
+ * returned after the stream has been closed.
+ *
+ * If an [IOException] is thrown when accessing the directory
+ * after this method has returned, it is wrapped in an
+ * [UncheckedIOException] which will be thrown from the method that caused
+ * the access to take place.
+ *
+ * @return  The [Stream] describing the contents of the directory.
+ *
+ * @throws  NotDirectoryException
+ *          if the file could not otherwise be opened because it is not
+ *          a directory *(optional specific exception)*
+ * @throws  IOException
+ *          if an I/O error occurs when opening the directory
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the directory.
+ *
+ * @see newDirectoryStream
+ */
 public val Path.entries: PathStream
     get() {
         this.checkIfDirectory()
@@ -2140,14 +2345,202 @@ public val Path.entries: PathStream
 
 public val Path.children: List<Path> get() = this.entries.toList()
 
+/**
+ * Return a `Stream` that is lazily populated with
+ * [Path] by walking the file tree rooted at a given starting file.  The
+ * file tree is traversed *depth-first*, the elements in the stream
+ * are [Path] objects that are obtained as if by
+ * [resolving(Path)][Path.resolve] the relative path against `start`.
+ *
+ * The `stream` walks the file tree as elements are consumed.
+ * The `Stream` returned is guaranteed to have at least one
+ * element, the starting file itself. For each file visited, the stream
+ * attempts to read its [BasicFileAttributes]. If the file is a
+ * directory and can be opened successfully, entries in the directory, and
+ * their *descendants* will follow the directory in the stream as
+ * they are encountered. When all entries have been visited, then the
+ * directory is closed. The file tree walk then continues at the next
+ * *sibling* of the directory.
+ *
+ * The stream is *weakly consistent*. It does not freeze the
+ * file tree while iterating, so it may (or may not) reflect updates to
+ * the file tree that occur after returned from this method.
+ *
+ * By default, symbolic links are not automatically followed by this
+ * method. If the `options` parameter contains the
+ * [FOLLOW_LINKS][FileVisitOption.FOLLOW_LINKS] option then symbolic links are
+ * followed. When following links, and the attributes of the target cannot
+ * be read, then this method attempts to get the `BasicFileAttributes`
+ * of the link.
+ *
+ * If the `options` parameter contains the
+ * [FOLLOW_LINKS][FileVisitOption.FOLLOW_LINKS] option then the stream keeps
+ * track of directories visited so that cycles can be detected. A cycle
+ * arises when there is an entry in a directory that is an ancestor of the
+ * directory. Cycle detection is done by recording the
+ * [file-key][java.nio.file.attribute.BasicFileAttributes.fileKey] of directories,
+ * or if file keys are not available, by invoking the
+ * [isSameFile][#isSameFile] method to test if a directory is the same file as an
+ * ancestor. When a cycle is detected it is treated as an I/O error with
+ * an instance of [FileSystemLoopException].
+ *
+ * The `maxDepth` parameter is the maximum number of levels of
+ * directories to visit. A value of `0` means that only the starting
+ * file is visited, unless denied by the security manager. A value of
+ * [MAX_VALUE][Integer.MAX_VALUE] may be used to indicate that all
+ * levels should be visited.
+ *
+ * When a security manager is installed and it denies access to a file
+ * (or directory), then it is ignored and not included in the stream.
+ *
+ * The returned stream encapsulates one or more [DirectoryStream]s.
+ * If timely disposal of file system resources is required, the
+ * `try`-with-resources construct should be used to ensure that the
+ * stream's [close][Stream.close] method is invoked after the stream
+ * operations are completed.  Operating on a closed stream will result in an
+ * [java.lang.IllegalStateException].
+ *
+ * If an [IOException] is thrown when accessing the directory
+ * after this method has returned, it is wrapped in an
+ * [UncheckedIOException] which will be thrown from the method that caused
+ * the access to take place.
+ *
+ * @param maxDepth The maximum number of directory levels to visit. **(This is set to [Int.MAX_VALUE] by default.)**
+ * @param options Options to configure the traversal.
+ *
+ * @throws IllegalArgumentException if the [maxDepth] parameter is negative.
+ * @throws SecurityException
+ *          If the security manager denies access to the starting file.
+ *          In the case of the default provider, the
+ *          [checkRead(String)][SecurityManager.checkRead] method is invoked
+ *          to check read access to the directory.
+ * @throws IOException
+ *          if an I/O error is thrown when accessing the starting file.
+ */
 public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): PathStream =
     Files.walk(this, maxDepth, *options)!!
 
+/**
+ * Returns a [Stream] that is lazily populated with [Path] by searching for files in a file tree rooted at this [Path].
+ *
+ * This method walks the file tree in exactly the manner specified by
+ * the [walk] method. For each file encountered, the given
+ * [BiPredicate] is invoked with its [Path] and
+ * [BasicFileAttributes]. The [Path] object is obtained as if by
+ * [resolving(Path)][Path.resolve] the relative path against
+ * [this] and is only included in the returned [Stream] if
+ * the [BiPredicate] returns true. Compare to calling
+ * [filter][java.util.stream.Stream.filter] on the [Stream]
+ * returned by [walk] method, this method may be more efficient by
+ * avoiding redundant retrieval of the [BasicFileAttributes].
+ *
+ * The returned stream encapsulates one or more [DirectoryStream]s.
+ * If timely disposal of file system resources is required, the
+ * `try`-with-resources construct should be used to ensure that the
+ * stream's [close][Stream.close] method is invoked after the stream
+ * operations are completed.  Operating on a closed stream will result in an
+ * [java.lang.IllegalStateException].
+ *
+ * If an [IOException] is thrown when accessing the directory
+ * after returned from this method, it is wrapped in an
+ * [UncheckedIOException] which will be thrown from the method that caused
+ * the access to take place.
+ *
+ * @param maxDepth The maximum number of directory levels to search. **(Set to [Int.MAX_VALUE] by default.)**
+ * @param matcher The function used to decide whether a file should be included in the returned stream.
+ * @param options Options to configure the traversal.
+ *
+ * @throws IllegalArgumentException If [maxDepth] is negative.
+ * @throws  SecurityException
+ *          If the security manager denies access to the starting file.
+ *          In the case of the default provider, the
+ *          [checkRead(String)][SecurityManager.checkRead] method is invoked
+ *          to check read access to the directory.
+ * @throws IOException If an I/O error is thrown when accessing the starting file.
+ *
+ * @see walk
+ */
 public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg options: FileVisitOption) =
     Files.find(this, maxDepth, matcher, *options)!!
 
+/**
+ * Read all lines from a file as a [Stream].
+ *
+ * Unlike [readAllLines(Path, Charset)][readAllLines], this method does not read all lines into a [List], but instead
+ * populates lazily as the stream is consumed.
+ *
+ * Bytes from the file are decoded into characters using the specified
+ * charset and the same line terminators as specified by
+ * [readAllLines] are supported.
+ *
+ * After this method returns, then any subsequent I/O exception that
+ * occurs while reading from the file or when a malformed or unmappable byte
+ * sequence is read, is wrapped in an [UncheckedIOException] that will
+ * be thrown from the
+ * [java.util.stream.Stream] method that caused the read to take
+ * place. In case an [IOException] is thrown when closing the file,
+ * it is also wrapped as an `UncheckedIOException`.
+ *
+ * The returned stream encapsulates a [Reader].  If timely
+ * disposal of file system resources is required, the try-with-resources
+ * construct should be used to ensure that the stream's
+ * [close][Stream.close] method is invoked after the stream operations
+ * are completed.
+ *
+ * @return The lines from the file as a [Stream].
+ *
+ * @throws  IOException
+ *          if an I/O error occurs opening the file
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ *
+ * @see readAllLines
+ * @see newBufferedReader
+ * @see java.io.BufferedReader.lines
+ */
 public val Path.lines: Stream<String> get() = Files.lines(this)
 
+/**
+ * Read all lines from a file as a [Stream].
+ *
+ * Unlike [readAllLines(Path, Charset)][readAllLines], this method does not read all lines into a [List], but instead
+ * populates lazily as the stream is consumed.
+ *
+ * Bytes from the file are decoded into characters using the specified
+ * charset and the same line terminators as specified by
+ * [readAllLines] are supported.
+ *
+ * After this method returns, then any subsequent I/O exception that
+ * occurs while reading from the file or when a malformed or unmappable byte
+ * sequence is read, is wrapped in an [UncheckedIOException] that will
+ * be thrown from the
+ * [java.util.stream.Stream] method that caused the read to take
+ * place. In case an [IOException] is thrown when closing the file,
+ * it is also wrapped as an `UncheckedIOException`.
+ *
+ * The returned stream encapsulates a [Reader].  If timely
+ * disposal of file system resources is required, the try-with-resources
+ * construct should be used to ensure that the stream's
+ * [close][Stream.close] method is invoked after the stream operations
+ * are completed.
+ *
+ * @param charset The charset to use for decoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ *
+ * @return  the lines from the file as a `Stream`
+ *
+ * @throws  IOException
+ *          if an I/O error occurs opening the file
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ *
+ * @see readAllLines
+ * @see newBufferedReader
+ * @see java.io.BufferedReader.lines
+ */
 public fun Path.lines(charset: Charset): Stream<String> = Files.lines(this, charset)!!
 
 // Fully custom operations
