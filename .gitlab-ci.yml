@@ -8,19 +8,22 @@ image: gradle:4.10
 # runtime for each build is more reliable since the runtime is completely
 # isolated from any previous builds.
 variables:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=true"
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
 
 stages:
   - test
   - build
+  - release
   - publish
-
-before_script:
-  - echo "Current tag; $CI_COMMIT_TAG"
-  - export GRADLE_USER_HOME=`pwd`/.gradle
 
 test:
   stage: test
+  before_script:
+    - echo "Starting test.."
   script:
     - echo "Starting test.."
     - gradle check
@@ -31,13 +34,14 @@ test:
     paths:
       - build
       - .gradle
+  after_script:
+    - echo "Test is finished.."
 
 build:
   stage: build
-  script:
+  before_script:
     - echo "Starting build.."
-    - gradle --build-cache assemble
-    - echo "Build is finished.."
+  script: gradle --build-cache assemble
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
@@ -50,6 +54,19 @@ build:
     expire_in: 1 week
   only:
     - master
+  after_script:
+    - echo "Build is finished.."
+
+release:
+  stage: release
+  before_script:
+    - yarn install --frozen-lockfile
+  image: node:8
+  only:
+    - master@<GROUP>/<PROJECT>
+  script:
+    - $(yarn bin)/semantic-release-gitlab
+
 
 publish:
   image: inetprocess/gitlab-release
@@ -61,3 +78,4 @@ publish:
 
 after_script:
   - echo "All stages are done."
+  - echo "Current tag; ${CI_COMMIT_TAG}"
