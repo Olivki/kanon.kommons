@@ -41,9 +41,7 @@ build:
   stage: build
   before_script:
     - echo "Starting build.."
-  script:
-    - gradle assemble
-    - gradle bintrayPublish
+  script: gradle bintrayUpload
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull
@@ -64,7 +62,7 @@ attach_files_to_tag:
   image: python:3
   script:
     - pip3 install gitlab_release
-    - python3 -m gitlab_release --description "##Downloads" "$PRIVATE_TOKEN" ./build/libs/*.jar
+    - python3 -m gitlab_release --description "# Downloads" "$PRIVATE_TOKEN" ./build/libs/*.jar
   only:
     - tags
 
