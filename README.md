@@ -8,7 +8,7 @@ Gradle
 
 ```
 repositories {
-    jcenter()
+    maven { url "https://dl.bintray.com/olivki/kanon" }
 }
 
 dependencies {
