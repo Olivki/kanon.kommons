@@ -198,7 +198,7 @@ public fun Path.newOutputStream(vararg options: OpenOption): OutputStream = File
  * @see java.nio.channels.FileChannel.open
  */
 public fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribute<*>): ByteChannel =
-        Files.newByteChannel(this, options.toMutableSet(), *attributes)!!
+    Files.newByteChannel(this, options.toMutableSet(), *attributes)!!
 
 /**
  * Opens or creates a file, returning a seekable byte channel to access the file.
@@ -227,9 +227,9 @@ public typealias PathDirectoryFilter = DirectoryStream.Filter<Path>
 
 // This is a port of the one that exists in Files.java.
 internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
-    
+
     override fun accept(entry: Path) = true
-    
+
     companion object {
         internal val FILTER = AcceptAllFilter()
     }
@@ -278,7 +278,7 @@ internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
  * installed, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  */
 public fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = AcceptAllFilter.FILTER): PathDirectoryStream =
-        Files.newDirectoryStream(this, dirFilter)!!
+    Files.newDirectoryStream(this, dirFilter)!!
 
 /**
  * Opens a directory, returning a [DirectoryStream] to iterate over
@@ -374,7 +374,7 @@ public fun Path.createFile(vararg attributes: FileAttribute<*>) = Files.createFi
  * method is invoked to check write access to the new directory.
  */
 public fun Path.createDirectory(vararg attributes: FileAttribute<*>) =
-        Files.createDirectory(this, *attributes)!!
+    Files.createDirectory(this, *attributes)!!
 
 /**
  * Creates a directory by creating all nonexistent parent directories first.
@@ -409,7 +409,7 @@ public fun Path.createDirectory(vararg attributes: FileAttribute<*>) =
  * method to check access to the system property `user.dir`
  */
 public fun Path.createDirectories(vararg attributes: FileAttribute<*>) =
-        Files.createDirectories(this, *attributes)!!
+    Files.createDirectories(this, *attributes)!!
 
 /**
  * Creates a new empty file in [this] directory, using the given
@@ -459,7 +459,7 @@ public fun Path.createDirectories(vararg attributes: FileAttribute<*>) =
  * @see Files.createTempFile
  */
 public fun Path.createTempFile(name: String, extension: String, vararg attributes: FileAttribute<*>) =
-        Files.createTempFile(this, name, extension, *attributes)!!
+    Files.createTempFile(this, name, extension, *attributes)!!
 
 /**
  * Creates a new directory in the specified directory, using the given
@@ -499,7 +499,7 @@ public fun Path.createTempFile(name: String, extension: String, vararg attribute
  * @see Files.createTempDirectory
  */
 public fun Path.createTempDirectory(name: String, vararg attributes: FileAttribute<*>) =
-        Files.createTempDirectory(this, name, *attributes)!!
+    Files.createTempDirectory(this, name, *attributes)!!
 
 // - Links
 /**
@@ -540,7 +540,7 @@ public fun Path.createTempDirectory(name: String, vararg attributes: FileAttribu
  *          method denies write access to the path of the symbolic link.
  */
 public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribute<*>) =
-        Files.createSymbolicLink(this, target, *attributes)!!
+    Files.createSymbolicLink(this, target, *attributes)!!
 
 /**
  * Reads the target of a symbolic link *(optional operation)*.
@@ -822,9 +822,9 @@ public var Path.simpleName: String
     set(simpleName) = when {
         this.name.substringBeforeLast('.') == name || isDirectory -> name = simpleName
         simpleName.contains('.') -> throw IOException(
-                "\"Path.simpleName\" does not support the usage of '.' " +
-                        "inside of the setter ($simpleName), use \"Path.name\" " +
-                        "or \"Path.extension\" for such actions."
+            "\"Path.simpleName\" does not support the usage of '.' " +
+                    "inside of the setter ($simpleName), use \"Path.name\" " +
+                    "or \"Path.extension\" for such actions."
         )
         else -> this.name = "$simpleName.${this.extension}"
     }
@@ -848,7 +848,7 @@ public var Path.extension: String
     }
     set(extension) {
         if (isDirectory) throw IOException("Can't change the extension of a directory. (${toString()})")
-        
+
         this.name = "$this.simpleName.$extension"
     }
 
@@ -1097,7 +1097,7 @@ public val Path.contentType get() = Files.probeContentType(this)!!
  *          the attribute view type is not available
  */
 public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
-        Files.getFileAttributeView(this, type, *options)!!
+    Files.getFileAttributeView(this, type, *options)!!
 
 /**
  * Reads a file's attributes as a bulk operation.
@@ -1156,7 +1156,7 @@ public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, var
  *          security manager may be invoke to check for additional permissions.
  */
 public fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg options: LinkOption): A =
-        Files.readAttributes(this, type, *options)!!
+    Files.readAttributes(this, type, *options)!!
 
 /**
  * Reads a set of file attributes as a bulk operation.
@@ -1212,7 +1212,7 @@ public fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg 
  *          may be invoke to check for additional permissions.
  */
 public fun Path.readAttributes(attributes: String, vararg options: LinkOption): Map<String, Any> =
-        Files.readAttributes(this, attributes, *options)
+    Files.readAttributes(this, attributes, *options)
 
 /**
  * Sets the value of a file attribute.
@@ -1283,7 +1283,7 @@ public fun Path.readAttributes(attributes: String, vararg options: LinkOption): 
  *          may be invoked to check for additional permissions.
  */
 public fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption): Path =
-        Files.setAttribute(this, attribute, value, *options)!!
+    Files.setAttribute(this, attribute, value, *options)!!
 
 /**
  * Reads the value of a file attribute.
@@ -1345,34 +1345,34 @@ public fun Path.setAttribute(attribute: String, value: Any?, vararg options: Lin
  *          may be invoked to check for additional permissions.
  */
 public fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
-        Files.getAttribute(this, attribute, *options)!!
+    Files.getAttribute(this, attribute, *options)!!
 
 public class AttributeMap internal constructor(
-        private val path: Path,
-        private val original: Map<String, Any>
+    private val path: Path,
+    private val original: Map<String, Any>
 ) : MutableMap<String, Any> by original.toMutableMap() {
-    
+
     override fun put(key: String, value: Any): Any? = path.setAttribute(key, value)
-    
+
     // TODO: Figure out how to actually remove attributes.
     override fun remove(key: String): Any? {
         throw NotImplementedError("AttributeMap does not currently support removal operations.")
     }
-    
+
     override fun get(key: String): Any? = path.getAttribute(key)
-    
+
     override fun putAll(from: Map<out String, Any>) {
         for (attribute in from) {
             this += attribute.toPair()
         }
     }
-    
+
     override fun clear() {
         throw IOException("Invalid operation; Can't clear an attribute map.")
     }
-    
+
     override fun containsValue(value: Any): Boolean = original.any { it.value == value }
-    
+
     // This is a really nasty way of checking whether or not the attribute actually exists, and using exception
     // catching for this should generally be avoided when possible.
     override fun containsKey(key: String): Boolean = try {
@@ -1381,7 +1381,7 @@ public class AttributeMap internal constructor(
     } catch (e: IllegalArgumentException) {
         false
     }
-    
+
 }
 
 /**
@@ -1394,13 +1394,47 @@ public class AttributeMap internal constructor(
 public val Path.attributes: AttributeMap get() = AttributeMap(this, readAttributes("*"))
 
 // Permissions
+/**
+ * Returns a file's POSIX file permissions.
+ *
+ * The [Path] parameter is associated with a [FileSystem]
+ * that supports the [PosixFileAttributeView]. This attribute view
+ * provides access to file attributes commonly associated with files on file
+ * systems used by operating systems that implement the Portable Operating
+ * System Interface (POSIX) family of standards.
+ *
+ * The [options] array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  the file permissions
+ *
+ * @throws  UnsupportedOperationException
+ *          if the associated file system does not support the
+ * `         PosixFileAttributeView`
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, a security manager is
+ *          installed, and it denies [RuntimePermission]<tt>("accessUserInformation")</tt>
+ *          or its [checkRead(String)][SecurityManager.checkRead] method
+ *          denies read access to the file.
+ */
 public fun Path.getPosixFilePermissions(vararg options: LinkOption): Set<PosixFilePermission> =
-        Files.getPosixFilePermissions(this, *options)!!.toSet()
+    Files.getPosixFilePermissions(this, *options)!!.toSet()
 
-public fun Path.setPosixFilePermissions(vararg permissions: PosixFilePermission) {
-    this.permissions = permissions.toSet()
-}
-
+/**
+ * A property variant of [getPosixFilePermissions] and [Files.setPosixFilePermissions].
+ *
+ * Use this one if you don't need to use any of the additional LinkOptions from [getPosixFilePermissions].
+ *
+ * @see Files.setPosixFilePermissions
+ */
 public var Path.permissions: Set<PosixFilePermission>
     get() = this.getPosixFilePermissions()
     public set(perms) {
@@ -1408,31 +1442,205 @@ public var Path.permissions: Set<PosixFilePermission>
     }
 
 // Owner
+/**
+ * Returns the owner of a file.
+ *
+ * The [Path] parameter is associated with a file system that
+ * supports [FileOwnerAttributeView]. This file attribute view provides
+ * access to a file attribute that is the owner of the file.
+ *
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  A user principal representing the owner of the file.
+ *
+ * @throws  UnsupportedOperationException
+ *          if the associated file system does not support the
+ * `         FileOwnerAttributeView`
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, it denies [RuntimePermission]<tt>("accessUserInformation")</tt>
+ *          or its [checkRead(String)][SecurityManager.checkRead] method
+ *          denies read access to the file.
+ */
 public fun Path.getOwner(vararg options: LinkOption): UserPrincipal = Files.getOwner(this, *options)!!
 
+/**
+ * A property variant of [getOwner] and [Files.setOwner].
+ *
+ * Use this one if you don't need to use any of the additional LinkOptions from [getOwner].
+ *
+ * @see Files.setOwner
+ */
 public var Path.owner: UserPrincipal
     get() = getOwner()
     set(newOwner) {
         Files.setOwner(this, newOwner)
     }
 
-// TODO: Group together with the other link functions & properties
+// is[...] functions.
+/**
+ * Tests whether a file is a symbolic link.
+ *
+ * Where it is required to distinguish an I/O exception from the case
+ * that the file is not a symbolic link then the file attributes can be
+ * read with the
+ * [readAttributes(Path,Class,LinkOption[])][readAttributes] method and the file type tested with the
+ * [BasicFileAttributes.isSymbolicLink] method.
+ *
+ * @return  `true` if the file is a symbolic link; `false` if
+ *          the file does not exist, is not a symbolic link, or it cannot
+ *          be determined if the file is a symbolic link or not.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ */
 public val Path.isSymbolicLink: Boolean get() = Files.isSymbolicLink(this)
 
-// TODO: Group together with the other directories
+/**
+ * Tests whether a file is a directory.
+ *
+ * **Use the property variant of this unless you need to set specific [LinkOptions][LinkOption].**
+ *
+ * The [options] array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * Where it is required to distinguish an I/O exception from the case
+ * that the file is not a directory then the file attributes can be
+ * read with the
+ * [readAttributes(Path, Class, vararg LinkOption)][readAttributes] method and the file type tested with the
+ * [BasicFileAttributes.isDirectory] method.
+ *
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  `true` if the file is a directory; `false` if
+ *          the file does not exist, is not a directory, or it cannot
+ *          be determined if the file is a directory or not.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ */
 public fun Path.isDirectory(vararg options: LinkOption): Boolean = Files.isDirectory(this, *options)
 
+/**
+ * Tests whether a file is a directory.
+ *
+ * **This property variant follows symbolic links, if you want a different behaviour, please use the function variant.**
+ *
+ * Where it is required to distinguish an I/O exception from the case
+ * that the file is not a directory then the file attributes can be
+ * read with the
+ * [readAttributes(Path, Class, vararg LinkOption)][readAttributes] method and the file type tested with the
+ * [BasicFileAttributes.isDirectory] method.
+ *
+ * @return  `true` if the file is a directory; `false` if
+ *          the file does not exist, is not a directory, or it cannot
+ *          be determined if the file is a directory or not.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ */
 public val Path.isDirectory: Boolean get() = this.isDirectory()
 
 // Regular File
+/**
+ * Tests whether a file is a regular file with opaque content.
+ *
+ * The [options] array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * Where it is required to distinguish an I/O exception from the case
+ * that the file is not a regular file then the file attributes can be
+ * read with the
+ * [readAttributes(Path, Class, vararg LinkOption)][readAttributes] method and the file type tested with the
+ * [BasicFileAttributes.isRegularFile] method.
+ *
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  `true` if the file is a regular file; `false` if
+ *          the file does not exist, is not a regular file, or it
+ *          cannot be determined if the file is a regular file or not.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ */
 public fun Path.isRegularFile(vararg options: LinkOption): Boolean = Files.isRegularFile(this, *options)
 
+/**
+ * Tests whether a file is a regular file with opaque content.
+ *
+ * Where it is required to distinguish an I/O exception from the case
+ * that the file is not a regular file then the file attributes can be
+ * read with the
+ * [readAttributes(Path, Class, vararg LinkOption)][readAttributes] method and the file type tested with the
+ * [BasicFileAttributes.isRegularFile] method.
+ *
+ * @return  `true` if the file is a regular file; `false` if
+ *          the file does not exist, is not a regular file, or it
+ *          cannot be determined if the file is a regular file or not.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ */
 public val Path.isRegularFile: Boolean get() = this.isRegularFile()
 
 // Last Modified Time
+/**
+ * Returns a file's last modified time.
+ *
+ * The [options] array may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed and the file attribute of the final target
+ * of the link is read. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * @param   options
+ *          options indicating how symbolic links are handled
+ *
+ * @return  a `FileTime` representing the time the file was last
+ *          modified, or an implementation specific default when a time
+ *          stamp to indicate the time of last modification is not supported
+ *          by the file system
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ *
+ * @see BasicFileAttributes.lastModifiedTime
+ */
 public fun Path.getLastModifiedTime(vararg options: LinkOption): FileTime =
-        Files.getLastModifiedTime(this, *options)!!
+    Files.getLastModifiedTime(this, *options)!!
 
+/**
+ * A property variant of [getLastModifiedTime] and [Files.setLastModifiedTime].
+ *
+ * Use this one if you don't need to use any of the additional LinkOptions from [getLastModifiedTime].
+ *
+ * @see Files.setPosixFilePermissions
+ */
 public var Path.lastModifiedTime: FileTime
     get() = this.getLastModifiedTime()
     set(newTime) {
@@ -1440,78 +1648,466 @@ public var Path.lastModifiedTime: FileTime
     }
 
 // Size
+/**
+ * Returns the size of a file (in bytes). The size may differ from the
+ * actual size on the file system due to compression, support for sparse
+ * files, or other reasons. The size of files that are not
+ * [regular][isRegularFile] files is implementation specific and
+ * therefore unspecified.
+ *
+ * @return  the file size, in bytes
+ *
+ * @throws  IOException
+ *          if an I/O error occurs
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, its [checkRead(String)][SecurityManager.checkRead]
+ *          method denies read access to the file.
+ *
+ * @see BasicFileAttributes.size
+ */
 public val Path.size: Long get() = Files.size(this)
 
 // Exists
+/**
+ * Tests whether a file exists.
+ *
+ * The [options] parameter may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * Note that the result of this method is immediately outdated. If this
+ * method indicates the file exists then there is no guarantee that a
+ * subsequent access will succeed. Care should be taken when using this
+ * method in security sensitive applications.
+ *
+ * @param   options
+ *          options indicating how symbolic links are handled
+ * .
+ * @return  `true` if the file exists; `false` if the file does
+ *          not exist or its existence cannot be determined.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, the
+ * [         SecurityManager#checkRead(String)] is invoked to check
+ *          read access to the file.
+ *
+ * @see #notExists
+ */
 public fun Path.exists(vararg options: LinkOption): Boolean = Files.exists(this, *options)
 
+/**
+ * Tests whether a file exists.
+ *
+ * Note that the result of this method is immediately outdated. If this
+ * method indicates the file exists then there is no guarantee that a
+ * subsequent access will succeed. Care should be taken when using this
+ * method in security sensitive applications.
+ *
+ * @return  `true` if the file exists; `false` if the file does
+ *          not exist or its existence cannot be determined.
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, the
+ * [         SecurityManager#checkRead(String)] is invoked to check
+ *          read access to the file.
+ *
+ * @see #notExists
+ */
 public val Path.exists get() = this.exists()
 
 // Not Exists
+/**
+ * Tests whether the file located by this path does not exist. This method
+ * is intended for cases where it is required to take action when it can be
+ * confirmed that a file does not exist.
+ *
+ * The [options] parameter may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * Note that this method is not the complement of the
+ * [exists][Path.exists] method. Where it is not possible to determine if a file exists
+ * or not then both methods return `false`. As with the `exists`
+ * method, the result of this method is immediately outdated. If this
+ * method indicates the file does exist then there is no guarantee that a
+ * subsequent attempt to create the file will succeed. Care should be taken
+ * when using this method in security sensitive applications.
+ *
+ * @param options Options indicating how symbolic links are handled.
+ *
+ * @return `true` if the file does not exist; `false` if the file exists or its existence cannot be determined.
+ *
+ * @throws SecurityException In the case of the default provider, the [SecurityManager#checkRead(String)]
+ * is invoked to check read access to the file.
+ */
 public fun Path.notExists(vararg options: LinkOption): Boolean = Files.notExists(this, *options)
 
+/**
+ * Tests whether the file located by this path does not exist. This method
+ * is intended for cases where it is required to take action when it can be
+ * confirmed that a file does not exist.
+ *
+ * The [options] parameter may be used to indicate how symbolic links
+ * are handled for the case that the file is a symbolic link. By default,
+ * symbolic links are followed. If the option
+ * [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * Note that this method is not the complement of the
+ * [exists][Path.exists] method. Where it is not possible to determine if a file exists
+ * or not then both methods return `false`. As with the `exists`
+ * method, the result of this method is immediately outdated. If this
+ * method indicates the file does exist then there is no guarantee that a
+ * subsequent attempt to create the file will succeed. Care should be taken
+ * when using this method in security sensitive applications.
+ *
+ * @return `true` if the file does not exist; `false` if the file exists or its existence cannot be determined.
+ *
+ * @throws SecurityException In the case of the default provider, the [SecurityManager#checkRead(String)]
+ * is invoked to check read access to the file.
+ */
 public val Path.notExists: Boolean get() = this.notExists()
 
 // Accessibility
+/**
+ * Tests whether a file is readable.
+ *
+ * This method checks that a file exists
+ * and that this Java virtual machine has appropriate privileges that would
+ * allow it open the file for reading. Depending on the implementation, this
+ * method may require to read file permissions, access control lists, or
+ * other file attributes in order to check the effective access to the file.
+ * Consequently, this method may not be atomic with respect to other file
+ * system operations.
+ *
+ * Note that the result of this method is immediately outdated, there is
+ * no guarantee that a subsequent attempt to open the file for reading will
+ * succeed (or even that it will access the same file). Care should be taken
+ * when using this method in security sensitive applications.
+ *
+ * @return  `true` if the file exists and is readable; `false`
+ *          if the file does not exist, read access would be denied because
+ *          the Java virtual machine has insufficient privileges, or access
+ *          cannot be determined
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          is invoked to check read access to the file.
+ */
 public val Path.isReadable: Boolean get() = Files.isReadable(this)
 
+/**
+ * A property variant of [Files.isWritable] and a custom setter.
+ *
+ * When setting this to `true` or `false`, the appropriate permissions of the file will be updated.
+ *
+ * @throws SecurityException In the case of the default provider, and a security manager is installed,
+ * the [checkWrite(String)][SecurityManager.checkWrite] is invoked to check write access to the file.
+ *
+ * @see Files.isWritable
+ * @see Path.permissions
+ */
 public var Path.isWritable: Boolean
     get() = Files.isWritable(this)
     public set(writable) {
         if (writable) {
             val perms = permissions.toMutableSet()
-            
+
             permissions = perms.removeAll(
-                    PosixFilePermission.OWNER_WRITE,
-                    PosixFilePermission.GROUP_WRITE,
-                    PosixFilePermission.OTHERS_WRITE
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.GROUP_WRITE,
+                PosixFilePermission.OTHERS_WRITE
             )
         } else {
             val perms = permissions.toMutableSet()
-            
+
             permissions = perms.addAll(
-                    PosixFilePermission.OWNER_WRITE,
-                    PosixFilePermission.GROUP_WRITE,
-                    PosixFilePermission.OTHERS_WRITE
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.GROUP_WRITE,
+                PosixFilePermission.OTHERS_WRITE
             )
         }
     }
 
+/**
+ * Tests whether a file is executable.
+ *
+ * This method checks that a file exists
+ * and that this Java virtual machine has appropriate privileges to
+ * [execute][Runtime.exec] the file. The semantics may differ when checking
+ * access to a directory. For example, on UNIX systems, checking for
+ * execute access checks that the Java virtual machine has permission to
+ * search the directory in order to access file or subdirectories.
+ *
+ * Depending on the implementation, this method may require to read file
+ * permissions, access control lists, or other file attributes in order to
+ * check the effective access to the file. Consequently, this method may not
+ * be atomic with respect to other file system operations.
+ *
+ * Note that the result of this method is immediately outdated, there is
+ * no guarantee that a subsequent attempt to execute the file will succeed
+ * (or even that it will access the same file). Care should be taken when
+ * using this method in security sensitive applications.
+ *
+ * @return  `true` if the file exists and is executable; `false`
+ *          if the file does not exist, execute access would be denied because
+ *          the Java virtual machine has insufficient privileges, or access
+ *          cannot be determined
+ *
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the
+ * [checkExec(String)][SecurityManager.checkExec] is invoked to check execute access to the file.
+ */
 public val Path.isExecutable: Boolean get() = Files.isExecutable(this)
 
 // File Tree Visitors
 public typealias PathVisitor = FileVisitor<in Path>
 
-public fun Path.walkFileTree(options: Set<FileVisitOption>, maxDepth: Int, visitor: PathVisitor): Path =
-        Files.walkFileTree(this, options, maxDepth, visitor)!!
-
-public fun Path.walkFileTree(visitor: PathVisitor): Path = Files.walkFileTree(this, visitor)!!
+/**
+ * Walks a file tree.
+ *
+ * This method walks a file tree rooted at [this] file. The
+ * file tree traversal is *depth-first* with the given
+ * [FileVisitor] invoked for each file encountered. File tree traversal
+ * completes when all accessible files in the tree have been visited, or a
+ * visit method returns a result of
+ * [TERMINATE][FileVisitResult.TERMINATE]. Where a visit method terminates due an [IOException],
+ * an uncaught error, or runtime exception, then the traversal is terminated
+ * and the error or exception is propagated to the caller of this method.
+ *
+ * For each file encountered this method attempts to read its
+ * [BasicFileAttributes][java.nio.file.attribute.BasicFileAttributes]. If the file is not a
+ * directory then the [visitFile][FileVisitor.visitFile] method is
+ * invoked with the file attributes. If the file attributes cannot be read,
+ * due to an I/O exception, then the
+ * [visitFileFailed][FileVisitor.visitFileFailed] method is invoked with the I/O exception.
+ *
+ * Where the file is a directory, and the directory could not be opened,
+ * then the `visitFileFailed` method is invoked with the I/O exception,
+ * after which, the file tree walk continues, by default, at the next
+ * *sibling* of the directory.
+ *
+ * Where the directory is opened successfully, then the entries in the
+ * directory, and their *descendants* are visited. When all entries
+ * have been visited, or an I/O error occurs during iteration of the
+ * directory, then the directory is closed and the visitor's
+ * [postVisitDirectory][FileVisitor.postVisitDirectory] method is invoked.
+ * The file tree walk then continues, by default, at the next *sibling*
+ * of the directory.
+ *
+ * By default, symbolic links are not automatically followed by this
+ * method. If the [options] parameter contains the
+ * [FOLLOW_LINKS][FileVisitOption.FOLLOW_LINKS] option then symbolic links are
+ * followed. When following links, and the attributes of the target cannot
+ * be read, then this method attempts to get the `BasicFileAttributes`
+ * of the link. If they can be read then the `visitFile` method is
+ * invoked with the attributes of the link (otherwise the `visitFileFailed`
+ * method is invoked as specified above).
+ *
+ * If the [options] parameter contains the
+ * [FOLLOW_LINKS][FileVisitOption.FOLLOW_LINKS] option then this method keeps
+ * track of directories visited so that cycles can be detected. A cycle
+ * arises when there is an entry in a directory that is an ancestor of the
+ * directory. Cycle detection is done by recording the
+ * [file-key][java.nio.file.attribute.BasicFileAttributes.fileKey] of directories,
+ * or if file keys are not available, by invoking the
+ * [isSameFile][Path.isSameFile] method to test if a directory is the same file as an
+ * ancestor. When a cycle is detected it is treated as an I/O error, and the
+ * [visitFileFailed][FileVisitor.visitFileFailed] method is invoked with
+ * an instance of [FileSystemLoopException].
+ *
+ * **[options] is set to [emptySet] by default.**
+ *
+ * The [maxDepth] parameter is the maximum number of levels of
+ * directories to visit. A value of `0` means that only the starting
+ * file is visited, unless denied by the security manager. A value of
+ * [MAX_VALUE][Integer.MAX_VALUE] may be used to indicate that all
+ * levels should be visited. The `visitFile` method is invoked for all
+ * files, including directories, encountered at `maxDepth`, unless the
+ * basic file attributes cannot be read, in which case the
+ * `visitFileFailed` method is invoked.
+ *
+ * **[maxDepth] is set to [MAX_VALUE][Integer.MAX_VALUE] by default.**
+ *
+ * If a visitor returns a result of `null` then
+ * [NullPointerException] is thrown.
+ *
+ * When a security manager is installed and it denies access to a file
+ * (or directory), then it is ignored and the visitor is not invoked for
+ * that file (or directory).
+ *
+ * @param   options
+ *          options to configure the traversal
+ * @param   maxDepth
+ *          the maximum number of directory levels to visit
+ * @param   visitor
+ *          the file visitor to invoke for each file
+ *
+ * @return  the starting file
+ *
+ * @throws  IllegalArgumentException
+ *          if the `maxDepth` parameter is negative
+ * @throws  SecurityException
+ *          If the security manager denies access to the starting file.
+ *          In the case of the default provider, the
+ *          [checkRead(String)][SecurityManager.checkRead] method is invoked
+ *          to check read access to the directory.
+ * @throws  IOException
+ *          if an I/O error is thrown by a visitor method
+ */
+public fun Path.walkFileTree(
+    options: Set<FileVisitOption> = emptySet(),
+    maxDepth: Int = Int.MAX_VALUE,
+    visitor: PathVisitor
+): Path = Files.walkFileTree(this, options, maxDepth, visitor)
 
 // Buffered Things
+/**
+ * Opens a file for reading, returning a [BufferedReader] that may be
+ * used to read text from the file in an efficient manner. Bytes from the
+ * file are decoded into characters using the specified charset. Reading
+ * commences at the beginning of the file.
+ *
+ * The `Reader` methods that read from the file throw
+ * [IOException] if a malformed or unmappable byte sequence is read.
+ *
+ * @param charset The charset to use for decoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ *
+ * @return A new buffered reader, with default buffer size, to read text from the file.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs opening the file
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkRead(String)][SecurityManager.checkRead]
+ *          method is invoked to check read access to the file.
+ *
+ * @see Path.readAllLines
+ */
 public fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
-        Files.newBufferedReader(this, charset)!!
+    Files.newBufferedReader(this, charset)!!
 
+/**
+ * Opens or creates a file for writing, returning a `BufferedWriter`
+ * that may be used to write text to the file in an efficient manner.
+ *
+ * The [options] parameter specifies how the the file is created or
+ * opened. If no options are present then this method works as if the
+ * [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING], [CREATE][StandardOpenOption.CREATE], and
+ * [WRITE][StandardOpenOption.WRITE] options are present. In other words, it
+ * opens the file for writing, creating the file if it doesn't exist, or
+ * initially truncating an existing [regular-file][Path.isRegularFile] to
+ * a size of `0` if it exists.
+ *
+ * The `Writer` methods to write text throw [IOException]
+ * if the text cannot be encoded using the specified charset.
+ *
+ * @param charset The charset to use for encoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ * @param options Options specifying how the file is opened
+ *
+ * @return A new [BufferedWriter], with default buffer size, to write text to the file.
+ *
+ * @throws  IOException
+ *          if an I/O error occurs opening or creating the file
+ * @throws  UnsupportedOperationException
+ *          if an unsupported option is specified
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access to the file.
+ *
+ * @see Path.writeBytes
+ */
 public fun Path.newBufferedWriter(
-        charset: Charset = StandardCharsets.UTF_8,
-        vararg options: OpenOption
+    charset: Charset = StandardCharsets.UTF_8,
+    vararg options: OpenOption
 ): BufferedWriter = Files.newBufferedWriter(this, charset, *options)!!
 
 // Copy
+/**
+ * Copies all bytes from an input stream to [this] file. On return, the input stream will be at end of the stream.
+ *
+ * By default, the copy fails if the target file already exists or is a
+ * symbolic link. If the
+ * [REPLACE_EXISTING][StandardCopyOption.REPLACE_EXISTING] option is specified, and the target file already exists,
+ * then it is replaced if it is not a non-empty directory. If the target
+ * file exists and is a symbolic link, then the symbolic link is replaced.
+ * In this release, the `REPLACE_EXISTING` option is the only option
+ * required to be supported by this method. Additional options may be
+ * supported in future releases.
+ *
+ * If an I/O error occurs reading from the input stream or writing to
+ * [this] file, then it may do so after the target file has been created and
+ * after some bytes have been read or written. Consequently the input
+ * stream may not be at end of stream and may be in an inconsistent state.
+ * It is strongly recommended that the input stream be promptly closed if an
+ * I/O error occurs.
+ *
+ * This method may block indefinitely reading from the [inputStream] (or
+ * writing to the file). The behavior for the case that the input stream is
+ * *asynchronously closed* or the thread interrupted during the copy is
+ * highly input stream and file system provider specific and therefore not
+ * specified.
+ *
+ * **Usage example**:
+ *
+ * Suppose we want to capture a web page and save it to a file:
+ *
+ * ```Kotlin
+ *     val path: Path = ...
+ *     val uri = URI.create("http://java.sun.com/")
+ *     uri.toURL().openStream().use { path.transform(it) }
+ * ```
+ *
+ * @param   inputStream
+ *          the input stream to read from
+ * @param   options
+ *          options specifying how the copy should be done
+ *
+ * @return  the number of bytes read or written
+ *
+ * @throws  IOException
+ *          if an I/O error occurs when reading or writing
+ * @throws  FileAlreadyExistsException
+ *          if the target file exists but cannot be replaced because the
+ *          `REPLACE_EXISTING` option is not specified <i>(optional
+ *          specific exception)</i>
+ * @throws  DirectoryNotEmptyException
+ *          the `REPLACE_EXISTING` option is specified but the file
+ *          cannot be replaced because it is a non-empty directory
+ *          *(optional specific exception)*     *
+ * @throws  UnsupportedOperationException
+ *          if `options` contains a copy option that is not supported
+ * @throws  SecurityException
+ *          In the case of the default provider, and a security manager is
+ *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
+ *          method is invoked to check write access to the file. Where the
+ *          `REPLACE_EXISTING` option is specified, the security
+ *          manager's [checkDelete(String)][SecurityManager.checkDelete]
+ *          method is invoked to check that an existing file can be deleted.
+ */
+public fun Path.transform(inputStream: InputStream, vararg options: CopyOption): Long =
+    Files.copy(inputStream, this, *options)
+
 public fun Path.copy(outputStream: OutputStream): Long = Files.copy(this, outputStream)
 
 // Reading Functions
 public fun Path.readAllBytes(): ByteArray = Files.readAllBytes(this)!!
 
 public fun Path.readAllLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
-        Files.readAllLines(this, charset)!!.toList()
+    Files.readAllLines(this, charset)!!.toList()
 
 // Writing Functions
 public fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path = Files.write(this, bytes, *options)
 
 public fun Path.writeLines(
-        lines: Iterable<CharSequence>,
-        charset: Charset = StandardCharsets.UTF_8,
-        vararg options: OpenOption
+    lines: Iterable<CharSequence>,
+    charset: Charset = StandardCharsets.UTF_8,
+    vararg options: OpenOption
 ): Path = Files.write(this, lines, charset, *options)!!
 
 /**
@@ -1545,10 +2141,10 @@ public val Path.entries: PathStream
 public val Path.children: List<Path> get() = this.entries.toList()
 
 public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): PathStream =
-        Files.walk(this, maxDepth, *options)!!
+    Files.walk(this, maxDepth, *options)!!
 
 public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg options: FileVisitOption) =
-        Files.find(this, maxDepth, matcher, *options)!!
+    Files.find(this, maxDepth, matcher, *options)!!
 
 public val Path.lines: Stream<String> get() = Files.lines(this)
 
@@ -1569,14 +2165,14 @@ public operator fun Path.contains(path: Path): Boolean = this.children.contains(
  */
 public fun Path.cleanDirectory(deleteDirectories: Boolean = false) {
     this.checkIfDirectory("Can't clean a non-directory. (${toString()})")
-    
+
     for (child in this) {
         if (child.isDirectory) {
             child.cleanDirectory()
-            
+
             if (deleteDirectories) continue
         }
-        
+
         child.delete()
     }
 }
@@ -1600,15 +2196,15 @@ public fun Path.pathToString(charset: Charset = StandardCharsets.UTF_8): String 
 public val Path.directorySize: BigInteger
     get() {
         this.checkIfDirectory()
-        
+
         var size = BigInteger.ZERO
-        
+
         for (child in this) {
             if (child.isSymbolicLink) continue
-            
+
             size += child.size
         }
-        
+
         return size
     }
 
