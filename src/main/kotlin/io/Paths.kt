@@ -2554,7 +2554,10 @@ public fun Path.checkIfExists(message: String = "File \"${toString()}\" doesn't 
 }
 
 /**
- * Checks if [this] path is a directory, if not, it throws an [IOException] with the [message].
+ * Checks if this [File][Path] is a directory.
+ *
+ * - If this [File][Path] does not exist, a [IOException] will be thrown.
+ * - If this [File][Path] exists, but it is **not** a directory, a [NotDirectoryException] will be thrown.
  */
 public fun Path.checkIfDirectory(message: String = "\"$name\" needs to be a directory!") {
     this.checkIfExists()
