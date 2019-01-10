@@ -23,6 +23,12 @@ build:
     paths:
       - build
       - .gradle
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 1 week
+    only:
+      - master
 
 
 test:
@@ -35,3 +41,5 @@ test:
       - build
       - .gradle
 
+after_script:
+  - echo "End CI"

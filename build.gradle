@@ -15,17 +15,12 @@ plugins {
 }
 
 apply plugin: "java"
-
 apply plugin: "kotlin"
-
 apply plugin: "org.jetbrains.dokka"
 
-
 group "moe.kanon.kextensions"
-
-version "1.0.0"
-
-System.setProperty("user.dir", project.projectDir.toString())
+description "Various extensions and utilities for the Kotlin programming language."
+version "0.1.0-beta"
 
 ext {
     kotlinVersion = "1.3.11"
@@ -74,8 +69,8 @@ bintray {
         publicDownloadNumbers = true
 
         version {
-            name = '0.1.0-beta'
-            desc = 'Early beta release of 0.1.0, most likely very unstable.'
+            name = "$project.version"
+            desc = "Early beta release of $project.version, most likely very unstable."
             released = new Date()
         }
     }
@@ -138,13 +133,13 @@ publishing {
                 classifier "javadoc"
             }
 
-            groupId 'moe.kanon.kextensions'
+            groupId "$project.group"
             artifactId 'kanon.kextensions'
-            version '0.1.0-beta'
+            version "$project.version"
 
             pom.withXml {
                 def root = asNode()
-                root.appendNode('description', 'Extension methods and utilities for Kotlin.')
+                root.appendNode('description', "$project.description")
                 root.appendNode('name', 'kanon.kextensions')
                 root.appendNode('url', 'https://gitlab.com/Olivki/kanon-kextensions')
                 root.children().last() + pomConfig
