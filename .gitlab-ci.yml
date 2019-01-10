@@ -53,24 +53,13 @@ build:
   after_script:
     - echo "Build is finished.."
 
-release:
-  stage: release
-  before_script:
-    - yarn install --frozen-lockfile
-  image: node:8
-  only:
-    - master
-  script:
-    - $(yarn bin)/semantic-release-gitlab
-
-
 publish:
-  image: inetprocess/gitlab-release
   stage: publish
+  script:
+    - pip3 install gitlab_release
+    - python3 -m gitlab_release $PRIVATE_TOKEN *.jar
   only:
     - tags
-  script:
-    - gitlab-release --message "Test" build/libs/*.jar
 
 after_script:
   - echo "All stages are done."
