@@ -88,3 +88,4 @@ public operator fun BigInteger.rem(other: Int): BigInteger = this.remainder(othe
 public operator fun BigInteger.rem(other: Long): BigInteger = this.remainder(other.toBigInteger())
 
 // TODO: Add operators for unsigned numbers once they get to stable.
+// TODO: Add support for the infix functions added by Kotlin for BigInteger.
