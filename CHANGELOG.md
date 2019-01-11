@@ -19,7 +19,7 @@
     * Added the parameter `keepName` with the default value of `false` to `Path.moveTo(...)`.
 
   * #### Operators
-    * Changed the `File.unaryPlus()` operator to `File.not().
+    * Changed the `File.unaryPlus()` operator to `File.not()`.
     * Removed the `String.unaryPlus()` operator. *(Felt bloated, and would definitely cause some clashes with some Kotlin DSL libraries.)*
     * Added the `Path.not()` operator to convert `Path` to `File`.
 
