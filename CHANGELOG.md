@@ -21,6 +21,7 @@
 * #### Operators
   * Changed the `File.unaryPlus()` operator to `File.not().
   * Removed the `String.unaryPlus()` operator. *(Felt bloated, and would definitely cause some clashes with some Kotlin DSL libraries.)*
+  * Added the `Path.not()` operator to convert `Path` to `File`.
 
 ## 0.1.0-beta (2019-01-09)
 Initial release.
