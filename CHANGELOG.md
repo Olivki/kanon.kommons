@@ -1,27 +1,27 @@
 ## 0.2.0 (2019-01-11)
 
-### Paths.kt
+* ### Paths.kt
 
-* #### Documentation
-  * Tidied up all the ported over documentation.
-  * Ported over all of the documentation from `Files.java`.
+  * #### Documentation
+    * Tidied up all the ported over documentation.
+    * Ported over all of the documentation from `Files.java`.
 
-* #### Functions
-  * Renamed `Path.pathToString(...)` to `Path.readToString(...)`.
-  * Renamed `Path.readAllBytes(...)` to `Path.readBytes(...)`.
-  * Renamed `Path.readAllLines(...)` to `Path.readLines(...)`.
-  * Renamed `Path.lines(...)` to `Path.linesStream(...)`.
-  * Added the default value of `StandardCharsets.UTF_8` to the `charset` parameter on `Path.linesStream(..)`.
-  * Renamed `Path.copy(Path, ...)` to `Path.copyTo(Path, ...)`.
-  * Added the parameter `keepName` with the default value of `false` to `Path.copyTo(...)`.
-  * Renamed `Path.rename(String, ...)` to `Path.renameTo(String, ...)`.
-  * Renamed `Path.move(...)` to `Path.moveTo(...)`.
-  * Added the parameter `keepName` with the default value of `false` to `Path.moveTo(...)`.
+  * #### Functions
+    * Renamed `Path.pathToString(...)` to `Path.readToString(...)`.
+    * Renamed `Path.readAllBytes(...)` to `Path.readBytes(...)`.
+    * Renamed `Path.readAllLines(...)` to `Path.readLines(...)`.
+    * Renamed `Path.lines(...)` to `Path.linesStream(...)`.
+    * Added the default value of `StandardCharsets.UTF_8` to the `charset` parameter on `Path.linesStream(..)`.
+    * Renamed `Path.copy(Path, ...)` to `Path.copyTo(Path, ...)`.
+    * Added the parameter `keepName` with the default value of `false` to `Path.copyTo(...)`.
+    * Renamed `Path.rename(String, ...)` to `Path.renameTo(String, ...)`.
+    * Renamed `Path.move(...)` to `Path.moveTo(...)`.
+    * Added the parameter `keepName` with the default value of `false` to `Path.moveTo(...)`.
 
-* #### Operators
-  * Changed the `File.unaryPlus()` operator to `File.not().
-  * Removed the `String.unaryPlus()` operator. *(Felt bloated, and would definitely cause some clashes with some Kotlin DSL libraries.)*
-  * Added the `Path.not()` operator to convert `Path` to `File`.
+  * #### Operators
+    * Changed the `File.unaryPlus()` operator to `File.not().
+    * Removed the `String.unaryPlus()` operator. *(Felt bloated, and would definitely cause some clashes with some Kotlin DSL libraries.)*
+    * Added the `Path.not()` operator to convert `Path` to `File`.
 
 ## 0.1.0-beta (2019-01-09)
 Initial release.
