@@ -8,11 +8,11 @@ Gradle
 
 ```
 repositories {
-    maven { url "https://dl.bintray.com/olivki/kanon" }
+    jcenter()
 }
 
 dependencies {
-    compile "moe.kanon.kextensions:kanon.kextensions:0.1.1"
+    compile "moe.kanon.kextensions:kanon.kextensions:0.2.0"
 }
 ```
 
@@ -22,7 +22,7 @@ Maven
 <dependency>
   <groupId>moe.kanon.kextensions</groupId>
   <artifactId>kanon.kextensions</artifactId>
-  <version>0.1.1</version>
+  <version>0.2.0</version>
   <type>pom</type>
 </dependency>
 ```
