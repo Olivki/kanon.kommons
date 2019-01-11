@@ -12,7 +12,7 @@ apply plugin: "maven-publish"
 
 group "moe.kanon.kextensions"
 description "Various extensions and utilities for the Kotlin programming language."
-version "0.1.0-beta"
+version "0.2.0"
 
 ext {
     kotlinVersion = "1.3.11"
@@ -43,16 +43,16 @@ compileTestKotlin {
 
 // Publishing Stuff
 bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['mavenPublication']
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_KEY")
+    publications = ["mavenPublication"]
 
     pkg {
         repo = "kanon"
-        name = 'kanon.kextensions'
-        licenses = ['Apache-2.0']
+        name = "kanon.kextensions"
+        licenses = ["Apache-2.0"]
         websiteUrl = "https://gitlab.com/Olivki/kanon-kextensions"
-        vcsUrl = 'https://gitlab.com/Olivki/kanon-kextensions.git'
+        vcsUrl = "https://gitlab.com/Olivki/kanon-kextensions.git"
         publicDownloadNumbers = true
 
         version {
@@ -64,19 +64,29 @@ bintray {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    classifier = "sources"
     from sourceSets.main.allSource
 }
 
 task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
+    outputFormat = "javadoc"
     outputDirectory = javadoc.destinationDir
-    inputs.dir 'src/main/kotlin'
+    inputs.dir "src/main/kotlin"
+    jdkVersion = 8
+    includes = ["README.md"]
+
+    includeNonPublic = false
+    skipEmptyPackages = true
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://gitlab.com/Olivki/kanon-kextensions/tree/master/src/main/kotlin"
+    }
 }
 
 javadoc.failOnError = false
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    classifier = 'javadoc'
+    classifier = "javadoc"
     from javadoc.destinationDir
 }
 
@@ -121,14 +131,14 @@ publishing {
             }
 
             groupId "$project.group"
-            artifactId 'kanon.kextensions'
+            artifactId "kanon.kextensions"
             version "$project.version"
 
             pom.withXml {
                 def root = asNode()
-                root.appendNode('description', "$project.description")
-                root.appendNode('name', 'kanon.kextensions')
-                root.appendNode('url', 'https://gitlab.com/Olivki/kanon-kextensions')
+                root.appendNode("description", "$project.description")
+                root.appendNode("name", "kanon.kextensions")
+                root.appendNode("url", "https://gitlab.com/Olivki/kanon-kextensions")
                 root.children().last() + pomConfig
             }
         }

@@ -18,21 +18,21 @@ package moe.kanon.kextensions.collections
 
 // Generic Array
 /**
- * Returns an array inherited from [this] that's been spliced from [index] until the size of the array.
+ * Returns an array inherited from this [array][Array] that's been spliced from [index] until the size of the array.
  *
  * @see take
  */
 public fun <V> Array<V>.from(index: Int): Array<V> = sliceArray(index until size)
 
 /**
- * Returns an array inherited from [this] that's been spliced from index 0 until [index].
+ * Returns an array inherited from this [array][Array] that's been spliced from index 0 until [index].
  *
  * @see takeLast
  */
 public fun <V> Array<V>.until(index: Int): Array<V> = sliceArray(0 until index)
 
 /**
- * Checks whether [this] contains all the values of the [other] array.
+ * Checks whether this [array][Array] contains all the values of the [other] array.
  */
 public operator fun <V> Array<V>.contains(other: Array<V>): Boolean = when {
     other.isEmpty() -> false
@@ -40,7 +40,7 @@ public operator fun <V> Array<V>.contains(other: Array<V>): Boolean = when {
 }
 
 /**
- * Checks whether [this] contains all the values of the [other] collection.
+ * Checks whether this [array][Array] contains all the values of the [other] collection.
  */
 public operator fun <V> Array<V>.contains(other: Collection<V>): Boolean = when {
     other.isEmpty() -> false
@@ -51,8 +51,9 @@ public operator fun <V> Array<V>.contains(other: Collection<V>): Boolean = when 
 
 // IntArray
 /**
- * Checks whether [this] array contains the given [range].
+ * Checks whether this [array][Array] array contains the given [range].
  */
+// Experimental
 public operator fun IntArray.contains(range: IntRange): Boolean = when {
     isEmpty() -> false
     else -> range.all { it in this }

@@ -36,6 +36,8 @@ test:
   only:
     - master
     - tags
+  except:
+    - branches
 
 build:
   stage: build
@@ -51,11 +53,12 @@ build:
   artifacts:
     paths:
       - ./build/libs/*.jar
-    #expire_in: 1 day
   after_script:
     - echo "Build is finished.."
   only:
     - tags
+  except:
+    - branches
 
 attach_files_to_tag:
   stage: tag
@@ -65,6 +68,8 @@ attach_files_to_tag:
     - python3 -m gitlab_release --description "# Downloads" "$PRIVATE_TOKEN" ./build/libs/*.jar
   only:
     - tags
+  except:
+    - branches
 
 
 after_script:
