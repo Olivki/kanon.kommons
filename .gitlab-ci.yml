@@ -65,7 +65,7 @@ attach_files_to_tag:
   image: python:3
   script:
     - pip3 install gitlab_release
-    - python3 -m gitlab_release --description "# Downloads" "$PRIVATE_TOKEN" ./build/libs/*.jar
+    - python3 -m gitlab_release --description "## Downloads" "$PRIVATE_TOKEN" ./build/libs/*.jar
   only:
     - tags
   except:
