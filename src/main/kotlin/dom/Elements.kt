@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package moe.kanon.kextensions.xml
+package moe.kanon.kextensions.dom
 
 import org.w3c.dom.DOMException
 import org.w3c.dom.Element
