@@ -1,32 +1,32 @@
-## 0.3.1 (2019-01-16)
+## 0.3.1 (2019-01-16){#031-2019-01-16}
 * ### [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt)
-  * #### Functions
+  * #### Functions{#functions-documents-0.3.1}
     * Added missing explicit type inference to the `Node` class for `set(...)` in `Documents.kt`.
 
-## 0.3.0 (2019-01-16)
+## 0.3.0 (2019-01-16){#030-2019-01-16}
 
 * ### [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt)
-  * #### File
+  * #### File{#file-elements-0.3.0}
     * Added the new [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt) file. This file provides extensions for the `Element` class in the `org.w3c.dom` package.
 * ### [NamedNodeMaps.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/NamedNodeMaps.kt)
-  * #### File
+  * #### File{#file-namednodemaps-0.3.0}
     * Added the new [NamedNodeMaps.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/NamedNodeMaps.kt) file. This file provides extensions for the `NamedNodeMap` class in the `org.w3c.dom` package.
 * ### [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt)
-  * #### File
+  * #### File{#file-documents-0.3.0}
     * Added the new [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt) file. This file provides extensions for the `Document` class in the `org.w3c.dom` package.
 * ### [Nodes.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Nodes.kt)
-  * #### File
+  * #### File{#file-nodes-0.3.0}
     * Added the new [Nodes.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Nodes.kt) file. This file provides extensions for the `Node` class in the `org.w3c.dom` package.
 
-## 0.2.0 (2019-01-11)
+## 0.2.0 (2019-01-11){#020-2019-01-11}
 
 * ### [Paths.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/io/Paths.kt)
 
-  * #### Documentation
+  * #### Documentation{#documentation-paths-0.2.0}
     * Tidied up all the ported over documentation.
     * Ported over all of the documentation from `Files.java`.
 
-  * #### Functions
+  * #### Functions{#functions-paths-0.2.0}
     * Renamed `Path.pathToString(...)` to `Path.readToString(...)`.
     * Renamed `Path.readAllBytes(...)` to `Path.readBytes(...)`.
     * Renamed `Path.readAllLines(...)` to `Path.readLines(...)`.
@@ -38,10 +38,10 @@
     * Renamed `Path.move(...)` to `Path.moveTo(...)`.
     * Added the parameter `keepName` with the default value of `false` to `Path.moveTo(...)`.
 
-  * #### Operators
+  * #### Operators{#operators-paths-0.2.0}
     * Changed the `File.unaryPlus()` operator to `File.not()`.
     * Removed the `String.unaryPlus()` operator. *(Felt bloated, and would definitely cause some clashes with some Kotlin DSL libraries.)*
     * Added the `Path.not()` operator to convert `Path` to `File`.
 
-## 0.1.0-beta (2019-01-09)
+## 0.1.0-beta (2019-01-09){#010-beta-2019-01-09}
 Initial release.
