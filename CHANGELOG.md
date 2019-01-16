@@ -3,6 +3,9 @@
 * ### [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt)
   * #### File
     * Added the new [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt) file. This file provides extensions for the `Element` class in the `org.w3c.dom` package.
+* ### [NamedNodeMaps.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/NamedNodeMaps.kt)
+  * #### File
+    * Added the new [NamedNodeMaps.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/NamedNodeMaps.kt) file. This file provides extensions for the `NamedNodeMap` class in the `org.w3c.dom` package.
 
 ## 0.2.0 (2019-01-11)
 
