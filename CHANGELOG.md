@@ -1,12 +1,16 @@
-## 0.3.0 (2019-01-1x)
+>>>source
+https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/
+<<<
 
-* ### Elements.kt
+## 0.3.0 (2019-01-16)
+
+* ### [Elements.kt](<<<source>>>/xml/Elements.kt)
   * #### File
-    * Added the new file [Elements.kt](src/main/kotlin/xml/Elements.kt). This file provides extensions for the `Element` class in the `org.w3c.dom` package.
+    * Added the new [Elements.kt](src/main/kotlin/xml/Elements.kt) file. This file provides extensions for the `Element` class in the `org.w3c.dom` package.
 
 ## 0.2.0 (2019-01-11)
 
-* ### Paths.kt
+* ### [Paths.kt](<<<source>>>/io/Paths.kt)
 
   * #### Documentation
     * Tidied up all the ported over documentation.
