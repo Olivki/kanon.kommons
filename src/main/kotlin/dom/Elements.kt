@@ -19,14 +19,9 @@ package moe.kanon.kextensions.xml
 import org.w3c.dom.DOMException
 import org.w3c.dom.Element
 
-fun meme() {
-    val test = mutableListOf("")
-
-    test -= ""
-}
-
-// Set / Add
-
+// Standard Attribute
+// - Name Attribute
+// - - ADD
 /**
  * Adds a new attribute.
  *
@@ -54,6 +49,58 @@ public operator fun Element.set(name: String, value: String) {
     this.setAttribute(name, value)
 }
 
+// - - REMOVE
+/**
+ * Removes an attribute by name.
+ *
+ * If a default value for the removed attribute is defined in the DTD, a new attribute immediately appears with the
+ * default value as well as the corresponding namespace URI, local name, and prefix when applicable.
+ *
+ * The implementation may handle default values from other schemas similarly but applications should use
+ * [Document.normalizeDocument][org.w3c.dom.Document.normalizeDocument] to guarantee this information is up-to-date.
+ *
+ * If no attribute with this name is found, this method has no effect.
+ *
+ * To remove an attribute by local name and namespace URI, use the [removeAttributeNS][Element.removeAttributeNS]
+ * method.
+ *
+ * @param name The name of the attribute to remove.
+ *
+ * @exception DOMException
+ *
+ * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is `readonly`.
+ */
+public operator fun Element.minusAssign(name: String) {
+    this.removeAttribute(name)
+}
+
+// - - GET
+/**
+ * Retrieves an attribute value by name.
+ *
+ * @param name The name of the attribute to retrieve.
+ *
+ * @return The [Attr][org.w3c.dom.Attr] value as a string, or the empty string if that attribute does not have a
+ * specified or default value.
+ */
+public operator fun Element.get(name: String): String = this.getAttribute(name)!!
+
+// - - CONTAINS
+/**
+ * Returns `true` when an attribute with a given name is specified on this element or has a default value, `false`
+ * otherwise.
+ *
+ * @param name The name of the attribute to look for.
+ *
+ * @return `true` if an attribute with the given name is specified on this element or has a default value, `false`
+ * otherwise.
+ *
+ * @since DOM Level 2
+ */
+public operator fun Element.contains(name: String): Boolean = this.hasAttribute(name)
+
+// - NS Attribute
+// - - ADD
 /**
  * Adds a new attribute.
  *
@@ -100,81 +147,7 @@ public operator fun Element.set(namespaceURI: String, qualifiedName: String?, va
     this.setAttributeNS(namespaceURI, qualifiedName, value)
 }
 
-/**
- * If the parameter [isId] is `true`, this method declares the specified attribute to be a user-determined ID attribute.
- *
- * This affects the value of [org.w3c.dom.Attr.isId] and the behavior of [org.w3c.dom.Document.getElementById], but
- * does not change any schema that may be in use, in particular this does not affect the `Attr.schemaTypeInfo` of the
- * specified [org.w3c.dom.Attr] node.
- *
- * Use the value `false` for the parameter [isId] to undeclare an attribute for being a user-determined ID attribute.
- *
- * To specify an attribute by local name and namespace URI, use the [Element.setIdAttributeNS] method.
- *
- * @param name The name of the attribute.
- * @param isId Whether the attribute is a of type ID.
- * @exception DOMException
- *
- *`NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is `readonly`.
- *
- *`NOT_FOUND_ERR`: Raised if the specified node is not an attribute of this element.
- *
- * @since DOM Level 3
- */
-public operator fun Element.set(name: String, isId: Boolean) {
-    this.setIdAttribute(name, isId)
-}
-
-/**
- * If the parameter [isId] is `true`, this method declares the specified attribute to be a user-determined ID attribute.
- *
- * This affects the value of [Attr.isId][org.w3c.dom.Attr.isId] and the behavior of
- * [Document.getElementById][org.w3c.dom.Document.getElementById], but does not change any schema that may be in use,
- * in particular this does not affect the `schemaTypeInfo` of the specified [Attr][org.w3c.dom.Attr] node.
- *
- * Use the value `false` for the parameter [isId] to undeclare an attribute for being a user-determined ID attribute.
- *
- * @param namespaceURI The namespace URI of the attribute.
- * @param localName The local name of the attribute.
- * @param isId Whether the attribute is a of type ID.
- *
- * @exception DOMException
- * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is `readonly`.
- *
- * `NOT_FOUND_ERR`: Raised if the specified node is not an attribute of this element.
- *
- * @since DOM Level 3
- */
-public operator fun Element.set(namespaceURI: String, localName: String, isId: Boolean) {
-    this.setIdAttributeNS(namespaceURI, localName, isId)
-}
-
-// Remove
-
-/**
- * Removes an attribute by name.
- *
- * If a default value for the removed attribute is defined in the DTD, a new attribute immediately appears with the
- * default value as well as the corresponding namespace URI, local name, and prefix when applicable.
- *
- * The implementation may handle default values from other schemas similarly but applications should use
- * [Document.normalizeDocument][org.w3c.dom.Document.normalizeDocument] to guarantee this information is up-to-date.
- *
- * If no attribute with this name is found, this method has no effect.
- *
- * To remove an attribute by local name and namespace URI, use the [removeAttributeNS][Element.removeAttributeNS]
- * method.
- *
- * @param name The name of the attribute to remove.
- *
- * @exception DOMException
- *
- * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is `readonly`.
- */
-public operator fun Element.minusAssign(name: String) {
-    this.removeAttribute(name)
-}
-
+// - - REMOVE
 /**
  * Removes an attribute by [namespace URI][Pair.first] and [local name][Pair.second].
  *
@@ -209,18 +182,7 @@ public operator fun Element.minusAssign(nsAttr: Pair<String?, String>) {
     this.removeAttributeNS(nsAttr.first, nsAttr.second)
 }
 
-// Get
-
-/**
- * Retrieves an attribute value by name.
- *
- * @param name The name of the attribute to retrieve.
- *
- * @return The [Attr][org.w3c.dom.Attr] value as a string, or the empty string if that attribute does not have a
- * specified or default value.
- */
-public operator fun Element.get(name: String): String = this.getAttribute(name)!!
-
+// - - GET
 /**
  * Retrieves an attribute value by local name and namespace URI.
  *
@@ -244,20 +206,7 @@ public operator fun Element.get(name: String): String = this.getAttribute(name)!
 public operator fun Element.get(namespaceURI: String?, localName: String): String =
     this.getAttributeNS(namespaceURI, localName)!!
 
-// Has Attribute
-/**
- * Returns `true` when an attribute with a given name is specified on this element or has a default value, `false`
- * otherwise.
- *
- * @param name The name of the attribute to look for.
- *
- * @return `true` if an attribute with the given name is specified on this element or has a default value, `false`
- * otherwise.
- *
- * @since DOM Level 2
- */
-public operator fun Element.contains(name: String): Boolean = this.hasAttribute(name)
-
+// - - CONTAINS
 /**
  * Returns `true` when an attribute with a given local name and namespace URI is specified on this element or has a
  * default value, `false` otherwise.
@@ -281,3 +230,57 @@ public operator fun Element.contains(name: String): Boolean = this.hasAttribute(
  */
 public operator fun Element.contains(attrPair: Pair<String?, String>): Boolean =
     this.hasAttributeNS(attrPair.first, attrPair.second)
+
+// ID Attribute
+// - Name Attribute
+// - - ADD
+/**
+ * If the parameter [isId] is `true`, this method declares the specified attribute to be a user-determined ID attribute.
+ *
+ * This affects the value of [org.w3c.dom.Attr.isId] and the behavior of [org.w3c.dom.Document.getElementById], but
+ * does not change any schema that may be in use, in particular this does not affect the `Attr.schemaTypeInfo` of the
+ * specified [org.w3c.dom.Attr] node.
+ *
+ * Use the value `false` for the parameter [isId] to undeclare an attribute for being a user-determined ID attribute.
+ *
+ * To specify an attribute by local name and namespace URI, use the [Element.setIdAttributeNS] method.
+ *
+ * @param name The name of the attribute.
+ * @param isId Whether the attribute is a of type ID.
+ * @exception DOMException
+ *
+ *`NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is `readonly`.
+ *
+ *`NOT_FOUND_ERR`: Raised if the specified node is not an attribute of this element.
+ *
+ * @since DOM Level 3
+ */
+public operator fun Element.set(name: String, isId: Boolean) {
+    this.setIdAttribute(name, isId)
+}
+
+// - NS Attribute
+// - - ADD
+/**
+ * If the parameter [isId] is `true`, this method declares the specified attribute to be a user-determined ID attribute.
+ *
+ * This affects the value of [Attr.isId][org.w3c.dom.Attr.isId] and the behavior of
+ * [Document.getElementById][org.w3c.dom.Document.getElementById], but does not change any schema that may be in use,
+ * in particular this does not affect the `schemaTypeInfo` of the specified [Attr][org.w3c.dom.Attr] node.
+ *
+ * Use the value `false` for the parameter [isId] to undeclare an attribute for being a user-determined ID attribute.
+ *
+ * @param namespaceURI The namespace URI of the attribute.
+ * @param localName The local name of the attribute.
+ * @param isId Whether the attribute is a of type ID.
+ *
+ * @exception DOMException
+ * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is `readonly`.
+ *
+ * `NOT_FOUND_ERR`: Raised if the specified node is not an attribute of this element.
+ *
+ * @since DOM Level 3
+ */
+public operator fun Element.set(namespaceURI: String, localName: String, isId: Boolean) {
+    this.setIdAttributeNS(namespaceURI, localName, isId)
+}
