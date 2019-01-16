@@ -73,7 +73,7 @@ public operator fun Document.plusAssign(tagName: String) {
  * @see Document.createEntityReference
  * @see Document.createTextNode
  */
-public operator fun Document.set(type: ChildType, text: String) = when(type) {
+public operator fun Document.set(type: ChildType, text: String): Node = when(type) {
     ChildType.ATTRIBUTE -> this.appendChild(this.createAttribute(text)!!)!! as Attr
     ChildType.COMMENT -> this.appendChild(this.createComment(text)!!)!! as Comment
     ChildType.ELEMENT -> this.appendChild(this.createElement(text))!! as Element
