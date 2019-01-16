@@ -1,3 +1,9 @@
+## 0.3.0 (2019-01-1x)
+
+* ### Elements.kt
+  * #### File
+    * Added the new file [Elements.kt](src/main/kotlin/xml/Elements.kt). This file provides extensions for the `Element` class in the `org.w3c.dom` package.
+
 ## 0.2.0 (2019-01-11)
 
 * ### Paths.kt
