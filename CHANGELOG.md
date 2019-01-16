@@ -1,4 +1,6 @@
-## 0.3.1 (2019-01-16){#031-2019-01-16}
+## 0.3.2 (xxxx-xx-xx)
+
+## 0.3.1 (2019-01-16)
 
 * ### [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt)
   * #### Functions{#functions-documents-0.3.1}
@@ -19,7 +21,7 @@
   * #### File{#file-nodes-0.3.0}
     * Added the new [Nodes.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Nodes.kt) file. This file provides extensions for the `Node` class in the `org.w3c.dom` package.
 
-## 0.2.0 (2019-01-11){#020-2019-01-11}
+## 0.2.0 (2019-01-11)
 
 * ### [Paths.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/io/Paths.kt)
 
@@ -44,5 +46,5 @@
     * Removed the `String.unaryPlus()` operator. *(Felt bloated, and would definitely cause some clashes with some Kotlin DSL libraries.)*
     * Added the `Path.not()` operator to convert `Path` to `File`.
 
-## 0.1.0-beta (2019-01-09){#010-beta-2019-01-09}
+## 0.1.0-beta (2019-01-09)
 Initial release.
