@@ -1,3 +1,5 @@
+## 0.3.1 (2019-01-16)
+
 ## 0.3.0 (2019-01-16)
 
 * ### [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt)
