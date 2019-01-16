@@ -1,4 +1,5 @@
 ## 0.3.1 (2019-01-16){#031-2019-01-16}
+
 * ### [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt)
   * #### Functions{#functions-documents-0.3.1}
     * Added missing explicit type inference to the `Node` class for `set(...)` in `Documents.kt`.
