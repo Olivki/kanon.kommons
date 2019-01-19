@@ -1,10 +1,10 @@
 ## 0.4.0 (2019-01-xx)
 
-* ### NamedNodeMaps.kt
+* ### /dom/NamedNodeMaps.kt
   * #### File
-    * `NamedNodeMaps.kt` has been renamed to `_NamedNodeMap.kt`.
+    * `NamedNodeMaps.kt` has been renamed to `NamedNodeMap.kt`.
 
-* ### _NamedNodeMap.kt
+* ### /dom/NamedNodeMap.kt
   * #### Functions
     * Added the `forEach` function, to allow for easier iteration.
     * Added the `toMap` function which converts the `NamedNodeMap` into a `Map` in the order of `node.nodeName:node`.
@@ -15,31 +15,31 @@
 
 ## 0.3.1 (2019-01-16)
 
-* ### Documents.kt
+* ### /dom/Documents.kt
   * #### Functions
     * Added missing explicit type inference to the `Node` class for `set(...)` in `Documents.kt`.
 
 ## 0.3.0 (2019-01-16)
 
-* ### Elements.kt
+* ### /dom/Elements.kt
   * #### File
     * Added the new `Elements.kt` file. This file provides extensions for the `Element` class in the `org.w3c.dom` package.
 
-* ### NamedNodeMaps.kt
+* ### /dom/NamedNodeMaps.kt
   * #### File
     * Added the new `NamedNodeMaps.kt` file. This file provides extensions for the `NamedNodeMap` class in the `org.w3c.dom` package.
 
-* ### Documents.kt
+* ### /dom/Documents.kt
   * #### File
     * Added the new `Documents.kt` file. This file provides extensions for the `Document` class in the `org.w3c.dom` package.
 
-* ### Nodes.kt
+* ### /dom/Nodes.kt
   * #### File
     * Added the new `Nodes.kt` file. This file provides extensions for the `Node` class in the `org.w3c.dom` package.
 
 ## 0.2.0 (2019-01-11)
 
-* ### Paths.kt
+* ### /io/Paths.kt
   * #### Documentation
     * Tidied up all the ported over documentation.
     * Ported over all of the documentation from `Files.java`.
