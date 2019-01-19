@@ -42,3 +42,47 @@ public operator fun NamedNodeMap.get(index: Int): Node? = this.item(index)
  * Tests whether or not this [map][NamedNodeMap] contains the specified [name].
  */
 public operator fun NamedNodeMap.contains(name: String): Boolean = this[name] != null
+
+/**
+ * Performs the given [action] on each [node][Node] in this node map.
+ */
+public inline fun NamedNodeMap.forEach(action: Node.() -> Unit) {
+    val length = this.length
+
+    for (i in 0 until length) action(this.item(i))
+}
+
+/**
+ * Checks if this node map has no entries.
+ */
+public val NamedNodeMap.isEmpty: Boolean get() = this.length <= 0
+
+/**
+ * Creates a [Map] by collecting the entries from this [node map][NamedNodeMap] into a [HashMap][java.util.HashMap]
+ * with [Node.getNodeName] as the `key`, and the [Node] instance as the `value`.
+ *
+ * > `this.nodeName:this`
+ */
+public fun NamedNodeMap.toMap(): Map<String, Node> {
+    if (this.isEmpty) return emptyMap()
+
+    val map = HashMap<String, Node>()
+
+    this.forEach { map[this.nodeName] = this }
+
+    return map
+}
+
+/**
+ * Creates a [Set] by collecting the entries from this [node map][NamedNodeMap] into a [HashSet][java.util.HashSet]
+ * with the [Node] instance as the value.
+ */
+public fun NamedNodeMap.toSet(): Set<Node> {
+    if (this.isEmpty) return emptySet()
+
+    val set = HashSet<Node>()
+
+    this.forEach { set += this }
+
+    return set
+}
