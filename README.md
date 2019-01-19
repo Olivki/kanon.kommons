@@ -1,6 +1,6 @@
 # kanon.kExtensions [![Download](https://api.bintray.com/packages/olivki/kanon/kanon.kextensions/images/download.svg) ](https://bintray.com/olivki/kanon/kanon.kextensions/1.0.0/link)
 
-Extension methods for Kotlin for Java classes and Kotlin classes.
+Various extension methods and extension properties and utilities for the Kotlin programming language.
 
 # Word of Caution
 **Please note that this library is still very experimental, and thus breaking changes can be made in MINOR versions.**
