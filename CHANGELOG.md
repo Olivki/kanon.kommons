@@ -1,29 +1,29 @@
-## 0.3.2 (xxxx-xx-xx)
+## 0.4.0 (2019-01-xx)
 
 ## 0.3.1 (2019-01-16)
 
-* ### [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt)
+* ### Documents.kt
   * #### Functions{#functions-documents-0.3.1}
     * Added missing explicit type inference to the `Node` class for `set(...)` in `Documents.kt`.
 
 ## 0.3.0 (2019-01-16){#030-2019-01-16}
 
-* ### [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt)
+* ### Elements.kt
   * #### File{#file-elements-0.3.0}
-    * Added the new [Elements.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Elements.kt) file. This file provides extensions for the `Element` class in the `org.w3c.dom` package.
-* ### [NamedNodeMaps.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/NamedNodeMaps.kt)
+    * Added the new `Elements.kt` file. This file provides extensions for the `Element` class in the `org.w3c.dom` package.
+* ### NamedNodeMaps.kt
   * #### File{#file-namednodemaps-0.3.0}
-    * Added the new [NamedNodeMaps.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/NamedNodeMaps.kt) file. This file provides extensions for the `NamedNodeMap` class in the `org.w3c.dom` package.
-* ### [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt)
+    * Added the new `NamedNodeMaps.kt` file. This file provides extensions for the `NamedNodeMap` class in the `org.w3c.dom` package.
+* ### Documents.kt
   * #### File{#file-documents-0.3.0}
-    * Added the new [Documents.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Documents.kt) file. This file provides extensions for the `Document` class in the `org.w3c.dom` package.
-* ### [Nodes.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Nodes.kt)
+    * Added the new `Documents.kt` file. This file provides extensions for the `Document` class in the `org.w3c.dom` package.
+* ### Nodes.kt
   * #### File{#file-nodes-0.3.0}
-    * Added the new [Nodes.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/dom/Nodes.kt) file. This file provides extensions for the `Node` class in the `org.w3c.dom` package.
+    * Added the new `Nodes.kt` file. This file provides extensions for the `Node` class in the `org.w3c.dom` package.
 
 ## 0.2.0 (2019-01-11)
 
-* ### [Paths.kt](https://gitlab.com/Olivki/kanon-kextensions/blob/master/src/main/kotlin/io/Paths.kt)
+* ### Paths.kt
 
   * #### Documentation{#documentation-paths-0.2.0}
     * Tidied up all the ported over documentation.
