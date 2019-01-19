@@ -1,4 +1,4 @@
-# kanon.kExtensions [![Download](https://api.bintray.com/packages/olivki/kanon/kanon.kextensions/images/download.svg) ](https://bintray.com/olivki/kanon/kanon.kextensions/1.0.0/link)
+# kanon.kExtensions [![Download](https://api.bintray.com/packages/olivki/kanon/kanon.kextensions/images/download.svg) ](https://bintray.com/olivki/kanon/kanon.kextensions/_latestVersion)
 
 Various extension methods and extension properties and utilities for the Kotlin programming language.
 
