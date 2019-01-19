@@ -9,6 +9,7 @@
     * Added the `forEach` function, to allow for easier iteration.
     * Added the `toMap` function which converts the `NamedNodeMap` into a `Map` in the order of `node.nodeName:node`.
     * Added the `toSet` function which converts the `NamedNodeMap` to a `Set` containing all the node instances in the node map.
+    * Added the `get(String, String)` operator which allows getting Nodes that are registered under specific namespaces.
 
   * #### Properties
     * Added the `isEmpty` property which checks if the node map has any entries.

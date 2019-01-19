@@ -16,6 +16,7 @@
 
 package moe.kanon.kextensions.dom
 
+import org.w3c.dom.DOMException
 import org.w3c.dom.NamedNodeMap
 import org.w3c.dom.Node
 
@@ -27,6 +28,29 @@ import org.w3c.dom.Node
  * @return A [Node] (of any type) with the specified [name], or `null` if it does not identify any node in this map.
  */
 public operator fun NamedNodeMap.get(name: String): Node? = this.getNamedItem(name)
+
+/**
+ * Retrieves a node specified by local name and namespace URI.
+ *
+ * Per [XML Namespaces](http://www.w3.org/TR/1999/REC-xml-names-19990114/), applications must use the value `null` as
+ * the [namespaceURI] parameter for methods if they wish to have no namespace.
+ *
+ * @param namespaceURI The namespace URI of the node to retrieve.
+ * @param localName The local name of the node to retrieve.
+ *
+ * @return A [Node] *(of any type)* with the specified local name and namespace URI, or `null` if they do not identify
+ * any node in this map.
+ *
+ * @exception DOMException
+ *
+ * `NOT_SUPPORTED_ERR`: May be raised if the implementation does not support the feature `"XML"` and the language
+ * exposed through the Document does not support XML Namespaces *(such as
+ * [HTML 4.01](http://www.w3.org/TR/1999/REC-html401-19991224/))*.
+ *
+ * @since DOM Level 2
+ */
+public operator fun NamedNodeMap.get(namespaceURI: String, localName: String): Node? =
+    this.getNamedItemNS(namespaceURI, localName)
 
 /**
  * Returns the [indexth][index] item in the map. If [index] is greater than or equal to the number of nodes in this map,
@@ -46,6 +70,9 @@ public operator fun NamedNodeMap.contains(name: String): Boolean = this[name] !=
 /**
  * Performs the given [action] on each [node][Node] in this node map.
  */
+// This is not marked as "forEachIndexed" because the index of the retrieved value in NamedNodeMap is not relevant to
+// anything, because the entries are NOT stored in any certain order, so the index of a specific Node will be different
+// with each access.
 public inline fun NamedNodeMap.forEach(action: Node.() -> Unit) {
     val length = this.length
 
