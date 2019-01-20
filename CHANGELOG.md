@@ -41,9 +41,12 @@
   * ### Classes
     * Added the `AttributeMap` class. This class acts as a sort of facade replacement for the `getAttributes(): NamedNodeMap` method in the `Element` class.
 
+  * ### Operators
+    * All operators that were previously for `Element` have been migrated to `AttributeMap` and can be accessed using `element.attributeMap`.
+
 * ### /dom/Node.kt
   * ### Functions
-    * `set(ChildType, String)` has been removed as it was deemed to clunky.
+    * `set(ChildType, String)` has been removed as it was deemed too clunky and ugly.
 
 * ### /dom/NodeList.kt
   * #### File
@@ -54,8 +57,12 @@
     * `Documents.kt` has been renamed to `Document.kt`.
 
 * ### /dom/Document.kt
-  * #### File
-    * ...
+  * #### Operators
+    * `set(ChildType, String)` has been removed as it was deemed too clunky and ugly.
+    * `plusAssign(String)` has been removed as it was deemed too ambiguous.
+
+  * #### Misc
+    * `ChildType` has been removed as the functions that used it were removed.
 
 ## 0.3.1 (2019-01-16)
 

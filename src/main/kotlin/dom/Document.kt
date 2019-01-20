@@ -16,7 +16,8 @@
 
 package moe.kanon.kextensions.dom
 
-import org.w3c.dom.*
+import org.w3c.dom.DOMException
+import org.w3c.dom.Document
 
 
 /**
@@ -45,46 +46,4 @@ import org.w3c.dom.*
  */
 public operator fun Document.plusAssign(tagName: String) {
     this.createElement(tagName)!!
-}
-
-/**
- * Creates and appends the child that's assigned to the given [type] to this [document][Document].
- *
- * For more information, please see the individual documentation for each "`create...(...)`" function.
- *
- * **Usage Example:**
- *
- * Suppose we want to append a comment before another element:
- *
- * ```Kotlin
- *      val doc: Document = ...
- *      doc[ChildType.COMMENT] = "This is a comment."
- *      ...
- * ```
- *
- * - `ATTRIBUTE`: [createAttribute(...)][Document.createAttribute].
- * - `COMMENT`: [createComment(...)][Document.createComment].
- * - `ELEMENT`: [createElement(...)][Document.createElement].
- * - `ENTITY_REFERENCE`: [createEntityReference(...)][Document.createEntityReference].
- * - `TEXT_NODE`: [createTextNode(...)][Document.createTextNode].
- *
- * @see Document.createAttribute
- * @see Document.createComment
- * @see Document.createElement
- * @see Document.createEntityReference
- * @see Document.createTextNode
- */
-public operator fun Document.set(type: ChildType, text: String): Node = when(type) {
-    ChildType.ATTRIBUTE -> this.appendChild(this.createAttribute(text)!!)!! as Attr
-    ChildType.COMMENT -> this.appendChild(this.createComment(text)!!)!! as Comment
-    ChildType.ELEMENT -> this.appendChild(this.createElement(text))!! as Element
-    ChildType.ENTITY_REFERENCE -> this.appendChild(this.createEntityReference(text)!!)!! as EntityReference
-    ChildType.TEXT_NODE -> this.appendChild(this.createTextNode(text))!! as Text
-}
-
-/**
- * For use with [set].
- */
-public enum class ChildType {
-    ATTRIBUTE, COMMENT, ELEMENT, ENTITY_REFERENCE, TEXT_NODE
 }
