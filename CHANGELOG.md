@@ -22,6 +22,10 @@
   * #### Annotation
     * The operator function `IntArray.contains` has been marked with `ExperimentalFeature`.
 
+* ### /math/BigIntegers.kt
+  * #### File
+    * `BigIntegers.kt` has been renamed to `BigInteger.kt`.
+
 ## 0.3.1 (2019-01-16)
 
 * ### /dom/Documents.kt
