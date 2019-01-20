@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("CollectionUtils")
+
 package moe.kanon.kextensions.collections
 
 /**

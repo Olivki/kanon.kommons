@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ArrayUtils")
+
 package moe.kanon.kextensions.collections
 
 import moe.kanon.kextensions.ExperimentalFeature
