@@ -424,3 +424,59 @@ public class AttributeMap @PublishedApi internal constructor(private val parent:
 @ExperimentalFeature
 public inline val Element.attributeMap: AttributeMap
     get() = AttributeMap(this)
+
+/**
+ * Creates an [Element] from the specified [tagName] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendElement(tagName: String): Element =
+    this.appendChild(this.ownerDocument.createElement(tagName))!! as Element
+
+/**
+ * Creates an [Element] from the given [namespaceURI] and [qualifiedName] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendElementNS(namespaceURI: String?, qualifiedName: String): Element =
+    this.appendChild(this.ownerDocument.createElementNS(namespaceURI, qualifiedName))!! as Element
+
+/**
+ * Creates a [Comment] of the specified [data] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendComment(data: String): Comment =
+    this.appendChild(this.ownerDocument.createComment(data))!! as Comment
+
+/**
+ * Creates a [TextNode][Text] of the specified [data] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendTextNode(data: String): Text =
+    this.appendChild(this.ownerDocument.createTextNode(data))!! as Text
+
+/**
+ * Creates a [CDATASection] of the specified [data] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendCDataSection(data: String): CDATASection =
+    this.appendChild(this.ownerDocument.createCDATASection(data))!! as CDATASection
+
+/**
+ * Creates a [ProcessingInstruction] from the specified [target] and [data] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendProcessingInstruction(target: String, data: String): ProcessingInstruction =
+    this.appendChild(this.ownerDocument.createProcessingInstruction(target, data))!! as ProcessingInstruction
+
+/**
+ * Creates a [EntityReference] from the specified [name] and then appends it to this element.
+ *
+ * @since 0.4.0
+ */
+public fun Element.appendEntityReference(name: String): EntityReference =
+    this.appendChild(this.ownerDocument.createEntityReference(name))!! as EntityReference
