@@ -41,6 +41,7 @@ compileKotlin {
 }
 
 compileTestKotlin {
+    kotlinOptions.freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
     kotlinOptions.jvmTarget = "$javaTarget"
 }
 
