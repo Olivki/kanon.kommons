@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
+@file:JvmName("ArrayUtils")
+
 package moe.kanon.kextensions.collections
+
+import moe.kanon.kextensions.ExperimentalFeature
 
 // Generic Array
 /**
- * Returns an array inherited from this [array][Array] that's been spliced from [index] until the size of the array.
+ * Returns an array inherited from this [array][Array] that's been spliced from [start] until the size of the array.
  *
  * @see take
  */
-public fun <V> Array<V>.from(index: Int): Array<V> = sliceArray(index until size)
+public fun <V> Array<V>.from(start: Int): Array<V> = sliceArray(start until size)
 
 /**
- * Returns an array inherited from this [array][Array] that's been spliced from index 0 until [index].
+ * Returns an array inherited from this [array][Array] that's been spliced from index 0 until [end].
  *
  * @see takeLast
  */
-public fun <V> Array<V>.until(index: Int): Array<V> = sliceArray(0 until index)
+public fun <V> Array<V>.until(end: Int): Array<V> = sliceArray(0 until end)
 
 /**
  * Checks whether this [array][Array] contains all the values of the [other] array.
@@ -53,7 +57,7 @@ public operator fun <V> Array<V>.contains(other: Collection<V>): Boolean = when 
 /**
  * Checks whether this [array][Array] array contains the given [range].
  */
-// Experimental
+@ExperimentalFeature
 public operator fun IntArray.contains(range: IntRange): Boolean = when {
     isEmpty() -> false
     else -> range.all { it in this }

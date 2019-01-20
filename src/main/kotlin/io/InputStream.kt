@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("InputStreamUtils")
+
 package moe.kanon.kextensions.io
 
 import java.io.InputStream

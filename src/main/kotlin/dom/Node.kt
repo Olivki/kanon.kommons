@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NodeUtils")
+
 package moe.kanon.kextensions.dom
 
 import org.w3c.dom.*
@@ -44,10 +46,30 @@ import org.w3c.dom.*
  * might be raised if the DOM implementation doesn't support the removal of the
  * [DocumentType][org.w3c.dom.DocumentType] child or [Element][org.w3c.dom.Element] child.
  *
- * @since DOM Level 3
+ * @since 0.3.0
  */
 public operator fun Node.plusAssign(child: Node) {
     this.appendChild(child)
+}
+
+/**
+ * Removes the child node indicated by [oldChild] from the list of children.
+ *
+ * @param oldChild The node being removed.
+ *
+ * @exception DOMException
+ *
+ * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is readonly.
+ *
+ * `NOT_FOUND_ERR`: Raised if <code>oldChild</code> is not a child of this node.
+ *
+ * `NOT_SUPPORTED_ERR`: if this node is of type [Document], this exception might be raised if the DOM implementation
+ * doesn't support the removal of the [DocumentType] child or the [Element] child.
+ *
+ * @since 0.3.0
+ */
+public operator fun Node.minusAssign(oldChild: Node) {
+    this.removeChild(oldChild)
 }
 
 /**
@@ -62,21 +84,29 @@ public operator fun Node.plusAssign(child: Node) {
  *
  * @return Returns `true` if the nodes are the same, `false` otherwise.
  *
- * @since DOM Level 3
+ * @since 0.3.0
  */
 public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
 
 /**
- * Creates and appends the child that's assigned to the given [type] to this [node][Node].
+ * Returns the [index]th item in the collection.
  *
- * For more information, please see the [original][Document.set] function.
+ * If [index] is greater than or equal to the number of nodes in the list, this will throw an exception.
  *
- * @see Document.set
+ * @param index Index into the collection.
+ *
+ * @since 0.4.0
  */
-public operator fun Node.set(type: ChildType, text: String): Node = when (type) {
-    ChildType.ATTRIBUTE -> this.appendChild(this.ownerDocument.createAttribute(text)!!)!! as Attr
-    ChildType.COMMENT -> this.appendChild(this.ownerDocument.createComment(text)!!)!! as Comment
-    ChildType.ELEMENT -> this.appendChild(this.ownerDocument.createElement(text))!! as Element
-    ChildType.ENTITY_REFERENCE -> this.appendChild(this.ownerDocument.createEntityReference(text)!!)!! as EntityReference
-    ChildType.TEXT_NODE -> this.appendChild(this.ownerDocument.createTextNode(text))!! as Text
-}
+public operator fun Node.get(index: Int): Node = this.childNodes[index]!!
+
+/**
+ * Returns the [Node] that has a [nodeName][Node.getNodeName] that matches the specified [name], or it will throw an
+ * exception if it can't be found.
+ *
+ * @param ignoreCase Whether or not the matching should be done while ignoring any case differences.
+ *
+ * (`false` by default)
+ *
+ * @since 0.4.0
+ */
+public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]!!

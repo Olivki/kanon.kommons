@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ListUtils")
+
 package moe.kanon.kextensions.collections
 
-public fun <V> List<V>.from(index: Int) = slice(index until size)
+public fun <V> List<V>.from(start: Int) = slice(start until size)

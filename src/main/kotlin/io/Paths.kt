@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("FilesWrapper")
+
 package moe.kanon.kextensions.io
 
 import moe.kanon.kextensions.collections.addAll

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("PosixFilePermissionsWrapper")
+
 package moe.kanon.kextensions.io
 
 import java.nio.file.attribute.FileAttribute

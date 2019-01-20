@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("BigIntegerUtils")
+
 package moe.kanon.kextensions.math
 
 import java.math.BigInteger
