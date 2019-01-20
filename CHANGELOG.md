@@ -14,6 +14,7 @@
     * Added the `iterator` function.
     * Added the `plusAssign` operator to allow cleaner addition of nodes.
     * Added the `minusAssign` operator to allow cleaner removal of nodes.
+    * Added the `putAll` function.
 
 * ### ExperimentalFeature.kt
   * #### File
