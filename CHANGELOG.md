@@ -11,6 +11,7 @@
     * Added the `toSet` function which converts the `NamedNodeMap` to a `Set` containing all the node instances in the node map.
     * Added the `get(String, String)` operator which allows getting Nodes that are registered under specific namespaces.
     * Added the `isEmpty` function which checks if the node map has any entries.
+    * Added the `iterator` function.
 
 * ### ExperimentalFeature.kt
   * #### File

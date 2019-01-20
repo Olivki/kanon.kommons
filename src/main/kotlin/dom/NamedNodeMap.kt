@@ -115,3 +115,8 @@ public fun NamedNodeMap.toSet(): Set<Node> {
 
     return set
 }
+
+/**
+ * Returns an [Iterator] over the entries in the [NamedNodeMap].
+ */
+public fun NamedNodeMap.iterator(): Iterator<Node> = this.toSet().iterator()
