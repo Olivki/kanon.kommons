@@ -45,6 +45,13 @@
   * ### Functions
     * `set(ChildType, String)` has been removed as it was deemed to clunky.
 
+* ### /dom/NodeList.kt
+  * #### File
+    * Added the new `NodeList.kt` file. This file provides extensions for the `NodeList` class in the `org.w3c.dom` package.
+
+  * ### Functions
+    * things
+
 ## 0.3.1 (2019-01-16)
 
 * ### /dom/Documents.kt
