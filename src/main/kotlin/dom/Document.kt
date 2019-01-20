@@ -53,6 +53,20 @@ public fun Document.appendTextNode(data: String): Text =
     this.appendChild(this.createTextNode(data))!! as Text
 
 /**
+ * Creates a [Element] with the specified [name] that only contains a [TextNode][Text] containing the specified [data],
+ * then appends it to this document.
+ *
+ * @since 0.4.1
+ */
+public fun Document.appendTextContainer(name: String, data: String): Element {
+    val parent = this.createElement(name)
+
+    parent.appendTextNode(data)
+
+    return this.appendChild(parent)!! as Element
+}
+
+/**
  * Creates a [CDATASection] of the specified [data] and then appends it to this document.
  *
  * @since 0.4.0
