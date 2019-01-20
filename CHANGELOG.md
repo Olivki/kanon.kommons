@@ -43,7 +43,7 @@
   * #### File
     * `Nodes.kt` has been renamed to `Node.kt`.
 
-* ## /dom/Elements.kt
+* ### /dom/Elements.kt
   * #### File
     * `Elements.kt` has been renamed to `Element.kt`.
 
