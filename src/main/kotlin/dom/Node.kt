@@ -18,18 +18,8 @@
 
 package moe.kanon.kextensions.dom
 
-import org.w3c.dom.*
-
-
-/*
-    While NamedNodeMapImpl *does* know of the creator of it, NamedNodeMap *does* NOT, and because of the fact that we
-    never actually get any instances of the implementations given to us when working with the documents, but rather we
-    just get the interface.
-        This makes it rather annoying to work on NamedNodeMap, for we have no instance of the parent, which means we
-    have no way of creating appropriate node-children that are *actually* associated with the parent of the node map.
-        For this reason I created this class that
- */
-
+import org.w3c.dom.DOMException
+import org.w3c.dom.Node
 
 /**
  * Adds the node [child] to the end of the list of children of this node.
@@ -78,18 +68,3 @@ public operator fun Node.plusAssign(child: Node) {
  * @since DOM Level 3
  */
 public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
-
-/**
- * Creates and appends the child that's assigned to the given [type] to this [node][Node].
- *
- * For more information, please see the [original][Document.set] function.
- *
- * @see Document.set
- */
-public operator fun Node.set(type: ChildType, text: String): Node = when (type) {
-    ChildType.ATTRIBUTE -> this.appendChild(this.ownerDocument.createAttribute(text)!!)!! as Attr
-    ChildType.COMMENT -> this.appendChild(this.ownerDocument.createComment(text)!!)!! as Comment
-    ChildType.ELEMENT -> this.appendChild(this.ownerDocument.createElement(text))!! as Element
-    ChildType.ENTITY_REFERENCE -> this.appendChild(this.ownerDocument.createEntityReference(text)!!)!! as EntityReference
-    ChildType.TEXT_NODE -> this.appendChild(this.ownerDocument.createTextNode(text))!! as Text
-}

@@ -41,6 +41,10 @@
   * ### Classes
     * Added the `AttributeMap` class. This class acts as a sort of facade replacement for the `getAttributes(): NamedNodeMap` method in the `Element` class.
 
+* ### /dom/Node.kt
+  * ### Functions
+    * `set(ChildType, String)` has been removed as it was deemed to clunky.
+
 ## 0.3.1 (2019-01-16)
 
 * ### /dom/Documents.kt
