@@ -14,6 +14,14 @@
   * #### Properties
     * Added the `isEmpty` property which checks if the node map has any entries.
 
+* ### ExperimentalFeature.kt
+  * #### File
+    * Added the new `ExperimentalFeature` interface. This will be used to mark experimental features in such a way that the user will be able to understand that they are using an experimental feature.
+
+* ### /collections/Arrays.kt
+  * #### Annotation
+    * The operator function `IntArray.contains` has been marked with `ExperimentalFeature`.
+
 ## 0.3.1 (2019-01-16)
 
 * ### /dom/Documents.kt
