@@ -46,7 +46,7 @@ import org.w3c.dom.*
  * might be raised if the DOM implementation doesn't support the removal of the
  * [DocumentType][org.w3c.dom.DocumentType] child or [Element][org.w3c.dom.Element] child.
  *
- * @since DOM Level 3
+ * @since 0.3.0
  */
 public operator fun Node.plusAssign(child: Node) {
     this.appendChild(child)
@@ -66,7 +66,7 @@ public operator fun Node.plusAssign(child: Node) {
  * `NOT_SUPPORTED_ERR`: if this node is of type [Document], this exception might be raised if the DOM implementation
  * doesn't support the removal of the [DocumentType] child or the [Element] child.
  *
- * @since DOM Level 3
+ * @since 0.3.0
  */
 public operator fun Node.minusAssign(oldChild: Node) {
     this.removeChild(oldChild)
@@ -84,7 +84,7 @@ public operator fun Node.minusAssign(oldChild: Node) {
  *
  * @return Returns `true` if the nodes are the same, `false` otherwise.
  *
- * @since DOM Level 3
+ * @since 0.3.0
  */
 public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
 
@@ -94,6 +94,8 @@ public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
  * If [index] is greater than or equal to the number of nodes in the list, this will throw an exception.
  *
  * @param index Index into the collection.
+ *
+ * @since 0.4.0
  */
 public operator fun Node.get(index: Int): Node = this.childNodes[index]!!
 
@@ -104,5 +106,7 @@ public operator fun Node.get(index: Int): Node = this.childNodes[index]!!
  * @param ignoreCase Whether or not the matching should be done while ignoring any case differences.
  *
  * (`false` by default)
+ *
+ * @since 0.4.0
  */
 public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]!!
