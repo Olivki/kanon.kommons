@@ -10,9 +10,7 @@
     * Added the `toMap` function which converts the `NamedNodeMap` into a `Map` in the order of `node.nodeName:node`.
     * Added the `toSet` function which converts the `NamedNodeMap` to a `Set` containing all the node instances in the node map.
     * Added the `get(String, String)` operator which allows getting Nodes that are registered under specific namespaces.
-
-  * #### Properties
-    * Added the `isEmpty` property which checks if the node map has any entries.
+    * Added the `isEmpty` function which checks if the node map has any entries.
 
 * ### ExperimentalFeature.kt
   * #### File
@@ -25,6 +23,14 @@
 * ### /math/BigIntegers.kt
   * #### File
     * `BigIntegers.kt` has been renamed to `BigInteger.kt`.
+
+* ### /dom/Nodes.kt
+  * #### File
+    * `Nodes.kt` has been renamed to `Node.kt`.
+
+* ### /dom/Node.kt
+  * ### Classes
+    * Added the `AttributeMap` class. This class acts as a sort of facade replacement for the `getAttributes(): NamedNodeMap` method in the `Node` class.
 
 ## 0.3.1 (2019-01-16)
 

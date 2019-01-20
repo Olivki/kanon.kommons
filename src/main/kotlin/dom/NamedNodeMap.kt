@@ -84,7 +84,7 @@ public inline fun NamedNodeMap.forEach(action: Node.() -> Unit) {
 /**
  * Checks if this node map has no entries.
  */
-public val NamedNodeMap.isEmpty: Boolean get() = this.length <= 0
+public fun NamedNodeMap.isEmpty(): Boolean = this.length <= 0
 
 /**
  * Creates a [Map] by collecting the entries from this [node map][NamedNodeMap] into a [HashMap][java.util.HashMap]
@@ -93,7 +93,7 @@ public val NamedNodeMap.isEmpty: Boolean get() = this.length <= 0
  * > `this.nodeName:this`
  */
 public fun NamedNodeMap.toMap(): Map<String, Node> {
-    if (this.isEmpty) return emptyMap()
+    if (this.isEmpty()) return emptyMap()
 
     val map = HashMap<String, Node>()
 
@@ -107,7 +107,7 @@ public fun NamedNodeMap.toMap(): Map<String, Node> {
  * with the [Node] instance as the value.
  */
 public fun NamedNodeMap.toSet(): Set<Node> {
-    if (this.isEmpty) return emptySet()
+    if (this.isEmpty()) return emptySet()
 
     val set = HashSet<Node>()
 
