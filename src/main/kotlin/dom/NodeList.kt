@@ -30,13 +30,47 @@ import org.w3c.dom.NodeList
  *
  * @return The node at the [index]th position in this [NodeList], or `null` if that is not a valid index.
  */
-public operator fun NodeList.get(index: Int): Node = this.item(index)
+public operator fun NodeList.get(index: Int): Node? = this.item(index)
+
+/**
+ * Returns the [Node] that has a [nodeName][Node.getNodeName] that matches the specified [name], or `null` if none can
+ * be found.
+ *
+ * @param ignoreCase Whether or not the matching should be done while ignoring any case differences.
+ *
+ * (`false` by default)
+ */
+public operator fun NodeList.get(name: String, ignoreCase: Boolean = false): Node? =
+    this.find { it.nodeName.equals(name, ignoreCase) }
+
+/**
+ * Provides a iterator for this node list.
+ */
+public fun NodeList.iterator(): Iterator<Node> = object : AbstractIterator<Node>() {
+
+    private var index: Int = 0
+
+    override fun computeNext() {
+        when {
+            index > (this@iterator.length - 1) -> done()
+            else -> {
+                setNext(this@iterator[index]!!)
+                index++
+            }
+        }
+    }
+}
+
+/**
+ * Provides a sequence for this node list.
+ */
+public fun NodeList.asSequence(): Sequence<Node> = sequence { this@asSequence.iterator() }
 
 /**
  * Performs the given [action] on each element.
  */
 public inline fun NodeList.forEach(action: Node.() -> Unit) {
-    for (i in 0 until this.length) action(this[i])
+    for (i in 0 until this.length) action(this[i]!!)
 }
 
 /**
@@ -46,7 +80,7 @@ public inline fun NodeList.forEach(action: Node.() -> Unit) {
  * on the element.
  */
 public inline fun NodeList.forEachIndexed(action: (index: Int, Node) -> Unit) {
-    for (i in 0 until this.length) action(i, this[i])
+    for (i in 0 until this.length) action(i, this[i]!!)
 }
 
 /**
@@ -62,7 +96,12 @@ public fun NodeList.toList(): List<Node> {
 
     val list = mutableListOf<Node>()
 
-    for (i in 0 until this.length) list += this[i]
+    for (i in 0 until this.length) list += this[i]!!
 
     return list
 }
+
+/**
+ * Returns the first element matching the given [predicate], or `null` if no such element was found.
+ */
+public inline fun NodeList.find(predicate: (Node) -> Boolean): Node? = this.asSequence().find(predicate)
