@@ -12,6 +12,8 @@
     * Added the `get(String, String)` operator which allows getting Nodes that are registered under specific namespaces.
     * Added the `isEmpty` function which checks if the node map has any entries.
     * Added the `iterator` function.
+    * Added the `plusAssign` operator to allow cleaner addition of nodes.
+    * Added the `minusAssign` operator to allow cleaner removal of nodes.
 
 * ### ExperimentalFeature.kt
   * #### File
