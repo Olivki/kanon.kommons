@@ -173,6 +173,11 @@ public fun NamedNodeMap.toSet(): Set<Node> {
 public fun NamedNodeMap.iterator(): Iterator<Node> = this.toSet().iterator()
 
 /**
+ * Creates a [Sequence] instance that wraps the original collection returning its elements when being iterated.
+ */
+public fun NamedNodeMap.asSequence(): Sequence<Node> = this.toSet().asSequence()
+
+/**
  * Adds all entries from the [other] collection into this node map.
  */
 public fun NamedNodeMap.putAll(other: Collection<Node>) {
