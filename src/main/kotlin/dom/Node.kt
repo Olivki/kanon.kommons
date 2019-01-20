@@ -18,8 +18,7 @@
 
 package moe.kanon.kextensions.dom
 
-import org.w3c.dom.DOMException
-import org.w3c.dom.Node
+import org.w3c.dom.*
 
 /**
  * Adds the node [child] to the end of the list of children of this node.
@@ -54,6 +53,26 @@ public operator fun Node.plusAssign(child: Node) {
 }
 
 /**
+ * Removes the child node indicated by [oldChild] from the list of children.
+ *
+ * @param oldChild The node being removed.
+ *
+ * @exception DOMException
+ *
+ * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this node is readonly.
+ *
+ * `NOT_FOUND_ERR`: Raised if <code>oldChild</code> is not a child of this node.
+ *
+ * `NOT_SUPPORTED_ERR`: if this node is of type [Document], this exception might be raised if the DOM implementation
+ * doesn't support the removal of the [DocumentType] child or the [Element] child.
+ *
+ * @since DOM Level 3
+ */
+public operator fun Node.minusAssign(oldChild: Node) {
+    this.removeChild(oldChild)
+}
+
+/**
  * Returns whether this node is the same node as the [other] node.
  *
  * This method provides a way to determine whether two [Node] references returned by the implementation reference
@@ -68,3 +87,22 @@ public operator fun Node.plusAssign(child: Node) {
  * @since DOM Level 3
  */
 public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
+
+/**
+ * Returns the [index]th item in the collection.
+ *
+ * If [index] is greater than or equal to the number of nodes in the list, this will throw an exception.
+ *
+ * @param index Index into the collection.
+ */
+public operator fun Node.get(index: Int): Node = this.childNodes[index]!!
+
+/**
+ * Returns the [Node] that has a [nodeName][Node.getNodeName] that matches the specified [name], or it will throw an
+ * exception if it can't be found.
+ *
+ * @param ignoreCase Whether or not the matching should be done while ignoring any case differences.
+ *
+ * (`false` by default)
+ */
+public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]!!
