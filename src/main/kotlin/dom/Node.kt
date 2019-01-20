@@ -20,49 +20,16 @@ package moe.kanon.kextensions.dom
 
 import org.w3c.dom.*
 
-internal class AttributeMap(parent: Element) : MutableMap<String, String> {
 
-    private val nodes: NamedNodeMap = parent.attributes!!
+/*
+    While NamedNodeMapImpl *does* know of the creator of it, NamedNodeMap *does* NOT, and because of the fact that we
+    never actually get any instances of the implementations given to us when working with the documents, but rather we
+    just get the interface.
+        This makes it rather annoying to work on NamedNodeMap, for we have no instance of the parent, which means we
+    have no way of creating appropriate node-children that are *actually* associated with the parent of the node map.
+        For this reason I created this class that
+ */
 
-    override val size: Int get() = nodes.length
-
-    override val entries: MutableSet<MutableMap.MutableEntry<String, String>>
-        get() = nodes.toSet().flatMap {  }
-
-    override val keys: MutableSet<String> get() = nodes.toSet().map { it.nodeName }.toMutableSet()
-
-    override val values: MutableCollection<String> get() = nodes.toSet().map { it.nodeValue }.toMutableList()
-
-    override fun containsKey(key: String): Boolean = key in keys
-
-    override fun containsValue(value: String): Boolean = value in values
-
-    override fun get(key: String): String? {
-        TODO("not implemented")
-    }
-
-    override fun isEmpty(): Boolean {
-        TODO("not implemented")
-    }
-
-
-
-    override fun clear() {
-        TODO("not implemented")
-    }
-
-    override fun put(key: String, value: String): String? {
-        TODO("not implemented")
-    }
-
-    override fun putAll(from: Map<out String, String>) {
-        TODO("not implemented")
-    }
-
-    override fun remove(key: String): String? {
-        TODO("not implemented")
-    }
-}
 
 /**
  * Adds the node [child] to the end of the list of children of this node.

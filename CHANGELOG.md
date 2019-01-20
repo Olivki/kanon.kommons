@@ -32,9 +32,13 @@
   * #### File
     * `Nodes.kt` has been renamed to `Node.kt`.
 
-* ### /dom/Node.kt
+* ## /dom/Elements.kt
+  * #### File
+    * `Elements.kt` has been renamed to `Element.kt`.
+
+* ### /dom/Element.kt
   * ### Classes
-    * Added the `AttributeMap` class. This class acts as a sort of facade replacement for the `getAttributes(): NamedNodeMap` method in the `Node` class.
+    * Added the `AttributeMap` class. This class acts as a sort of facade replacement for the `getAttributes(): NamedNodeMap` method in the `Element` class.
 
 ## 0.3.1 (2019-01-16)
 

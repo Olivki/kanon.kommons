@@ -14,10 +14,97 @@
  * limitations under the License.
  */
 
+@file:JvmName("ElementUtils")
+
 package moe.kanon.kextensions.dom
 
-import org.w3c.dom.DOMException
-import org.w3c.dom.Element
+import org.w3c.dom.*
+
+/**
+ * A facade/wrapper for [NamedNodeMap] to enable nicer mutable operations.
+ *
+ * This class was made due to the fact that `NamedNodeMap` knows nothing of it's creator, which means that there's no
+ * nice and easy way of creating attributes that are properly related to the parent [Node].
+ *
+ * Another problem that arises with `NamedNodeMap` is the fact that it's **not** specific to *just* attributes, as the
+ * name implies, it's used by *any* node that has a name. This means that even if `NamedNodeMap` knew of it's creator,
+ * adding extension methods to it that assumes that it's only adding attributes would end up with confusing syntax and
+ * possible misunderstandings. Trying to solve those issues within just the `NamedNodeMap` would just leave us with
+ * clunky syntax, bad looking code, and a lot of potential user errors due to misunderstandings.
+ *
+ * As this is just a facade/wrapper, none of the
+ */
+public class AttributeMap @PublishedApi internal constructor(private val parent: Element) : MutableMap<String, String> {
+
+    private val document: Document = parent.ownerDocument
+
+    private val nodes: NamedNodeMap = parent.attributes!!
+
+    override val size: Int get() = nodes.length
+
+    override val entries: MutableSet<MutableMap.MutableEntry<String, String>>
+        get() = nodes.toSet().map { MutableEntry(it.nodeName, it.nodeValue) }.toMutableSet()
+
+    override val keys: MutableSet<String> get() = nodes.toSet().map { it.nodeName }.toMutableSet()
+
+    override val values: MutableCollection<String> get() = nodes.toSet().map { it.nodeValue }.toMutableList()
+
+    override fun containsKey(key: String): Boolean = key in keys
+
+    override fun containsValue(value: String): Boolean = value in values
+
+    override fun get(key: String): String? = nodes[key]?.nodeValue
+
+    override fun isEmpty(): Boolean = nodes.isEmpty()
+
+    override fun clear() {
+        parent
+    }
+
+    override fun put(key: String, value: String): String? {
+        val oldValue = this[key]
+
+        val attr = document.createAttribute(key)
+
+        attr.value = value
+
+        nodes += attr
+
+        return oldValue
+    }
+
+    override fun putAll(from: Map<out String, String>) {
+        for ((name, value) in from) {
+            val node = document.createAttribute(name)
+            node.value = value
+
+            nodes += node
+        }
+    }
+
+    override fun remove(key: String): String? {
+        val oldValue = nodes[key]!!.nodeValue
+
+        nodes -= key
+
+        return oldValue
+    }
+
+    inner class MutableEntry(override val key: String, override val value: String) :
+        MutableMap.MutableEntry<String, String> {
+
+        override fun setValue(newValue: String): String {
+            val oldValue: String = value
+
+            nodes += document.createAttribute(newValue)
+
+            return oldValue
+        }
+    }
+}
+
+public inline val Element.attributeMap: AttributeMap get() = AttributeMap(this)
+
 
 // Standard Attribute
 // - Name Attribute
