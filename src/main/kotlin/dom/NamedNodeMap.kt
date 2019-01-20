@@ -171,3 +171,10 @@ public fun NamedNodeMap.toSet(): Set<Node> {
  * Returns an [Iterator] over the entries in the [NamedNodeMap].
  */
 public fun NamedNodeMap.iterator(): Iterator<Node> = this.toSet().iterator()
+
+/**
+ * Adds all entries from the [other] collection into this node map.
+ */
+public fun NamedNodeMap.putAll(other: Collection<Node>) {
+    for (node in other) this += node
+}
