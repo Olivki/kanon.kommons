@@ -49,8 +49,13 @@
   * #### File
     * Added the new `NodeList.kt` file. This file provides extensions for the `NodeList` class in the `org.w3c.dom` package.
 
-  * ### Functions
-    * things
+* ### /dom/Documents.kt
+  * #### File
+    * `Documents.kt` has been renamed to `Document.kt`.
+
+* ### /dom/Document.kt
+  * #### File
+    * ...
 
 ## 0.3.1 (2019-01-16)
 
