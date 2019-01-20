@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("DocumentUtils")
+
 package moe.kanon.kextensions.dom
 
 import org.w3c.dom.*
