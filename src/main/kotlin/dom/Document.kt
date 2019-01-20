@@ -16,34 +16,3 @@
 
 package moe.kanon.kextensions.dom
 
-import org.w3c.dom.DOMException
-import org.w3c.dom.Document
-
-
-/**
- * Creates an element of the type specified.
- *
- * Note that the instance returned implements the [Element][org.w3c.dom.Element] interface, so attributes
- * can be specified directly on the returned object.
- *
- * In addition, if there are known attributes with default values, [Attr][org.w3c.dom.Attr] nodes representing them are
- * automatically created and attached to the element.
- *
- * To create an element with a qualified name and namespace URI, use the [createElementNS][Document.createElementNS]
- * method.
- *
- * @param tagName The name of the element type to instantiate. For XML, this is case-sensitive, otherwise it depends on
- * the case-sensitivity of the markup language in use. In that case, the name is mapped to the canonical form of that
- * markup by the DOM implementation.
- *
- * @return A new [Element][org.w3c.dom.Element] object with the [nodeName][org.w3c.dom.Element.getNodeName] attribute
- * set to [tagName], and [localName][org.w3c.dom.Element.getLocalName], [prefix][org.w3c.dom.Element.getPrefix], and
- *   [namespaceURI][org.w3c.dom.Element.getNamespaceURI] set to `null`.
- *
- * @exception DOMException
- * `INVALID_CHARACTER_ERR`: Raised if the specified name is not an XML name according to the XML version in use
- * specified in the [Document.xmlVersion][Document.getXmlVersion] attribute.
- */
-public operator fun Document.plusAssign(tagName: String) {
-    this.createElement(tagName)!!
-}
