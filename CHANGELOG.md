@@ -2,7 +2,7 @@
 
 - ### /dom/Node.kt
   - #### Function
-    - {+ Added the **isEqual** infix function. +}
+    - {+ Added the isEqual infix function. +}
 
 ## 0.4.1 (2019-01-20)
 
