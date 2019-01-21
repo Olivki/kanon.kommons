@@ -11,11 +11,17 @@
 * ### /dom/NodeList.kt
   * #### Functions
     * {+++} Added the `indexOf(Node)` function.
-    * {---}{+++}
+    * {+++} Added the `indexOf(String, Boolean = false)` function.
+    * {+++} Added the `getOrNull(Int)` function. This function has the same behaviour as the pre-0.5.0 `get(Int)` operator. It does the exact same thing as the inbuilt `item(Int)` function does, but it has a more obvious name of what it does.
+    * {+++} Added the `getOrNull(String, Boolean = false)` function. This function has the same behaviour as the pre-0.5.0 `get(String, Boolean = false)` operator, there exists no inbuilt variant for this.
 
   * #### Operators
     * {+++} Added the `contains(Node)` operator function.
     * {+++} Added the `contains(String)` operator function.
+    * {---} The old `get(Int)` has been renamed to `getOrNull(Int)` and is no longer an operator.
+    * {+++} Added the `get(Int)` operator, this returns a non-null value, and will throw a `KotlinNullPointerException` if the given index is out of bounds. If you want to work with a `nullable` type, either use `getOrNull(Int)` or the inbuilt `item(Int)` function.
+    * {---} The old `get(String, Boolean = false)` has been renamed to `getOrNull(String, Boolean = false)` and is no longer an operator.
+    * {+++} Added the `get(String, Boolean = false)` operator, this returns a non-null value, and will throw a `KotlinNullPointerException` if the there exists no `Node` that matches the specified name. If you want to work with a `nullable` type, use `getOrNull(String, Boolean = false)`.
 
 ## 0.4.1 (2019-01-20)
 

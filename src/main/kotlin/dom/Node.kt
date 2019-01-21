@@ -142,7 +142,7 @@ public infix fun Node.isEqual(other: Node): Boolean = this.isEqualNode(other)
  *
  * @since 0.4.0
  */
-public operator fun Node.get(index: Int): Node = this.childNodes[index]!!
+public operator fun Node.get(index: Int): Node = this.childNodes[index]
 
 /**
  * Returns the [Node] that has a [nodeName][Node.getNodeName] that matches the specified [name], or it will throw an
@@ -154,4 +154,23 @@ public operator fun Node.get(index: Int): Node = this.childNodes[index]!!
  *
  * @since 0.4.0
  */
-public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]!!
+public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]
+
+/**
+ * Checks whether the [childNodes][Node.getChildNodes] of this [node][Node] contains any instances of [that].
+ *
+ * **Note**: This uses the [isEqual] function and not the [isSame] function.
+ *
+ * @since 0.5.0
+ */
+public operator fun Node.contains(that: Node): Boolean = that in childNodes
+
+/**
+ * Checks whether the [childNodes][Node.getChildNodes] of this [node][Node]  contains any [nodes][Node] that has a
+ * [nodeName][Node.getNodeName] which matches with the specified [name].
+ *
+ * **Note**: This matching is case-sensitive.
+ *
+ * @since 0.5.0
+ */
+public operator fun Node.contains(name: String): Boolean = name in childNodes
