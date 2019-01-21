@@ -52,13 +52,13 @@ For example:
 
 **File**:
 
-```Kotlin
+```kotlin
 println("Does image exist? ${(File("foo/bar/foobar.jpg").exists()}")
 ```
 
 **Path**:
 
-```Kotlin
+```kotlin
 println("Does image exist? ${Files.exists(Paths.get("foo/bar/foobar.jpg"))}")
 ```
 
@@ -90,25 +90,25 @@ But in Kotlin, we can make the `Path` class act much like that of the
 
 Using the **/** operator:
 
-```Kotlin
+```kotlin
 val image = "foo"/"bar"/"foobar.jpg"
 ```
 
 Using the top level function:
 
-```Kotlin
+```kotlin
 val image = pathOf("foo/bar/foobar.jpg")
 ```
 
 Using the String extension method:
 
-```Kotlin
+```kotlin
 val image = "foo/bar/foobar.jpg".toPath()
 ```
 
 Using the inbuilt Java `java.io.File` to `java.nio.Path` method:
 
-```Kotlin
+```kotlin
 val image = File("foo/bar/", "foobar.jpg").toPath()
 ```
 
@@ -117,7 +117,7 @@ operator overloader for the `unaryPlus()` operator. So one could
 replicate the two above code pieces using that instead, which would look
 like this;
 
-```Kotlin
+```kotlin
 val filePath = +File("foo/bar/", "foobar.jpg") // This is now a Path instance, not a File one.
 val stringPath = +"foo/bar/foobar.jpg" // This is now a Path instance, not a String one.
 ```
