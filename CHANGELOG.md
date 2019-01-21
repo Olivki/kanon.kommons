@@ -1,3 +1,13 @@
+## 0.4.2 (2019-01-21)
+
+* ### /dom/Document.kt
+  * #### Function
+    * Added the `appendTextContainer` function.
+
+* ### /dom/Element.kt
+  * #### Function
+    * Added the `appendTextContainer` function.
+
 ## 0.4.1 (2019-01-20)
 
 * ### /dom/Document.kt
