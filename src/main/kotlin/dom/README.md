@@ -15,3 +15,6 @@ Code block test:
 val filePath = +File("foo/bar/", "foobar.jpg") // This is now a Path instance, not a File one.
 val stringPath = +"foo/bar/foobar.jpg" // This is now a Path instance, not a String one.
 ```
+Additions and removals
+- {+ addition +}
+- {- removal -}
