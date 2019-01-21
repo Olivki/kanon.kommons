@@ -19,3 +19,8 @@ Additions and removals
 - {+ addition +}
 - - {+ sub-addition +}
 - {- removal -}
+
+Children lists:
+- {+ addition +}
+  - {+ sub-addition +}
+    - {+ sub-sub-addition +}
