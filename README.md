@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    compile "moe.kanon.kextensions:kanon.kextensions:0.4.2"
+    compile "moe.kanon.kextensions:kanon.kextensions:0.5.0"
 }
 ```
 
@@ -32,7 +32,7 @@ Maven
 <dependency>
   <groupId>moe.kanon.kextensions</groupId>
   <artifactId>kanon.kextensions</artifactId>
-  <version>0.4.2</version>
+  <version>0.5.0</version>
   <type>pom</type>
 </dependency>
 ```
