@@ -1,16 +1,8 @@
-## 0.4.2 (2019-01-21)
+## 0.4.2 (2019-01-xx)
 
 * ### /dom/Node.kt
   * #### Function
     * Added the `isEqual` infix function.
-
-* ### /dom/Document.kt
-  * #### Function
-    * ...
-
-* ### /dom/Element.kt
-  * #### Function
-    * ...
 
 ## 0.4.1 (2019-01-20)
 
