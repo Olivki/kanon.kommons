@@ -89,6 +89,51 @@ public operator fun Node.minusAssign(oldChild: Node) {
 public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
 
 /**
+ * Tests whether two [nodes][Node] are equal.
+ *
+ * This method tests for equality of nodes, not sameness *(i.e., whether the two nodes are references to the same
+ * object)* which can be tested with [isSame][Node.isSame]. All nodes that are the same will also be equal, though the
+ * reverse may not be true.
+ *
+ * Two nodes are equal if **and only if** the following conditions are satisfied:
+ *
+ * - The two nodes are of the same type.
+ * - The following string attributes are equal: [nodeName][Node.getNodeName], [localName][Node.getLocalName],
+ * [namespaceURI][Node.getNamespaceURI], [prefix][Node.getPrefix] and [nodeValue][Node.getNodeValue]. This is: they are
+ * both `null`, or they have the same length and are character for character identical.
+ * - The [attributes][Node.getAttributes] [NamedNodeMap] are equal. This is: they are both `null`, or they have the
+ * same length and for each node that exists in one map there is a node that exists in the other map and is equal,
+ * although not necessarily at the same index.
+ * - The [childNodes][Node.getChildNodes] [NodeList] are equal. This is: they are both `null`, or they have the same
+ * length and contain equal nodes at the same index. Note that normalization can affect equality; to avoid this, nodes
+ * should be normalized before being compared.
+ *
+ * For two [DocumentType] nodes to be equal, the following conditions must also be satisfied:
+ *
+ * - The following string attributes are equal: [publicId][DocumentType.getPublicId],
+ * [systemId][DocumentType.getSystemId] and [internalSubset][DocumentType.getInternalSubset].
+ * - The [entities][DocumentType.getEntities] [NamedNodeMaps][NamedNodeMap] are equal.
+ * - The [notations][DocumentType.getNotations] [NamedNodeMaps][NamedNodeMap] are equal.
+ *
+ * On the other hand, the following do not affect equality: the [ownerDocument][Node.getOwnerDocument],
+ * [baseURI][Node.getBaseURI], and [parentNode][Node.getParentNode] attributes, the [specified][Attr.getSpecified]
+ * attribute for [Attr] nodes, the [schemaTypeInfo][Attr.getSchemaTypeInfo] attribute for [Attr] and [Element] nodes,
+ * the [isElementContentWhitespace][Text.isElementContentWhitespace] attribute for [Text] nodes, as well as any user
+ * data or event listeners registered on the nodes.
+ *
+ * **Note:**  As a general rule, anything not mentioned in the description above is not significant in consideration
+ * of equality checking. Note that future versions of this specification may take into account more attributes and
+ * implementations conform to this specification are expected to be updated accordingly.
+ *
+ * @param other The node to compare equality with.
+ *
+ * @return Returns `true` if the nodes are equal, `false` otherwise.
+ *
+ * @since 0.4.2
+ */
+public infix fun Node.isEqual(other: Node): Boolean = this.isEqualNode(other)
+
+/**
  * Returns the [index]th item in the collection.
  *
  * If [index] is greater than or equal to the number of nodes in the list, this will throw an exception.
