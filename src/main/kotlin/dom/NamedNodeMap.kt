@@ -49,6 +49,8 @@ import org.w3c.dom.Node
  * Examples would include trying to insert something other than an [Attr][org.w3c.dom.Attr] node into an
  * [Element][org.w3c.dom.Element]'s map of attributes, or a non-Entity node into the
  * [DocumentType][org.w3c.dom.DocumentType]'s map of [Entities][org.w3c.dom.Entity].
+ *
+ * @since 0.3.0
  */
 public operator fun NamedNodeMap.plusAssign(child: Node) {
     this.setNamedItem(child)
@@ -68,6 +70,8 @@ public operator fun NamedNodeMap.plusAssign(child: Node) {
  * `NOT_FOUND_ERR`: Raised if there is no node named [name] in this map.
  *
  * `NO_MODIFICATION_ALLOWED_ERR`: Raised if this map is readonly.
+ *
+ * @since 0.4.0
  */
 public operator fun NamedNodeMap.minusAssign(name: String) {
     this.removeNamedItem(name)
@@ -78,9 +82,51 @@ public operator fun NamedNodeMap.minusAssign(name: String) {
  *
  * @param name The [nodeName][Node.getNodeName] of a node to retrieve.
  *
- * @return A [Node] (of any type) with the specified [name], or `null` if it does not identify any node in this map.
+ * @return A [Node] (of any type) with the specified [name], or it will throw a [KotlinNullPointerException] if no
+ * instance with a matching `nodeName` can be found.
+ *
+ * @throws KotlinNullPointerException if no instance with a matching `nodeName` can be found.
+ *
+ * @since 0.5.0
  */
-public operator fun NamedNodeMap.get(name: String): Node? = this.getNamedItem(name)
+public operator fun NamedNodeMap.get(name: String): Node = this.getNamedItem(name)!!
+
+/**
+ * Retrieves a node specified by name.
+ *
+ * @param name The [nodeName][Node.getNodeName] of a node to retrieve.
+ *
+ * @return A [Node] (of any type) with the specified [name], or `null` if it does not identify any node in this map.
+ *
+ * @since 0.5.0
+ */
+public fun NamedNodeMap.getOrNull(name: String): Node? = this.getNamedItem(name)
+
+/**
+ * Retrieves a node specified by local name and namespace URI.
+ *
+ * Per [XML Namespaces](http://www.w3.org/TR/1999/REC-xml-names-19990114/), applications must use the value `null` as
+ * the [namespaceURI] parameter for methods if they wish to have no namespace.
+ *
+ * @param namespaceURI The namespace URI of the node to retrieve.
+ * @param localName The local name of the node to retrieve.
+ *
+ * @return A [Node] *(of any type)* with the specified local name and namespace URI, or it will throw a
+ * [KotlinNullPointerException] if they do not identify any node in this map.
+ *
+ * @exception DOMException
+ *
+ * `NOT_SUPPORTED_ERR`: May be raised if the implementation does not support the feature `"XML"` and the language
+ * exposed through the Document does not support XML Namespaces *(such as
+ * [HTML 4.01](http://www.w3.org/TR/1999/REC-html401-19991224/))*.
+ *
+ * @exception KotlinNullPointerException If the specified local name and namespace URI do not identify any node in this
+ * map.
+ *
+ * @since 0.5.0
+ */
+public operator fun NamedNodeMap.get(namespaceURI: String, localName: String): Node =
+    this.getNamedItemNS(namespaceURI, localName)!!
 
 /**
  * Retrieves a node specified by local name and namespace URI.
@@ -100,10 +146,23 @@ public operator fun NamedNodeMap.get(name: String): Node? = this.getNamedItem(na
  * exposed through the Document does not support XML Namespaces *(such as
  * [HTML 4.01](http://www.w3.org/TR/1999/REC-html401-19991224/))*.
  *
- * @since DOM Level 2
+ * @since 0.5.0
  */
-public operator fun NamedNodeMap.get(namespaceURI: String, localName: String): Node? =
+public fun NamedNodeMap.getOrNull(namespaceURI: String, localName: String): Node? =
     this.getNamedItemNS(namespaceURI, localName)
+
+/**
+ * Returns the [indexth][index] item in the map. If [index] is greater than or equal to the number of nodes in this map,
+ * this will throw a [KotlinNullPointerException].
+ *
+ * @param index The index of the node you want to access.
+ *
+ * @return The node at the [index]th position in the map, or it will throw a [KotlinNullPointerException] if
+ * that is not a valid index.
+ *
+ * @since 0.5.0
+ */
+public operator fun NamedNodeMap.get(index: Int): Node? = this.item(index)
 
 /**
  * Returns the [indexth][index] item in the map. If [index] is greater than or equal to the number of nodes in this map,
@@ -111,17 +170,23 @@ public operator fun NamedNodeMap.get(namespaceURI: String, localName: String): N
  *
  * @param index The index of the node you want to access.
  *
- * @return The node at the [indexth][index] position in the map, or `null` if that is not a valid index.
+ * @return The node at the [index]th position in the map, or `null` if that is not a valid index.
+ *
+ * @since 0.5.0
  */
-public operator fun NamedNodeMap.get(index: Int): Node? = this.item(index)
+public fun NamedNodeMap.getOrNull(index: Int): Node = this.item(index)!!
 
 /**
  * Tests whether or not this [map][NamedNodeMap] contains the specified [name].
+ *
+ * @since 0.3.0
  */
-public operator fun NamedNodeMap.contains(name: String): Boolean = this[name] != null
+public operator fun NamedNodeMap.contains(name: String): Boolean = this.getOrNull(name) != null
 
 /**
  * Performs the given [action] on each [node][Node] in this node map.
+ *
+ * @since 0.4.0
  */
 // This is not marked as "forEachIndexed" because the index of the retrieved value in NamedNodeMap is not relevant to
 // anything, because the entries are NOT stored in any certain order, so the index of a specific Node will be different
@@ -134,6 +199,8 @@ public inline fun NamedNodeMap.forEach(action: Node.() -> Unit) {
 
 /**
  * Checks if this node map has no entries.
+ *
+ * @since 0.4.0
  */
 public fun NamedNodeMap.isEmpty(): Boolean = this.length <= 0
 
@@ -142,6 +209,8 @@ public fun NamedNodeMap.isEmpty(): Boolean = this.length <= 0
  * with [Node.getNodeName] as the `key`, and the [Node] instance as the `value`.
  *
  * > `this.nodeName:this`
+ *
+ * @since 0.4.0
  */
 public fun NamedNodeMap.toMap(): Map<String, Node> {
     if (this.isEmpty()) return emptyMap()
@@ -156,6 +225,8 @@ public fun NamedNodeMap.toMap(): Map<String, Node> {
 /**
  * Creates a [Set] by collecting the entries from this [node map][NamedNodeMap] into a [HashSet][java.util.HashSet]
  * with the [Node] instance as the value.
+ *
+ * @since 0.4.0
  */
 public fun NamedNodeMap.toSet(): Set<Node> {
     if (this.isEmpty()) return emptySet()
@@ -169,16 +240,22 @@ public fun NamedNodeMap.toSet(): Set<Node> {
 
 /**
  * Returns an [Iterator] over the entries in the [NamedNodeMap].
+ *
+ * @since 0.4.0
  */
 public fun NamedNodeMap.iterator(): Iterator<Node> = this.toSet().iterator()
 
 /**
  * Creates a [Sequence] instance that wraps the original collection returning its elements when being iterated.
+ *
+ * @since 0.4.0
  */
 public fun NamedNodeMap.asSequence(): Sequence<Node> = this.toSet().asSequence()
 
 /**
  * Adds all entries from the [other] collection into this node map.
+ *
+ * @since 0.4.0
  */
 public fun NamedNodeMap.putAll(other: Collection<Node>) {
     for (node in other) this += node
