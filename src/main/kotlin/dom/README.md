@@ -17,4 +17,5 @@ val stringPath = +"foo/bar/foobar.jpg" // This is now a Path instance, not a Str
 ```
 Additions and removals
 - {+ addition +}
+- - {+ sub-addition +}
 - {- removal -}
