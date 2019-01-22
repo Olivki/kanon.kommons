@@ -184,6 +184,8 @@ public operator fun Node.contains(name: String): Boolean = name in childNodes
  * Returns a pretty-printed string with all children included of this node.
  *
  * **Note:** This is pretty expensive to call.
+ *
+ * @since 0.5.1
  */
 public fun Node.toSerializedString(): String {
     val trans = TransformerFactory.newInstance().newTransformer()
