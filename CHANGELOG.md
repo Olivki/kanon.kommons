@@ -7,6 +7,10 @@
     * {+++} Added a working version of the `iterator` function.
     * {+++} Added a working version of the `asSequence` function.
 
+* ### /dom/Node.kt
+  * #### Functions
+    * {+++} Added the  `toSerializedString` function.
+
 ## 0.5.0 (2019-01-21)
 
 * ### /dom/Node.kt
