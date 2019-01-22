@@ -124,7 +124,7 @@ public fun NodeList.toList(): List<Node> {
 
     for (i in 0 until this.length) list += this[i]
 
-    return list
+    return list.toList()
 }
 
 /**
