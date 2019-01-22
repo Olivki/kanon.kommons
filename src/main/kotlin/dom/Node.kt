@@ -19,6 +19,11 @@
 package moe.kanon.kextensions.dom
 
 import org.w3c.dom.*
+import java.io.StringWriter
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 
 /**
  * Adds the node [child] to the end of the list of children of this node.
@@ -174,3 +179,21 @@ public operator fun Node.contains(that: Node): Boolean = that in childNodes
  * @since 0.5.0
  */
 public operator fun Node.contains(name: String): Boolean = name in childNodes
+
+/**
+ * Returns a pretty-printed string with all children included of this node.
+ *
+ * **Note:** This is pretty expensive to call.
+ */
+public fun Node.toSerializedString(): String {
+    val trans = TransformerFactory.newInstance().newTransformer()
+    trans.setOutputProperty(OutputKeys.INDENT, "yes")
+    trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+    trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+    val source = DOMSource(this)
+
+    val writer = StringWriter()
+    trans.transform(source, StreamResult(writer))
+
+    return writer.buffer.toString()
+}
