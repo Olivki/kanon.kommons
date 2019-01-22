@@ -73,29 +73,16 @@ public fun NodeList.getOrNull(name: String, ignoreCase: Boolean = false): Node? 
 /**
  * Provides a iterator for this node list.
  *
- * @since 0.4.0
+ * @since 0.5.1
  */
-public fun NodeList.iterator(): Iterator<Node> = object : AbstractIterator<Node>() {
-
-    private var index: Int = 0
-
-    override fun computeNext() {
-        when {
-            index > (this@iterator.length - 1) -> done()
-            else -> {
-                setNext(this@iterator[index])
-                index++
-            }
-        }
-    }
-}
+public fun NodeList.iterator(): Iterator<Node> = toList().iterator()
 
 /**
  * Provides a sequence for this node list.
  *
- * @since 0.4.0
+ * @since 0.5.1
  */
-public fun NodeList.asSequence(): Sequence<Node> = sequence { this@asSequence.iterator() }
+public fun NodeList.asSequence(): Sequence<Node> = toList().asSequence()
 
 /**
  * Performs the given [action] on each element.
