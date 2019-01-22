@@ -1,3 +1,16 @@
+## 0.5.1 (2019-01-22)
+
+* ### /dom/NodeList.kt
+  * #### Functions
+    * {---} Removed the `iterator` function that was added in 0.4.0, as it did not work.
+    * {---} Removed the `asSequence` function that was added in 0.4.0, as it did not work.
+    * {+++} Added a working version of the `iterator` function.
+    * {+++} Added a working version of the `asSequence` function.
+
+* ### /dom/Node.kt
+  * #### Functions
+    * {+++} Added the  `toSerializedString` function.
+
 ## 0.5.0 (2019-01-21)
 
 * ### /dom/Node.kt
