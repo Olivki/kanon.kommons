@@ -16,7 +16,7 @@ If you are unsure if something you're using may have changed when updating, or y
 
 Gradle
 
-```
+```groovy
 repositories {
     jcenter()
 }
@@ -28,7 +28,7 @@ dependencies {
 
 Maven
 
-```
+```xml
 <dependency>
   <groupId>moe.kanon.kextensions</groupId>
   <artifactId>kanon.kextensions</artifactId>
