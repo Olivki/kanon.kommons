@@ -53,7 +53,7 @@ For example:
 **File**:
 
 ```kotlin
-println("Does image exist? ${(File("foo/bar/foobar.jpg").exists()}")
+println("Does image exist? ${File("foo/bar/foobar.jpg").exists()}")
 ```
 
 **Path**:
@@ -81,44 +81,50 @@ But in Kotlin, we can make the `Path` class act much like that of the
 `File` class with the usage of extension methods and properties.
 
 
-### Code Snippets
-
-*For more extensive examples, please look in the
-[examples directory]().*
+### Code Snippets & Examples
 
 #### Creating a Path
 
-Using the **/** operator:
+kanon.kextensions offers a variety of different ways to actually go about creating a Path instance:
 
 ```kotlin
-val image = "foo"/"bar"/"foobar.jpg"
+// Via the top-level function. (There exists two versions of this function, 
+// one which accepts String(s), and the other accepts a URI.)
+pathOf("foo/bar")
+// The string variant also accepts more than one string
+pathOf("foo", "bar")
+
+// Via the "KPath" object.
+// The aim of the KPath object is to create a syntax that is similar to that of
+// creating a normal File instance.
+// The has the same abilities as the pathOf function, and some more.
+KPath("foo/bar")
+KPath("foo", "bar")
+// It also supports the same syntax that you'd use when creating a File that's a child of another File.
+KPath(parentPath, "bar")
+// This simply uses the "resolve" function from the parentPath, 
+// and it's therefore recommended to just use that instead.
+// If you want use this syntax to create a Path with a File as a parent, you can do something like:
+KPath(!parentFile, "bar") // This uses another feature of kanon.kextensions which is covered further down.
+
+// Via the "not" operator.
+// kanon.kextensions introduces a transformation function to the "not" 
+// operator when used on a Path or File object.
+// On a File object it converts it into a Path (by calling the "toPath" method.)
+// On a Path object it converts it into a File (by calling the "toFile" method.)
+// So:
+val file = File("foo/bar") // This is currently a File object.
+file.linesStream() // This will not compile, as File does not have the linesStream() function.
+(!file).linesStream() // This will however compile, as the file has now been converted to a path.
+// It works the same way on any Path instances, except that it converts the path into a File.
+// This feature might be a bit controversial, namely due to the fact that it's using the "not" operator
+// to accomplish this. I however feel it fitting, for the "not" operator is generally used for
+// transformative operations.
+
+// There's of course also the functions provided in the core Java library:
+Paths.get("foo/bar")
+// &
+Paths.get("foo", "bar")
 ```
 
-Using the top level function:
-
-```kotlin
-val image = pathOf("foo/bar/foobar.jpg")
-```
-
-Using the String extension method:
-
-```kotlin
-val image = "foo/bar/foobar.jpg".toPath()
-```
-
-Using the inbuilt Java `java.io.File` to `java.nio.Path` method:
-
-```kotlin
-val image = File("foo/bar/", "foobar.jpg").toPath()
-```
-
-Both `String` and `File` have also been provided with a extension
-operator overloader for the `unaryPlus()` operator. So one could
-replicate the two above code pieces using that instead, which would look
-like this;
-
-```kotlin
-val filePath = +File("foo/bar/", "foobar.jpg") // This is now a Path instance, not a File one.
-val stringPath = +"foo/bar/foobar.jpg" // This is now a Path instance, not a String one.
-```
-
+For more information regarding any of these functions, refer to the documentation.
