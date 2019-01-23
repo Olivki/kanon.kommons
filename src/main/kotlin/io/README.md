@@ -4,7 +4,7 @@
 - [Paths.kt](#pathskt)
     - [Name Differences](#name-differences)
     - [Motivations](#motivations)
-    - [Code Snippets](#code-snippets)
+    - [Code Snippets & Examples](#code-snippets--examples)
         - [Creating a Path](#creating-a-path)
 
 
@@ -120,6 +120,15 @@ file.linesStream() // This will not compile, as File does not have the linesStre
 // This feature might be a bit controversial, namely due to the fact that it's using the "not" operator
 // to accomplish this. I however feel it fitting, for the "not" operator is generally used for
 // transformative operations.
+
+// Via the "div" operator.
+// This is a neat little hack shamelessly taken from the user "superbobry" on GitHub.
+"foo" / "bar" // This will create a valid Path file, it's essentially the same as doing
+// pathOf("foo", "bar") / KPath("foo", "bar").
+// This method also supports mixing path instances and strings within it, so you could do:
+parentPath / "bar"
+// or
+"foo" / documentPath
 
 // There's of course also the functions provided in the core Java library:
 Paths.get("foo/bar")
