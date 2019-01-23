@@ -29,6 +29,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
 import java.nio.file.attribute.*
+import java.nio.file.spi.FileSystemProvider
 import java.util.function.BiPredicate
 import java.util.stream.Stream
 import kotlin.streams.toList
@@ -46,11 +47,76 @@ import kotlin.streams.toList
 // Transformers.
 
 /**
- * Creates a path from the given string [path] and *(optional)* additional [strings][more].
+ * Converts a path string, or a sequence of strings that when joined form a path string, to a [Path].
  *
- * @see Paths.get
+ * If [more] does not specify any elements then the value of the [first] parameter is the path string to convert.
+ * If `more` specifies one or more elements then each non-empty string, including `first`, is considered to be a
+ * sequence of name elements *(see [Path])* and is joined to form a path string. The details as to how the Strings are
+ * joined is provider specific but typically they will be joined using the [name-separator][FileSystem.getSeparator]
+ * as the separator. For example, if the name separator is "`/`" and `getPath("/foo","bar","gus")` is invoked, then the
+ * path string `"/foo/bar/gus"` is converted to a `Path`.
+ *
+ * A `Path` representing an empty path is returned if `first` is the empty string and `more` does not contain any
+ * non-empty strings.
+ *
+ * The `Path` is obtained by invoking the [getPath][FileSystem.getPath] method of the [default][FileSystems.getDefault]
+ * [FileSystem].
+ *
+ * Note that while this method is very convenient, using it will imply an assumed reference to the default `FileSystem`
+ * and limit the utility of the calling code. Hence it should not be used in library code intended for flexible reuse.
+ * A more flexible alternative is to use an existing `Path` instance as an anchor, such as:
+ *
+ * ```kotlin
+ *      val dir: Path = ...
+ *      val path = dir.resolve("file")
+ * ```
+ *
+ * @param first The path string or initial part of the path string
+ * @param more Additional strings to be joined to form the path string.
+ *
+ * @return The resulting `Path`.
+ *
+ * @throws InvalidPathException if the path string cannot be converted to a `Path`.
+ *
+ * @see FileSystem.getPath
  */
-public fun pathOf(path: String, vararg more: String) = Paths.get(path, *more)!!
+public fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *more)!!
+
+/**
+ * Converts the given [URI] to a [Path] instance.
+ *
+ * This method iterates over the [installed][FileSystemProvider.installedProviders] providers to locate the provider
+ * that is identified by the `URI` [scheme][URI.getScheme] of the given `URI`. `URI` schemes are compared without
+ * regard to case. If the provider is found then its [getPath][FileSystemProvider.getPath] method is invoked to convert
+ * the `URI`.
+ *
+ * In the case of the default provider, identified by the `URI` scheme "file", the given `URI` has a non-empty path
+ * component, and undefined query and fragment components. Whether the authority component may be present is platform
+ * specific. The returned `Path` is associated with the [default][FileSystems.getDefault] file system.
+ *
+ * The default provider provides a similar *round-trip* guarantee to the [java.io.File] class. For a given `Path` *p*
+ * it is guaranteed that
+ *
+ * > `Paths.get(`*p*`.toUri()).equals(`*p*`.toAbsolutePath())`
+ *
+ * so long as the original `Path`, the `URI`, and the new `Path` are all created in *(possibly different invocations
+ * of)* the same  Java virtual machine. Whether other providers make any guarantees is provider specific and therefore
+ * unspecified.
+ *
+ * @param uri The `URI` to convert.
+ *
+ * @return The resulting `Path`.
+ *
+ * @throws IllegalArgumentException If preconditions on the `uri` parameter do not hold. The format of the `URI` is
+ * provider specific.
+ * @throws FileSystemNotFoundException The file system, identified by the `URI`, does not exist and cannot be created
+ * automatically, or the provider identified by the `URI`'s scheme component is not installed
+ * @throws SecurityException If a security manager is installed and it denies an unspecified permission to access the
+ * file system
+ *
+ * @since 0.5.2
+ */
+public fun pathOf(uri: URI): Path = Paths.get(uri)!!
 
 /**
  * Creates a [Path] from this [String].
@@ -99,10 +165,10 @@ public operator fun Path.not(): File = this.toFile()
  * opening the file with the [READ][StandardOpenOption.READ] option. In addition to the `READ` option, an
  * implementation may also support additional implementation specific options.
  *
- * @throws  IllegalArgumentException If an invalid combination of options is specified.
- * @throws  UnsupportedOperationException If an unsupported option is specified.
- * @throws  IOException If an I/O error occurs.
- * @throws  SecurityException In the case of the default provider, and a security manager is installed, the
+ * @throws IllegalArgumentException If an invalid combination of options is specified.
+ * @throws UnsupportedOperationException If an unsupported option is specified.
+ * @throws IOException If an I/O error occurs.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  */
 public fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInputStream(this, *options)!!
@@ -123,7 +189,8 @@ public fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.
  * existing [regular-file][isRegularFile] to a size of `0` if it exists.
  *
  * **Usage Examples:**
- * ```Kotlin
+ *
+ * ```kotlin
  *      val path = ...
  *
  *      // Truncate and overwrite an existing file, or create the file if it doesn't initially exist.
@@ -166,7 +233,7 @@ public fun Path.newOutputStream(vararg options: OpenOption): OutputStream = File
  *
  * **Usage Examples:**
  *
- * ```Kotlin
+ * ```kotlin
  *  val path = ...
  *
  *  // Open file for reading.
@@ -257,7 +324,7 @@ internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
  *
  * Suppose we want to iterate over the files in a directory that are larger than 8k.
  *
- * ```Kotlin
+ * ```kotlin
  *      val filter = PathDirectoryFilter { it.size > 8192L }
  *      val dir: Path = ...
  *      dir.newDirectoryStream(filter).use { ... }
@@ -288,7 +355,7 @@ public fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = AcceptAllFil
  *
  * Suppose we want to iterate over the files ending with ".java" in a directory:
  *
- * ```Kotlin
+ * ```kotlin
  *      val dir: Path = ...
  *      dir.newDirectoryStream("*.java").use { ... }
  * ```
@@ -501,10 +568,8 @@ public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribut
  * @throws NotLinkException If the target could otherwise not be read because the file is not a symbolic link .
  * *(optional specific exception)*
  * @throws IOException If an I/O error occurs.
- * @throws SecurityException
- *          In the case of the default provider, and a security manager
- *          is installed, it checks that `FilePermission` has been
- *          granted with the "`readlink`" action to read the link.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed, it checks that
+ * `FilePermission` has been  granted with the "`readlink`" action to read the link.
  */
 public fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)!!
 
@@ -612,7 +677,7 @@ public fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
  *
  * Suppose we want to rename this [file][Path] to "newname", keeping the file in the same directory:
  *
- * ```Kotlin
+ * ```kotlin
  *     val source: Path = ...
  *     source.name = "newname"
  *     // or if you want to apply additional options
@@ -621,7 +686,7 @@ public fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
  *
  * And if we *just* want to change the name of the file to "newname" and *not* change the extension any:
  *
- * ```Kotlin
+ * ```kotlin
  *      val path: Path = ...
  *      source.simpleName = "newname".
  * ```
@@ -684,7 +749,7 @@ public fun Path.moveTo(target: Path, keepName: Boolean = false, vararg options: 
  *
  * Suppose we want to copy this [file][Path] into a directory, giving it the same file name as the source file:
  *
- * ```Kotlin
+ * ```kotlin
  *     val source: Path = ...
  *     val newDir: Path = ...
  *     source.copyTo(target = newDir, keepName = true)
@@ -927,7 +992,7 @@ public val Path.contentType: String get() = Files.probeContentType(this)!!
  *
  * Suppose we want read or set this [file][Path]'s ACL, if supported:
  *
- * ```Kotlin
+ * ```kotlin
  *     val path: Path = ...
  *     val view = path.getFileAttributeView(AclFileAttributeView.class);
  *     if (view != null) {
@@ -964,14 +1029,14 @@ public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, var
  *
  * Suppose we want to read this [file][Path]'s attributes in bulk:
  *
- * ```Kotlin
+ * ```kotlin
  *    val path: Path = ...
  *    val attrs = path.readAttributes(BasicFileAttributes.class);
  * ```
  *
  * Alternatively, suppose we want to read file's POSIX attributes without following symbolic links:
  *
- * ```Kotlin
+ * ```kotlin
  *    val attrs = path.readAttributes(PosixFileAttributes.class, NOFOLLOW_LINKS);
  * ```
  *
@@ -1053,14 +1118,14 @@ public fun Path.readAttributes(attributes: String, vararg options: LinkOption): 
  *
  * Suppose we want to set the DOS "hidden" attribute:
  *
- * ```Kotlin
+ * ```kotlin
  *    val path: Path = ...
  *    path.setAttribute("dos:hidden", true)
  * ```
  *
  * *or*
  *
- * ```Kotlin
+ * ```kotlin
  *    val path: Path = ...
  *    path.attributes["dos:hidden"] = true
  * ```
@@ -1107,14 +1172,14 @@ public fun Path.setAttribute(attribute: String, value: Any?, vararg options: Lin
  *
  * Suppose we require the user ID of the file owner on a system that supports a "`unix`" view:
  *
- * ```Kotlin
+ * ```kotlin
  *    val path: Path = ...
  *    val uid = path.getAttribute("unix:uid") as Int
  * ```
  *
  * *or*
  *
- * ```Kotlin
+ * ```kotlin
  *    val path: Path = ...
  *    val uid = path.attributes["unix:uid"] as Int
  * ```
@@ -1705,7 +1770,7 @@ public fun Path.newBufferedWriter(
  *
  * Suppose we want to capture a web page and save it to this a file:
  *
- * ```Kotlin
+ * ```kotlin
  *     val path: Path = ...
  *     val uri = URI.create("http://java.sun.com/")
  *     uri.toURL().openStream().use { path.transform(it) }
@@ -1722,13 +1787,10 @@ public fun Path.newBufferedWriter(
  * @throws DirectoryNotEmptyException The `REPLACE_EXISTING` option is specified but the file cannot be replaced
  * because it is a non-empty directory *(optional specific exception)*
  * @throws UnsupportedOperationException If [options] contains a copy option that is not supported.
- * @throws SecurityException
- *          In the case of the default provider, and a security manager is
- *          installed, the [checkWrite(String)][SecurityManager.checkWrite]
- *          method is invoked to check write access to the file. Where the
- *          `REPLACE_EXISTING` option is specified, the security
- *          manager's [checkDelete(String)][SecurityManager.checkDelete]
- *          method is invoked to check that an existing file can be deleted.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed,
+ * the [checkWrite(String)][SecurityManager.checkWrite]  method is invoked to check write access to the file. Where the
+ * `REPLACE_EXISTING` option is specified, the security manager's [checkDelete(String)][SecurityManager.checkDelete]
+ * method is invoked to check that an existing file can be deleted.
  */
 public fun Path.transform(inputStream: InputStream, vararg options: CopyOption): Long =
     Files.copy(inputStream, this, *options)
@@ -1826,7 +1888,7 @@ public fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<Strin
  * By default the method creates a new file or overwrites an existing file. Suppose you instead want to append bytes
  * to an existing file:
  *
- * ```Kotlin
+ * ```kotlin
  *     val path: Path = ...
  *     val bytes: ByteArray = ...
  *     path.writeBytes(bytes, StandardOpenOption.APPEND)
@@ -1881,7 +1943,7 @@ public fun Path.writeLines(
  *
  * Say we want to create a text file containing a list, using the multi-line strings feature in Kotlin, we can do this:
  *
- * ```Kotlin
+ * ```kotlin
  * val path: Path = ...
  * path.writeLine(
  *      """

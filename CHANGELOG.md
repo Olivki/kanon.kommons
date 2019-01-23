@@ -1,3 +1,21 @@
+## 0.5.2 (2019-01-23)
+
+* ### /io/KPath.kt
+  * #### File
+    * {+++} Added the new `KPath` object.
+
+      This object acts as a utility for creating new `Path` instances, it's purpose is to resemble the syntax used for creating `File` instances.
+
+      Note that while the object *is* called KPath, the instances it creates are simply just normal `Path` instances. (It uses the `pathOf` top level function.)
+
+* ### /io/Paths.kt
+  * #### Documentation
+    * Ported over the original Java documentation for `pathOf(String, vararg String)` to make it clearer what it actually does.
+    * Fixed the casing for code blocks in the documentation. *(Kotlin -> kotlin)*
+
+  * #### Functions
+    * {+++} Added the `pathOf(URI)` top-level function.
+
 ## 0.5.1 (2019-01-22)
 
 * ### /dom/NodeList.kt
