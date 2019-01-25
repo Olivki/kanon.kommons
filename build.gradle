@@ -12,7 +12,7 @@ apply plugin: "maven-publish"
 
 group "moe.kanon.kextensions"
 description "Various extensions and utilities for the Kotlin programming language."
-version "0.5.2"
+version "0.6.0"
 
 ext {
     javaTarget = "1.8"
