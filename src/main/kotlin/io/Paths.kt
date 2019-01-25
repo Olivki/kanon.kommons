@@ -32,7 +32,7 @@ import java.nio.file.attribute.*
 import java.nio.file.spi.FileSystemProvider
 import java.util.function.BiPredicate
 import java.util.stream.Stream
-import kotlin.streams.toList
+import kotlin.streams.asSequence
 
 /*
     A collection of top-level & extension functions & properties for the [Path] class introduced in Java 7.
@@ -1967,12 +1967,10 @@ public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_
 }
 
 // Streams
-public typealias PathStream = Stream<Path>
-
 public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
 
 /**
- * Return a lazily populated [Stream], the elements of which are the entries in this [directory][Path]
+ * Return a lazily populated [Sequence], the elements of which are the entries in this [directory][Path]
  *
  * The listing is not recursive.
  *
@@ -1994,7 +1992,7 @@ public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
  * If an [IOException] is thrown when accessing the directory after this method has returned, it is wrapped in an
  * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
  *
- * @return  The [Stream] describing the contents of the directory.
+ * @return  The [Sequence] describing the contents of the directory.
  *
  * @throws NotDirectoryException if the file could not otherwise be opened because it is not a directory.
  * *(optional specific exception)*.
@@ -2004,10 +2002,10 @@ public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
  *
  * @see newDirectoryStream
  */
-public val Path.entries: PathStream
+public val Path.entries: Sequence<Path>
     get() {
         this.checkIfDirectory()
-        return Files.list(this)!!
+        return Files.list(this)!!.asSequence()
     }
 
 /**
@@ -2018,7 +2016,7 @@ public val Path.entries: PathStream
 public val Path.children: List<Path> get() = this.entries.toList()
 
 /**
- * Returns a [Stream] that is lazily populated with this [file][Path] by walking the file tree rooted at this
+ * Returns a [Sequence] that is lazily populated with this [file][Path] by walking the file tree rooted at this
  * [file][Path].
  *
  * The file tree is traversed *depth-first*, the elements in the stream are [Path] objects that are obtained as if by
@@ -2026,7 +2024,7 @@ public val Path.children: List<Path> get() = this.entries.toList()
  *
  * The `stream` walks the file tree as elements are consumed.
  *
- * The [Stream] returned is guaranteed to have at least one element, the starting file itself. For each file visited,
+ * The [Sequence] returned is guaranteed to have at least one element, the starting file itself. For each file visited,
  * the stream attempts to read its [BasicFileAttributes]. If the file is a directory and can be opened successfully,
  * entries in the directory, and their *descendants* will follow the directory in the stream as they are encountered.
  * When all entries have been visited, then the  directory is closed. The file tree walk then continues at the next
@@ -2071,17 +2069,17 @@ public val Path.children: List<Path> get() = this.entries.toList()
  * the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  * @throws IOException If an I/O error is thrown when accessing the starting file.
  */
-public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): PathStream =
-    Files.walk(this, maxDepth, *options)!!
+public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): Sequence<Path> =
+    Files.walk(this, maxDepth, *options)!!.asSequence()
 
 /**
- * Returns a [Stream] that is lazily populated with [Path] by searching for files in this [file][Path] tree rooted at
+ * Returns a [Sequence] that is lazily populated with [Path] by searching for files in this [file][Path] tree rooted at
  * this [file][Path].
  *
  * This method walks the file tree in exactly the manner specified by the [walk] method. For each file encountered,
  * the given [BiPredicate] is invoked with its [Path] and [BasicFileAttributes]. The [Path] object is obtained as if
- * by [resolving(Path)][Path.resolve] the relative path against [this] and is only included in the returned [Stream] if
- * the [BiPredicate] returns true. Compare to calling [filter][java.util.stream.Stream.filter] on the [Stream] returned
+ * by [resolving(Path)][Path.resolve] the relative path against [this] and is only included in the returned [Sequence] if
+ * the [BiPredicate] returns true. Compare to calling [filter][java.util.stream.Stream.filter] on the [Sequence] returned
  * by [walk] method, this method may be more efficient by avoiding redundant retrieval of the [BasicFileAttributes].
  *
  * The returned stream encapsulates one or more [DirectoryStreams][DirectoryStream].
@@ -2109,7 +2107,7 @@ public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg
     Files.find(this, maxDepth, matcher, *options)!!
 
 /**
- * Reads all the lines from this [file][Path] into a [Stream] with the charset set to [UTF-8][StandardCharsets.UTF_8].
+ * Reads all the lines from this [file][Path] into a [Sequence] with the charset set to [UTF-8][StandardCharsets.UTF_8].
  *
  * Unlike [readAllLines(Path, Charset)][readLines], this method does not read all lines into a [List], but instead
  * populates lazily as the stream is consumed.
@@ -2119,7 +2117,7 @@ public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg
  *
  * After this method returns, then any subsequent I/O exception that occurs while reading from the file or when a
  * malformed or unmappable byte sequence is read, is wrapped in an [UncheckedIOException] that will be thrown from the
- * [Stream] method that caused the read to take place. In case an [IOException] is thrown when closing the file, it is
+ * [Sequence] method that caused the read to take place. In case an [IOException] is thrown when closing the file, it is
  * also wrapped as an [UncheckedIOException].
  *
  * The returned stream encapsulates a [Reader].
@@ -2135,10 +2133,10 @@ public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-public val Path.lines: Stream<String> get() = Files.lines(this)
+public val Path.lines: Sequence<String> get() = Files.lines(this).asSequence()
 
 /**
- * Reads all the lines from this [file][Path] into a [Stream].
+ * Reads all the lines from this [file][Path] into a [Sequence].
  *
  * Unlike [readAllLines(Path, Charset)][readLines], this method does not read all lines into a [List], but instead
  * populates lazily as the stream is consumed.
@@ -2148,7 +2146,7 @@ public val Path.lines: Stream<String> get() = Files.lines(this)
  *
  * After this method returns, then any subsequent I/O exception that occurs while reading from the file or when a
  * malformed or unmappable byte sequence is read, is wrapped in an [UncheckedIOException] that will be thrown from the
- * [Stream] method that caused the read to take place. In case an [IOException] is thrown when closing the file, it is
+ * [Sequence] method that caused the read to take place. In case an [IOException] is thrown when closing the file, it is
  * also wrapped as an [UncheckedIOException].
  *
  * The returned stream encapsulates a [Reader].
@@ -2166,7 +2164,8 @@ public val Path.lines: Stream<String> get() = Files.lines(this)
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-public fun Path.linesStream(charset: Charset = StandardCharsets.UTF_8): Stream<String> = Files.lines(this, charset)!!
+public fun Path.linesStream(charset: Charset = StandardCharsets.UTF_8): Sequence<String> =
+    Files.lines(this, charset)!!.asSequence()
 
 // Fully custom operations
 /**

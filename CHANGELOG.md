@@ -1,3 +1,17 @@
+## 0.6.0 (2019-01-xx)
+
+* ### /io/Paths.kt
+  * #### Typealias
+    * {---} Removed the `PathStream` typealias.
+
+  * #### Properties
+    * {---}{+++} Changed the return type of `entries` to `Sequence<Path>`.
+
+        Originally it was `Stream<Path>`, but as this library is made for Kotlin use, and the fact that `Sequence` is generally more powerful than `Stream` made me switch this.
+
+  * #### Functions
+    * {---}{+++} Added the `pathOf(URI)` top-level function.
+
 ## 0.5.2 (2019-01-23)
 
 * ### /io/KPath.kt
