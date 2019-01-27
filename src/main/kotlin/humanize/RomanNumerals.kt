@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("RomanNumeralUtils")
+
 package moe.kanon.kextensions.humanize
 
 import moe.kanon.kextensions.collections.treeMapOf
