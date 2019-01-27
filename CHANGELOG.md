@@ -16,19 +16,30 @@ It's finally time for the addition of some *actual* utilities, and not just faca
 
 * ### /humanize/
   * #### File
-    * Added the `humanize` package, this will contain various utilities for "humanizing" data, largely based on [Humanizer.jvm](https://github.com/MehdiK/Humanizer.jvm) and the original [Humanizer](https://github.com/Humanizr/Humanizer) for .NET. *(Go [here](https://gitlab.com/Olivki/humanizer-jvm) if you want a working version of `Humanizer.jvm`.)*
+    * {+++} Added the `humanize` package, this will contain various utilities for "humanizing" data, largely based on [Humanizer.jvm](https://github.com/MehdiK/Humanizer.jvm) and the original [Humanizer](https://github.com/Humanizr/Humanizer) for .NET. *(Go [here](https://gitlab.com/Olivki/humanizer-jvm) if you want a working version of `Humanizer.jvm`.)*
 
 * ### /humanize/CaseConverter.kt
   * #### File
-    * Added the `CaseConverter.kt` file which adds utilities for converting *to* and *from* various cases.
+    * {+++} Added the `CaseConverter.kt` file which adds utilities for converting *to* and *from* various cases.
 
 * ### /humanize/RomanNumerals.kt
   * #### File
-    * Added the `RomanNumerals.kt` file. This provides utilities for converting numbers *to* and *from* Roman numerals.
+    * {+++} Added the `RomanNumerals.kt` file. This provides utilities for converting numbers *to* and *from* Roman numerals.
 
 * ### /collections/Maps.kt
   * #### File
-    * Added the `Maps.kt` file. This provides utilities for various `Map` implementations.
+    * {+++} Added the `Maps.kt` file. This provides utilities for various `Map` implementations.
+
+* ### /misc/
+  * #### File
+    * {+++} Added the `misc` package. This package will contain files that aren't "big" enough to really varant their own packages.
+
+* ### /misc/Exceptions.kt
+  * #### File
+    * {+++} Added the `Exceptions.kt` file. This provides utilities for `Exception`s.
+  
+  * #### Functions
+    * {+++} Added the `multiCatch(vararg KClass)` closure function. This function "simulates" the behaviour of the multi-catch feature in Java for Kotlin. Credit goes to carleslc for the original code.
 
 ## 0.5.2 (2019-01-23)
 
