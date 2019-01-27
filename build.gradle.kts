@@ -1,6 +1,6 @@
+
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -38,7 +38,8 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    //kotlinOptions.freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
+    // Enables the use of the @Experimental annotation.
+    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
 }
 
 // Dokka Tasks
@@ -66,7 +67,7 @@ val sourcesJar by tasks.creating(Jar::class) {
     description = "Assembles the sources of this project into a *-sources.jar file."
     classifier = "sources"
     
-    from(project.the<KotlinJvmProjectExtension>().sourceSets["main"].resources)
+    from(project.sourceSets["main"].allSource)
 }
 
 val javaDocJar by tasks.creating(Jar::class) {
