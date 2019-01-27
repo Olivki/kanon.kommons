@@ -18,7 +18,7 @@ plugins {
 project.group = "moe.kanon.kextensions"
 project.description = "Various extensions and utilities for the Kotlin programming language."
 project.version = "0.6.0"
-val artifactName = "kanon.kextensions" // ie: epubby, kanon.xml, etc..
+val artifactName = "kanon.kextensions"
 val gitUrl = "https://gitlab.com/Olivki/kanon-kextensions" // ie: https://gitlab.com/Olivki/epubby
 
 // General Tasks
@@ -114,35 +114,23 @@ bintray {
     })
 }
 
-// Maven
-// Creates the *.pom file which lists all the dependencies of this project.
-fun org.gradle.api.publish.maven.MavenPom.addDependencies() = withXml {
-    asNode().appendNode("dependencies").let { depNode ->
-        configurations.compile.allDependencies.forEach {
-            depNode.appendNode("dependency").apply {
-                appendNode("groupId", it.group)
-                appendNode("artifactId", it.name)
-                appendNode("version", it.version)
-            }
-        }
-    }
-}
-
 // Maven Tasks
 publishing {
     publications.invoke {
         register("mavenPublication", MavenPublication::class.java) {
-            // General project information.
-            groupId = project.group.toString()
-            version = project.version.toString()
-            artifactId = artifactName
-            
-            // Any extra artifacts that need to be added, ie: sources & javadoc jars.
-            artifact(sourcesJar)
-            artifact(javaDocJar)
-            
-            // Populates the dependencies.
-            pom.addDependencies()
+            // Adds all the dependencies this project uses to the pom.
+            from(components["java"])
+
+            afterEvaluate {
+                // General project information.
+                groupId = project.group.toString()
+                version = project.version.toString()
+                artifactId = artifactName
+
+                // Any extra artifacts that need to be added, ie: sources & javadoc jars.
+                artifact(sourcesJar)
+                artifact(javaDocJar)
+            }
         }
     }
 }
