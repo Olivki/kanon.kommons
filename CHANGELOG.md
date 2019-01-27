@@ -1,5 +1,7 @@
 ## 0.6.0 (2019-01-xx)
 
+It's finally time for the addition of some *actual* utilities, and not just facades for syntatic sugar!
+
 * ### /io/Paths.kt
   * #### Typealias
     * {---} Removed the `PathStream` typealias.
@@ -7,7 +9,26 @@
   * #### Properties
     * {---}{+++} Changed the return type of `entries` to `Sequence<Path>`.
 
-        Originally it was `Stream<Path>`, but as this library is made for Kotlin use, and the fact that `Sequence` is generally more powerful than `Stream` made me switch this.
+        Originally it was `Stream<Path>`, but as this library is made for Kotlin use, and the fact that `Sequence` is generally more powerful than `Stream` means that it makes more sense for it to be a `Sequence`. *(The use of `Stream` in Kotlin is also not really supported.)*
+
+  * #### Operators
+    * {+++} Added the `contains(String)` operator, which allows for checking if a directory contains any files with the specified `fileName`.
+
+* ### /humanize/
+  * #### File
+    * Added the `humanize` package, this will contain various utilities for "humanizing" data, largely based on [Humanizer.jvm](https://github.com/MehdiK/Humanizer.jvm) and the original [Humanizer](https://github.com/Humanizr/Humanizer) for .NET. *(Go [here](https://gitlab.com/Olivki/humanizer-jvm) if you want a working version of `Humanizer.jvm`.)*
+
+* ### /humanize/CaseConverter.kt
+  * #### File
+    * Added the `CaseConverter.kt` file which adds utilities for converting *to* and *from* various cases.
+
+* ### /humanize/RomanNumerals.kt
+  * #### File
+    * Added the `RomanNumerals.kt` file. This provides utilities for converting numbers *to* and *from* Roman numerals.
+
+* ### /collections/Maps.kt
+  * #### File
+    * Added the `Maps.kt` file. This provides utilities for various `Map` implementations.
 
 ## 0.5.2 (2019-01-23)
 

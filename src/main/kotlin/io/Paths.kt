@@ -2174,6 +2174,11 @@ public fun Path.linesStream(charset: Charset = StandardCharsets.UTF_8): Sequence
 public operator fun Path.contains(other: Path): Boolean = this.children.contains(other)
 
 /**
+ * Checks whether this [directory][Path] has any children that have a matching `name` to the specified [fileName].
+ */
+public operator fun Path.contains(fileName: String): Boolean = this.children.any { it.name == fileName }
+
+/**
  * Attempts to recursively delete all the files inside of this [directory][Path].
  *
  * @param deleteDirectories Whether or not any and all sub-directories of the directory will also be deleted.
