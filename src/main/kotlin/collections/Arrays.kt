@@ -16,9 +16,9 @@
 
 @file:JvmName("ArrayUtils")
 
-package moe.kanon.kextensions.collections
+package moe.kanon.kommons.collections
 
-import moe.kanon.kextensions.ExperimentalFeature
+import moe.kanon.kommons.ExperimentalFeature
 
 // Generic Array
 /**

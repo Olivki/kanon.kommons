@@ -16,7 +16,7 @@
 
 @file:JvmName("CollectionUtils")
 
-package moe.kanon.kextensions.collections
+package moe.kanon.kommons.collections
 
 /**
  * Removes all of the supplied [elements] from the collection and returns this [collection][MutableCollection].

@@ -16,7 +16,7 @@
 
 @file:JvmName("PosixFilePermissionsWrapper")
 
-package moe.kanon.kextensions.io
+package moe.kanon.kommons.io
 
 import java.nio.file.attribute.FileAttribute
 import java.nio.file.attribute.PosixFilePermission

@@ -16,9 +16,9 @@
 
 @file:JvmName("RomanNumeralUtils")
 
-package moe.kanon.kextensions.humanize
+package moe.kanon.kommons.humanize
 
-import moe.kanon.kextensions.collections.treeMapOf
+import moe.kanon.kommons.collections.treeMapOf
 import java.util.regex.Pattern
 
 private val ROMAN_NUMERALS = treeMapOf(

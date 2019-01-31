@@ -16,7 +16,7 @@
 
 @file:JvmName("DocumentUtils")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.*
 

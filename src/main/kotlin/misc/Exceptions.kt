@@ -16,7 +16,7 @@
 
 @file:JvmName("ExceptionUtils")
 
-package moe.kanon.kextensions.misc
+package moe.kanon.kommons.misc
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf

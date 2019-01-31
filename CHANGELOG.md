@@ -1,5 +1,10 @@
 ## 0.6.0 (2019-01-xx)
 
+**0.6.0 comes with the biggest breaking change of them all, which is the change of name!**
+I know this really isn't something you should do with something that's *already* out there, but "kextensions" was just a god awful name, so please don't burn me at the stake.
+
+*(The **k** is required by law to be in any Kotlin library.)*
+
 It's finally time for the addition of some *actual* utilities, and not just facades for syntatic sugar!
 
 * ### /io/Paths.kt

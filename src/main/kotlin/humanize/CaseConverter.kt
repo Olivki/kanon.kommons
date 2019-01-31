@@ -16,7 +16,7 @@
 
 @file:JvmName("CaseUtils")
 
-package moe.kanon.kextensions.humanize
+package moe.kanon.kommons.humanize
 
 /**
  * @since 0.6.0

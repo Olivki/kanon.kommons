@@ -16,7 +16,7 @@
 
 @file:JvmName("NodeListUtils")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList

@@ -16,11 +16,11 @@
 
 @file:JvmName("FilesWrapper")
 
-package moe.kanon.kextensions.io
+package moe.kanon.kommons.io
 
-import moe.kanon.kextensions.collections.addAll
-import moe.kanon.kextensions.collections.removeAll
-import moe.kanon.kextensions.math.plus
+import moe.kanon.kommons.collections.addAll
+import moe.kanon.kommons.collections.removeAll
+import moe.kanon.kommons.math.plus
 import java.io.*
 import java.math.BigInteger
 import java.net.URI

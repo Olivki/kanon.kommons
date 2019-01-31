@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package moe.kanon.kextensions.io
+package moe.kanon.kommons.io
 
 import java.net.URI
 import java.nio.file.*

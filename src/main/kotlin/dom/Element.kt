@@ -16,9 +16,9 @@
 
 @file:JvmName("ElementUtils")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
-import moe.kanon.kextensions.ExperimentalFeature
+import moe.kanon.kommons.ExperimentalFeature
 import org.w3c.dom.*
 
 /**

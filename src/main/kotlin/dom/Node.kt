@@ -16,7 +16,7 @@
 
 @file:JvmName("NodeUtils")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.*
 import java.io.StringWriter

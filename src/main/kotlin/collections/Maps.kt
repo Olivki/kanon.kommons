@@ -16,7 +16,7 @@
 
 @file:JvmName("MapUtils")
 
-package moe.kanon.kextensions.collections
+package moe.kanon.kommons.collections
 
 import java.util.*
 

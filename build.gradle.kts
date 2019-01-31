@@ -15,11 +15,11 @@ plugins {
 }
 
 // Project Specific Variables
-project.group = "moe.kanon.kextensions"
+project.group = "moe.kanon.kommons"
 project.description = "Various extensions and utilities for the Kotlin programming language."
 project.version = "0.6.0"
-val artifactName = "kanon.kextensions"
-val gitUrl = "https://gitlab.com/Olivki/kanon-kextensions" // ie: https://gitlab.com/Olivki/epubby
+val artifactName = "kanon.kommons"
+val gitUrl = "https://gitlab.com/Olivki/kanon-kommons"
 
 // General Tasks
 repositories {

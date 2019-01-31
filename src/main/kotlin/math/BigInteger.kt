@@ -16,7 +16,7 @@
 
 @file:JvmName("BigIntegerUtils")
 
-package moe.kanon.kextensions.math
+package moe.kanon.kommons.math
 
 import java.math.BigInteger
 

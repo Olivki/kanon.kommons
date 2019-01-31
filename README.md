@@ -1,4 +1,4 @@
-## kanon.kExtensions
+## kanon.kommons
 Various extension methods and extension properties and utilities for the Kotlin programming language.
 
 ## Word of Caution
@@ -22,7 +22,10 @@ repositories {
 }
 
 dependencies {
-    compile "moe.kanon.kextensions:kanon.kextensions:0.6.0"
+    // groovy
+    implementation "moe.kanon.kommons:kanon.kommons:0.6.0"
+    // kotlin
+    implementation("moe.kanon.kommons:kanon.kommons:0.6.0")
 }
 ```
 
@@ -30,8 +33,8 @@ Maven
 
 ```xml
 <dependency>
-  <groupId>moe.kanon.kextensions</groupId>
-  <artifactId>kanon.kextensions</artifactId>
+  <groupId>moe.kanon.kommons</groupId>
+  <artifactId>kanon.kommons</artifactId>
   <version>0.6.0</version>
   <type>pom</type>
 </dependency>

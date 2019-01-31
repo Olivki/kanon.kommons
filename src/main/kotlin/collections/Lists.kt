@@ -16,6 +16,6 @@
 
 @file:JvmName("ListUtils")
 
-package moe.kanon.kextensions.collections
+package moe.kanon.kommons.collections
 
 public fun <V> List<V>.from(start: Int) = slice(start until size)

@@ -16,7 +16,7 @@
 
 @file:JvmName("InputStreamUtils")
 
-package moe.kanon.kextensions.io
+package moe.kanon.kommons.io
 
 import java.io.InputStream
 import java.nio.file.*
