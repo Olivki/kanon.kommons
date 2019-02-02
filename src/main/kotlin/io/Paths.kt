@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("FilesWrapper")
+@file:JvmName("PathUtils")
 
 package moe.kanon.kommons.io
 
@@ -32,7 +32,9 @@ import java.nio.file.attribute.*
 import java.nio.file.spi.FileSystemProvider
 import java.util.function.BiPredicate
 import java.util.stream.Stream
+import kotlin.contracts.ExperimentalContracts
 import kotlin.streams.asSequence
+
 
 /*
     A collection of top-level & extension functions & properties for the [Path] class introduced in Java 7.
@@ -332,7 +334,9 @@ internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
  *
  * @return A new and open [DirectoryStream] instance.
  *
- * @param dirFilter The directory stream filter. *([AcceptAllFilter.FILTER] by default.)*
+ * @param dirFilter The directory stream filter.
+ *
+ * ([AcceptAllFilter.FILTER] by default.)
  *
  * @throws NotDirectoryException If the file could not otherwise be opened because it is not a directory. *(optional
  * specific exception)*.
@@ -392,6 +396,8 @@ public fun Path.newDirectoryStream(glob: String): PathDirectoryStream = Files.ne
  * Each attribute is identified by its [name][FileAttribute.name]. If more than one attribute of the same name is
  * included in the array then all but the last occurrence is ignored.
  *
+ * @receiver The file to create.
+ *
  * @return The newly created file.
  *
  * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically when creating
@@ -415,6 +421,8 @@ public fun Path.createFile(vararg attributes: FileAttribute<*>) = Files.createFi
  * The [attributes] parameter is optional [file-attributes][FileAttribute] to set atomically when creating the
  * directory. Each attribute is identified by its [name][FileAttribute.name]. If more than one attribute of the same
  * name is included in the array then all but the last occurrence is ignored.
+ *
+ * @receiver The directory to create.
  *
  * @return The newly created directory.
  *
@@ -441,7 +449,9 @@ public fun Path.createDirectory(vararg attributes: FileAttribute<*>) =
  *
  * If this method fails, then it may do so after creating some, but not all, of the parent directories.
  *
- * @return The newly created directory.
+ * @receiver The directory to create.
+ *
+ * @return The newly created directory that didn't exist before this function being called.
  *
  * @throws  UnsupportedOperationException If the array contains an attribute that cannot be set atomically when
  * creating the directory.
@@ -481,7 +491,18 @@ public fun Path.createDirectories(vararg attributes: FileAttribute<*>) =
  * resulting file may have more restrictive access permissions to files created by the
  * [createTempFile(String, String, File)][java.io.File.createTempFile] method.
  *
- * @return The path to the newly created file that did not exist before this method was invoked.
+ * @receiver The path to directory in which to create the file.
+ *
+ * @param name The prefix string to be used in generating the file's name; may be `null`.
+ *
+ * (`null` by default)
+ * @param extension The suffix string to be used in generating the file's name; may be `null`, in which case "`.tmp`"
+ * is used.
+ *
+ * (`null` by default)
+ * @param attributes An optional list of file attributes to set atomically when creating the file.
+ *
+ * @return The `path` to the newly created file that did not exist before this method was invoked.
  *
  * @throws IllegalArgumentException If the prefix or suffix parameters cannot be used to generate a candidate file name.
  * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically when
@@ -492,8 +513,45 @@ public fun Path.createDirectories(vararg attributes: FileAttribute<*>) =
  *
  * @see Files.createTempFile
  */
-public fun Path.createTempFile(name: String, extension: String, vararg attributes: FileAttribute<*>) =
-    Files.createTempFile(this, name, extension, *attributes)!!
+public fun Path.createTempFile(
+    name: String? = null,
+    extension: String? = null,
+    vararg attributes: FileAttribute<*>
+): Path = Files.createTempFile(this, name, extension, *attributes)!!
+
+/**
+ * Creates an empty file in the default temporary-file directory, using the given [name] and [extension] to generate
+ * its name. The resulting [Path] is associated with the default [FileSystem].
+ *
+ * This method works in exactly the manner specified by the
+ * [createTempFile(String?, String?, vararg FileAttribute][Path.createTempFile] function for the case that the
+ * `receiver` is the temporary-file directory.
+ *
+ * @param name The prefix string to be used in generating the file's name; may be `null`.
+ *
+ * (`null` by default)
+ * @param extension The suffix string to be used in generating the file's name; may be `null`, in which case "`.tmp`"
+ * is used.
+ *
+ * (`null` by default)
+ * @param attributes An optional list of file attributes to set atomically when creating the file.
+ *
+ * @return The `path` to the newly created file that did not exist before this method was invoked.
+ *
+ * @throws IllegalArgumentException If the prefix or suffix parameters cannot be used to generate a candidate file name.
+ * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically when
+ * creating the directory.
+ * @throws IOException If an I/O error occurs.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed, its
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file.
+ *
+ * @since 0.6.0
+ */
+public fun createTempFile(
+    name: String? = null,
+    extension: String? = null,
+    vararg attributes: FileAttribute<*>
+): Path = Files.createTempFile(name, extension, *attributes)
 
 /**
  * Creates a new directory in this [directory][Path], using the given [name] to generate its name.
@@ -511,6 +569,11 @@ public fun Path.createTempFile(name: String, extension: String, vararg attribute
  * directory. Each attribute is identified by its [name][FileAttribute.name]. If more than one attribute of the same
  * name is included in the array then all but the last occurrence is ignored.
  *
+ * @param name the name string to be used in generating the directory's name; may be `null`.
+ *
+ * (`null` by default)
+ * @param attributes An optional list of file attributes to set atomically when creating the directory.
+ *
  * @return The path to the newly created directory that did not exist before this method was invoked.
  *
  * @throws IllegalArgumentException If the prefix cannot be used to generate a candidate directory name.
@@ -522,8 +585,36 @@ public fun Path.createTempFile(name: String, extension: String, vararg attribute
  *
  * @see Files.createTempDirectory
  */
-public fun Path.createTempDirectory(name: String, vararg attributes: FileAttribute<*>) =
+public fun Path.createTempDirectory(name: String?, vararg attributes: FileAttribute<*>): Path =
     Files.createTempDirectory(this, name, *attributes)!!
+
+/**
+ * Creates a new directory in the default temporary-file directory, using the given [name] to generate its name. The
+ * resulting [Path] is associated with the default [FileSystem].
+ *
+ * This function works in exactly the manner specified by
+ * [createTempDirectory(String, vararg FileAttribute][Path.createTempDirectory] function for the case that the `Path`
+ * `receiver` is the temporary-file directory.
+ *
+ * @param name the name string to be used in generating the directory's name; may be `null`.
+ *
+ * (`null` by default)
+ * @param attributes An optional list of file attributes to set atomically when creating the directory.
+ *
+ * @return The path to the newly created directory that did not exist before this method was invoked
+ *
+ * @throws IllegalArgumentException If the prefix cannot be used to generate a candidate directory name
+ * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically when creating
+ * the directory
+ * @throws IOException If an I/O error occurs or the temporary-file directory does not exist
+ * @throws SecurityException In the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access when creating the
+ * directory.
+ *
+ * @since 0.6.0
+ */
+public fun createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+    Files.createTempDirectory(name, *attributes)
 
 // - Links
 /**
@@ -757,7 +848,8 @@ public fun Path.moveTo(target: Path, keepName: Boolean = false, vararg options: 
  *
  * @param target The path to the target file. *(May be associated with a different provider to the source path)*
  * @param keepName Whether or not this [file][Path] should keep the original name after being copied over to [target].
- * *(`false` by default)*
+ *
+ * (`false` by default)
  * @param options Options specifying how the copy should be done.
  *
  * @return The path to the target file.
@@ -786,7 +878,7 @@ public fun Path.copyTo(target: Path, keepName: Boolean = false, vararg options: 
  * @see Path.name
  */
 public fun Path.renameTo(name: String, vararg options: CopyOption): Path =
-    moveTo(this.resolveSibling(name), options = *options)
+    this.moveTo(this.resolveSibling(name), options = *options)
 
 /**
  * Returns the [FileStore] representing the file store where this [file][Path] is located.
@@ -1674,8 +1766,12 @@ public typealias PathVisitor = FileVisitor<in Path>
  * When a security manager is installed and it denies access to this [file][Path] (or directory), then it is ignored and the
  * visitor is not invoked for that file (or directory).
  *
- * @param options Options to configure the traversal. *([emptySet] by default])*
- * @param maxDepth The maximum number of directory levels to visit. *([Int.MAX_VALUE] by default)*
+ * @param options Options to configure the traversal.
+ *
+ * ([emptySet] by default])
+ * @param maxDepth The maximum number of directory levels to visit.
+ *
+ * ([Int.MAX_VALUE] by default)
  * @param visitor The [file visitor][PathVisitor] to invoke for each file.
  *
  * @return The starting file.
@@ -1702,7 +1798,9 @@ public fun Path.walkFileTree(
  *
  * The [Reader] methods that read from the file throw [IOException] if a malformed or unmappable byte sequence is read.
  *
- * @param charset The charset to use for decoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ * @param charset The charset to use for decoding.
+ *
+ * ([UTF_8][StandardCharsets.UTF_8] by default)
  *
  * @return A new buffered reader, with default buffer size, to read text from the file.
  *
@@ -1728,7 +1826,9 @@ public fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): Bu
  *
  * The [Writer] methods to write text throw [IOException] if the text cannot be encoded using the specified charset.
  *
- * @param charset The charset to use for encoding. *([UTF_8][StandardCharsets.UTF_8] by default)*
+ * @param charset The charset to use for encoding.
+ *
+ * ([UTF_8][StandardCharsets.UTF_8] by default)
  * @param options Options specifying how the file is opened
  *
  * @return A new [BufferedWriter], with default buffer size, to write text to the file.
@@ -1855,7 +1955,9 @@ public fun Path.readBytes(): ByteArray = Files.readAllBytes(this)!!
  * Note that this method is intended for simple cases where it is convenient to read all lines in a single operation.
  * It is not intended for reading in large files.
  *
- * @param charset The charset to use for decoding. *([UTF-8][StandardCharsets.UTF_8] by default)*
+ * @param charset The charset to use for decoding.
+ *
+ * ([UTF-8][StandardCharsets.UTF_8] by default)
  *
  * @return The lines from the file as a [List]; Unlike the original method in [Files], the `List` returned here is the
  * Kotlin variant, which is **immutable** by default, so the returned list can **not** be modified.
@@ -1921,7 +2023,9 @@ public fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path =
  * after the file has created or truncated, or after some bytes have been written to the file.
  *
  * @param lines An object to iterate over the char sequences.
- * @param charset The charset to use for decoding. *(Set to [UTF_8][StandardCharsets.UTF_8] by default)*
+ * @param charset The charset to use for decoding.
+ *
+ * (Set to [UTF_8][StandardCharsets.UTF_8] by default)
  * @param options Options specifying how the file is opened.
  *
  * @throws IOException If an I/O error occurs writing to or creating the file, or the text cannot be encoded using the
@@ -1958,7 +2062,7 @@ public fun Path.writeLines(
  */
 public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_8, vararg options: OpenOption): Path {
     val encoder = charset.newEncoder()
-    val out = newOutputStream(*options)
+    val out = this.newOutputStream(*options)
     BufferedWriter(OutputStreamWriter(out, encoder)).use { writer ->
         writer.append(line)
         writer.newLine()
@@ -1967,8 +2071,6 @@ public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_
 }
 
 // Streams
-public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
-
 /**
  * Return a lazily populated [Sequence], the elements of which are the entries in this [directory][Path]
  *
@@ -1992,7 +2094,7 @@ public typealias PathMatcher = BiPredicate<Path, BasicFileAttributes>
  * If an [IOException] is thrown when accessing the directory after this method has returned, it is wrapped in an
  * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
  *
- * @return  The [Sequence] describing the contents of the directory.
+ * @return The [Sequence] describing the contents of the directory.
  *
  * @throws NotDirectoryException if the file could not otherwise be opened because it is not a directory.
  * *(optional specific exception)*.
@@ -2061,7 +2163,9 @@ public val Path.children: List<Path> get() = this.entries.toList()
  * If an [IOException] is thrown when accessing the directory after this method has returned, it is wrapped in an
  * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
  *
- * @param maxDepth The maximum number of directory levels to visit. **(This is set to [Int.MAX_VALUE] by default.)**
+ * @param maxDepth The maximum number of directory levels to visit.
+ *
+ * ([Int.MAX_VALUE] by default.)
  * @param options Options to configure the traversal.
  *
  * @throws IllegalArgumentException if the [maxDepth] parameter is negative.
@@ -2073,8 +2177,8 @@ public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOpt
     Files.walk(this, maxDepth, *options)!!.asSequence()
 
 /**
- * Returns a [Sequence] that is lazily populated with [Path] by searching for files in this [file][Path] tree rooted at
- * this [file][Path].
+ * Returns a [Sequence] that is lazily populated with [Path]s by searching for files in this [file][Path] tree rooted at
+ * this `file`.
  *
  * This method walks the file tree in exactly the manner specified by the [walk] method. For each file encountered,
  * the given [BiPredicate] is invoked with its [Path] and [BasicFileAttributes]. The [Path] object is obtained as if
@@ -2092,8 +2196,10 @@ public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOpt
  * If an [IOException] is thrown when accessing the directory after returned from this method, it is wrapped in an
  * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
  *
- * @param maxDepth The maximum number of directory levels to search. **(Set to [Int.MAX_VALUE] by default.)**
- * @param matcher The function used to decide whether this [file][Path] should be included in the returned stream.
+ * @param maxDepth The maximum number of directory levels to search.
+ *
+ * ([Int.MAX_VALUE] by default)
+ * @param biPredicate The function used to decide whether this [file][Path] should be included in the returned stream.
  * @param options Options to configure the traversal.
  *
  * @throws IllegalArgumentException If [maxDepth] is negative.
@@ -2103,8 +2209,91 @@ public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOpt
  *
  * @see walk
  */
-public fun Path.find(maxDepth: Int = Int.MAX_VALUE, matcher: PathMatcher, vararg options: FileVisitOption) =
-    Files.find(this, maxDepth, matcher, *options)!!
+@Deprecated(
+    "This function has been replaced with one that makes use of Kotlins higher-order functions. This function will be "
+            + "removed in the v1.0.0",
+    ReplaceWith("find(predicate, maxDepth, *options)!!", "moe.kanon.kommons.io.Paths"),
+    DeprecationLevel.WARNING // Will be changed to ERROR later on.
+)
+public fun Path.find(
+    maxDepth: Int = Int.MAX_VALUE,
+    biPredicate: BiPredicate<Path, BasicFileAttributes>,
+    vararg options: FileVisitOption
+): Stream<Path> = Files.find(this, maxDepth, biPredicate, *options)!!
+
+/**
+ * Returns a [Sequence] that is lazily populated with [Path]s by searching for files in this [file][Path] tree rooted at
+ * this `file`.
+ *
+ * This method walks the file tree in exactly the manner specified by the [walk] method. For each file encountered,
+ * the given [predicate] is invoked with its `Path` and [BasicFileAttributes]. The `Path` object is obtained as if
+ * by [resolving(Path)][Path.resolve] the relative path against `this` and is only included in the returned `Sequence` if
+ * the `predicate` returns true. Compare to calling [filter][Sequence.filter] on the `Sequence` returned
+ * by [walk] method, this method may be more efficient by avoiding redundant retrieval of the `BasicFileAttributes`.
+ *
+ * The returned stream encapsulates one or more [DirectoryStreams][DirectoryStream].
+ *
+ * Operating on a closed sequence will result in an [java.lang.IllegalStateException].
+ *
+ * If an [IOException] is thrown when accessing the directory after returned from this method, it is wrapped in an
+ * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
+ *
+ * @param maxDepth The maximum number of directory levels to search.
+ *
+ * ([Int.MAX_VALUE] by default)
+ * @param predicate The function used to decide whether this [file][Path] should be included in the returned stream.
+ * @param options Options to configure the traversal.
+ *
+ * @throws IllegalArgumentException If [maxDepth] is negative.
+ * @throws SecurityException If the security manager denies access to the starting file. In the case of the default
+ * provider, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
+ * @throws IOException If an I/O error is thrown when accessing the starting file.
+ *
+ * @see walk
+ *
+ * @since 0.6.0
+ */
+@UseExperimental(ExperimentalContracts::class)
+public fun Path.find(
+    predicate: (path: Path, attributes: BasicFileAttributes) -> Boolean,
+    maxDepth: Int = Int.MAX_VALUE,
+    vararg options: FileVisitOption
+): Sequence<Path> = Files.find(
+    this,
+    maxDepth,
+    BiPredicate<Path, BasicFileAttributes> { path, attributes -> predicate(path, attributes) },
+    *options
+).asSequence()
+
+/**
+ * Returns a [Sequence] that is lazily populated with [Path]s by searching for files in this [file][Path] tree rooted at
+ * this `file`.
+ *
+ * This method walks the file tree in exactly the manner specified by the [walk] method. For each file encountered,
+ * the given [predicate] is invoked with its `Path` and [BasicFileAttributes]. The `Path` object is obtained as if
+ * by [resolving(Path)][Path.resolve] the relative path against `this` and is only included in the returned `Sequence` if
+ * the `predicate` returns true. Compare to calling [filter][Sequence.filter] on the `Sequence` returned
+ * by [walk] method, this method may be more efficient by avoiding redundant retrieval of the `BasicFileAttributes`.
+ *
+ * The returned stream encapsulates one or more [DirectoryStreams][DirectoryStream].
+ *
+ * Operating on a closed sequence will result in an [java.lang.IllegalStateException].
+ *
+ * If an [IOException] is thrown when accessing the directory after returned from this method, it is wrapped in an
+ * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
+ *
+ * @param predicate The function used to decide whether this [file][Path] should be included in the returned stream.
+ *
+ * @throws SecurityException If the security manager denies access to the starting file. In the case of the default
+ * provider, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
+ * @throws IOException If an I/O error is thrown when accessing the starting file.
+ *
+ * @see walk
+ *
+ * @since 0.6.0
+ */
+public fun Path.find(predicate: (path: Path, attributes: BasicFileAttributes) -> Boolean): Sequence<Path> =
+    this.find(predicate, Int.MAX_VALUE)
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence] with the charset set to [UTF-8][StandardCharsets.UTF_8].
@@ -2154,7 +2343,9 @@ public val Path.lines: Sequence<String> get() = Files.lines(this).asSequence()
  * If timely disposal of file system resources is required, the try-with-resources construct should be used to ensure
  * that the stream's [close][Stream.close] method is invoked after the stream operations are completed.
  *
- * @param charset The charset to use for decoding. *([UTF_8][StandardCharsets.UTF_8] by default)*
+ * @param charset The charset to use for decoding.
+ *
+ * ([UTF_8][StandardCharsets.UTF_8] by default)
  *
  * @throws IOException If an I/O error occurs opening the file.
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
@@ -2182,7 +2373,8 @@ public operator fun Path.contains(fileName: String): Boolean = this.children.any
  * Attempts to recursively delete all the files inside of this [directory][Path].
  *
  * @param deleteDirectories Whether or not any and all sub-directories of the directory will also be deleted.
- * *(`false` by default.)*
+ *
+ * (`false` by default.)
  *
  * @throws IOException If this [File][Path] doesn't exist, and if [File][Path] isn't a directory.
  */
@@ -2203,18 +2395,23 @@ public fun Path.cleanDirectory(deleteDirectories: Boolean = false) {
 /**
  * Reads the contents of this [file][Path] into a singular [String].
  *
- * @param charset The charset to use for decoding. *([UTF-8][StandardCharsets.UTF_8] by default)*
+ * @param charset The charset to use for decoding.
+ *
+ * ([UTF-8][StandardCharsets.UTF_8] by default)
  *
  * @see readLines
  */
 public fun Path.readToString(charset: Charset = StandardCharsets.UTF_8): String {
     this.checkIfExists()
-    return this.readLines(charset)
-        .joinToString(System.lineSeparator())
+    return this.readLines(charset).joinToString(System.lineSeparator())
 }
 
 /**
  * Calculates the size of this [directory][Path], returning the size as a [BigInteger].
+ *
+ * **Note:** This will ignore any symbolic links when calculating the size.
+ *
+ * @exception NotDirectoryException If this `Path` is not an actual directory.
  */
 public val Path.directorySize: BigInteger
     get() {
@@ -2222,11 +2419,16 @@ public val Path.directorySize: BigInteger
 
         var size = BigInteger.ZERO
 
-        for (child in this) {
-            if (child.isSymbolicLink) continue
+        this.walkFileTree(visitor = object : SimpleFileVisitor<Path>() {
+            override fun visitFile(file: Path?, attrs: BasicFileAttributes?): FileVisitResult {
+                // If the file we're visiting is somehow null, just skip over it.
+                size += file?.size ?: return FileVisitResult.CONTINUE
+                return FileVisitResult.CONTINUE
+            }
 
-            size += child.size
-        }
+            // We just skip over any files we can't access.
+            override fun visitFileFailed(file: Path?, exc: IOException?): FileVisitResult = FileVisitResult.CONTINUE
+        })
 
         return size
     }
@@ -2238,8 +2440,11 @@ public val Path.directorySize: BigInteger
  *
  * If it does not exist, it will throw a [NoSuchFileException] with [NoSuchFileException.message] set to [message].
  *
- * @param message The message the exception will cast. *(`"File \"${this}\" doesn't exist!"` by default).*
+ * @param message The message the exception will cast.
+ *
+ * (`"File \"${this}\" doesn't exist!"` by default).
  */
+@Throws(IOException::class)
 public fun Path.checkIfExists(message: String = "File \"${this}\" doesn't exist!") {
     if (notExists) throw NoSuchFileException(message)
 }
@@ -2247,11 +2452,14 @@ public fun Path.checkIfExists(message: String = "File \"${this}\" doesn't exist!
 /**
  * Tests whether this [file][Path] exists, and if it is a directory.
  *
- * - If this [File][Path] does not exist, a [IOException] will be thrown.
- * - If this [File][Path] exists, but it is **not** a directory, a [NotDirectoryException] will be thrown.
+ * - If this `file` does not exist, an [IOException] will be thrown.
+ * - If this `file` exists, but it is **not** a directory, a [NotDirectoryException] will be thrown.
  *
- * @param message The message the exception will cast. *(`"\"${this.name}\" needs to be a directory!"` by default).*
+ * @param message The message the exception will cast.
+ *
+ * (`"\"${this.name}\" needs to be a directory!"` by default).
  */
+@Throws(IOException::class, NotDirectoryException::class)
 public fun Path.checkIfDirectory(message: String = "\"${this.name}\" needs to be a directory!") {
     this.checkIfExists()
     if (!isDirectory) throw NotDirectoryException(message)

@@ -1,23 +1,42 @@
-## 0.6.0 (2019-01-xx)
+## 0.6.0 (2019-02-xx)
 
-**0.6.0 comes with the biggest breaking change of them all, which is the change of name!**
-I know this really isn't something you should do with something that's *already* out there, but "kextensions" was just a god awful name, so please don't burn me at the stake.
-
-*(The **k** is required by law to be in any Kotlin library.)*
-
-It's finally time for the addition of some *actual* utilities, and not just facades for syntatic sugar!
+**0.6.0 comes with the biggest breaking change of them all, which is the change of the name!**
+I know this really isn't something you should do with something that's *already* out there, but "kextensions" just *really* didn't roll off the tongue very nicely, and I was growing more and more frustrated with it.
 
 * ### /io/Paths.kt
-  * #### Typealias
-    * {---} Removed the `PathStream` typealias.
+
+  **General change:**  All instances of `Stream<Path>` /  `PathStream` have been changed to `Sequence<Path>` to better accommodate the Kotlin language. 
+
+  * #### Documentation
+
+    * Changed how the `@param` for parameters with default values are presented.
+
+  * #### Annotations
+
+    * `@file:JvmName` has been changed from `"FilesWrapper"` to `"PathUtils"`.
+
+  * #### Typealias's
+    * {---} Removed the `PathStream (Stream<Path>)` type-alias.
+    * {---} Removed the `PathMatcher (BiPredicate<Path, BasicFileAttributes>)` type-alias.
 
   * #### Properties
     * {---}{+++} Changed the return type of `entries` to `Sequence<Path>`.
 
         Originally it was `Stream<Path>`, but as this library is made for Kotlin use, and the fact that `Sequence` is generally more powerful than `Stream` means that it makes more sense for it to be a `Sequence`. *(The use of `Stream` in Kotlin is also not really supported.)*
 
+    * Reworked the `get` function of the `directorySize` property to use the `walkFileTree` function rather than a simple `for-each` loop.
+
   * #### Operators
     * {+++} Added the `contains(String)` operator, which allows for checking if a directory contains any files with the specified `fileName`.
+
+  * #### Functions
+
+    * {+++} Added the `find((Path, BasicFileAttributes) -> Boolean, Int = Int.MAX_VALUE, vararg FileVisitOption): Sequence<Path>` function.
+      The purpose of this function is to serve as a replacement for the old `find(...)` function that has existed since `v0.1.0-beta`. It generally works the same way as the old one, except that the `BiPredicate<...>` that the old one used has been replaced with a higher-order function.
+      The `maxDepth: Int = Int.MAX_VALUE` parameter has also been moved to be *behind* the `matcher` parameter, as it was a default value located at the start, this meant that you would need to do `path.find(matcher = {...})` if you didn't want to specify a specific `maxDepth`. So, as to make the syntax nicer, it was moved, which allows one to now do `path.find({...})` instead.
+    * {---} Deprecated the `find(Int = Int.MAX_VALUE, BiPredicate<Path, BasicFileAttributes>, vararg FileVisitOption): Stream<Path>` function, in favor of newly added 
+    * {+++} Added the `createTempDirectory(String? = null, vararg FileAttribute<*>)` top-level function, this allows one to create a temporary directory inside the default temporary-file directory.
+    * {+++} Added the `createTempFile(String? = null, vararg FileAttribute<*>)`  top-level function, this allows one to create a temporary file inside the default temporary-file directory.
 
 * ### /humanize/
   * #### File
@@ -42,9 +61,24 @@ It's finally time for the addition of some *actual* utilities, and not just faca
 * ### /misc/Exceptions.kt
   * #### File
     * {+++} Added the `Exceptions.kt` file. This provides utilities for `Exception`s.
-  
+
   * #### Functions
     * {+++} Added the `multiCatch(vararg KClass)` closure function. This function "simulates" the behaviour of the multi-catch feature in Java for Kotlin. Credit goes to carleslc for the original code.
+
+* ### /math/BigInteger.kt
+
+  * #### Documentation
+
+    * {+++} Added documentation to all of the functions for `BigInteger.kt`.
+  * #### Functions
+
+    * {+++} 
+
+* ### /dom/Element.kt
+
+  * #### Annotations
+
+    * Removed the `ExperimentalFeature` annotation from the `AttributeMap` class.
 
 ## 0.5.2 (2019-01-23)
 

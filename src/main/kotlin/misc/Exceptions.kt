@@ -36,12 +36,25 @@ import kotlin.reflect.full.isSubclassOf
  *  }
  * ```
  *
+ * If you want to just ignore any caught errors of the specific type. *(Do note that this is **very** bad practice.)*:
+ *
+ * ```kotlin
+ *  try {
+ *      ...
+ *  } catch (e: Exception) {
+ *      e.multiCatch(ExceptionOne::class, ExceptionTwo::class)
+ *  }
+ * ```
+ *
  * @param classes Which classes this `multi-catch` block should actually catch.
  *
  * If an `exception` gets thrown where this function is used, and it's not listed in the `classes` vararg, then the
  * exception will just get re-thrown.
  *
+ * (`{}` by default)
+ *
  * @author carleslc
+ * @since 0.6.0
  */
-public inline fun Throwable.multiCatch(vararg classes: KClass<*>, catchBlock: () -> Unit) =
+public inline fun Throwable.multiCatch(vararg classes: KClass<*>, catchBlock: () -> Unit = {}) =
     if (classes.any { this::class.isSubclassOf(it) }) catchBlock() else throw this
