@@ -40,7 +40,6 @@ import org.w3c.dom.*
  * This is by all means a "hack", and thus it might be removed at a later date, or revised, hence the
  * [ExperimentalFeature] annotation.
  */
-@ExperimentalFeature
 public class AttributeMap @PublishedApi internal constructor(private val parent: Element) : MutableMap<String, String> {
 
     private val document: Document = parent.ownerDocument
