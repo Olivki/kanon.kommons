@@ -2716,6 +2716,8 @@ private val static_init = run {
 
 /**
  * Handles the deletion of files when the JVM is shutting down.
+ *
+ * @since 0.6.0
  */
 private object ShutdownHook {
     /**
