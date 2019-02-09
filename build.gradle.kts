@@ -33,7 +33,8 @@ dependencies {
     implementation(kotlin("reflect"))
     
     // Test Dependencies
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
+    testImplementation(group = "io.kotlintest", name = "kotlintest-runner-junit5", version = "3.1.11")
+    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = "1.6.1")
 }
 
 tasks.withType<KotlinCompile> {

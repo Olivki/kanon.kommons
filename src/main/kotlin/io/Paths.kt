@@ -34,6 +34,7 @@ import java.nio.file.spi.FileSystemProvider
 import java.util.*
 import java.util.function.BiPredicate
 import java.util.stream.Stream
+import kotlin.collections.LinkedHashSet
 import kotlin.streams.asSequence
 
 
@@ -1317,7 +1318,7 @@ public fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any
 
 public class AttributeMap internal constructor(
     private val path: Path,
-    private val original: Map<String, Any>
+    private val original: Map<out String, Any>
 ) : MutableMap<String, Any> by original.toMutableMap() {
 
     override fun put(key: String, value: Any): Any? = path.setAttribute(key, value)
@@ -1330,9 +1331,7 @@ public class AttributeMap internal constructor(
     override fun get(key: String): Any? = path.getAttribute(key)
 
     override fun putAll(from: Map<out String, Any>) {
-        for (attribute in from) {
-            this += attribute.toPair()
-        }
+        for (attribute in from) this += attribute.toPair()
     }
 
     override fun clear() {
@@ -2384,8 +2383,9 @@ public fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequ
  * Returns a [PathMatcher] that performs match operations on the [String] representation of [Path] objects by
  * interpreting a given pattern.
  *
- * **Due to dokka not actually supporting markdown tables, a large part of this documentation is missing, so please
- * refer to the documentation of [FileSystem.getPathMatcher].**
+ * **Note:** This function simply just invokes the [getPathMatcher][FileSystem.getPathMatcher] function of the
+ * [default-file-system][FileSystems.getDefault], with the `syntaxAndPattern` parameter set to
+ * "[syntax]**:**[pattern]".
  *
  * A [FileSystem] implementation supports the "`glob`" and "`regex`" syntaxes, and may support others. The value of the
  * syntax component is compared without regard to case.
@@ -2398,7 +2398,7 @@ public fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequ
  * **The table that's supposed to be here is missing due to dokka not supporting markdown tables, please refer to
  * [FileSystem.getPathMatcher] for the actual proper documentation.**
  *
- * <p> The following rules are used to interpret glob patterns:
+ * The following rules are used to interpret glob patterns:
  *
  * - The `*` character matches *zero* or *more* [characters][Char] of a [name][Path.getName] component without
  * crossing directory boundaries
@@ -2447,10 +2447,13 @@ public fun getPathMatcher(syntax: String, pattern: String): PathMatcher =
 /**
  * Checks whether the [other] path is a child of this [directory][Path].
  */
-public operator fun Path.contains(other: Path): Boolean = this.children.contains(other)
+public operator fun Path.contains(other: Path): Boolean = this.entries.contains(other)
 
 /**
  * Returns whether or not `this` [directory][Path] has any children that matches the specified [globPattern].
+ *
+ * This function *only* checks inside of itself, and not inside of any of it's children; if the former is the
+ * behaviour you're looking for, refer to [Path.allEntries].
  *
  * @param globPattern The glob pattern to match the files in `this` directory against.
  *
@@ -2458,7 +2461,7 @@ public operator fun Path.contains(other: Path): Boolean = this.children.contains
  *
  * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
  *
- * @exception FileNotFoundException If `this` file doesn't actually exist.
+ * @exception NoSuchFileException If `this` file doesn't actually exist.
  * @exception NotDirectoryException If `this` file is **not** a directory.
  *
  * @since 0.6.0
@@ -2467,16 +2470,69 @@ public operator fun Path.contains(other: Path): Boolean = this.children.contains
  */
 public operator fun Path.contains(globPattern: String): Boolean {
     this.checkIfDirectory()
-
-    return getPathMatcher("glob", globPattern).matches(this)
+    return this.entries.filterByGlob(globPattern).any()
 }
 
-//public operator fun Path.get(globPattern: String): Path
+/**
+ * Returns the first file that matches the given [globPattern], or if none is found, a [FileNotFoundException] will be
+ * thrown.
+ *
+ * @param globPattern The glob pattern to match the files in `this` directory against.
+ *
+ * If you are unfamiliar with *glob syntax*, see [What is a Glob](https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob).
+ *
+ * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
+ *
+ * @receiver The directory of which to check through.
+ *
+ * @exception NoSuchFileException If `this` file doesn't actually exist, or if there exists no child that matches the
+ * given `globPattern`.
+ * @exception NotDirectoryException If `this` file is **not** a directory.
+ *
+ * @since 0.6.0
+ *
+ * @see Path.getOrNull
+ */
+public operator fun Path.get(globPattern: String): Path = this.getOrNull(globPattern) ?: throw FileNotFoundException(
+    "No file matching the \"$globPattern\" glob pattern could be found in \"$this\"."
+)
 
+/**
+ * Returns the first file that matches the given [globPattern], or `null` if none is found.
+ *
+ * @param globPattern The glob pattern to match the files in `this` directory against.
+ *
+ * If you are unfamiliar with *glob syntax*, see [What is a Glob](https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob).
+ *
+ * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
+ *
+ * @receiver The directory of which to check through.
+ *
+ * @exception NoSuchFileException If `this` file doesn't actually exist.
+ * @exception NotDirectoryException If `this` file is **not** a directory.
+ *
+ * @since 0.6.0
+ *
+ * @see Path.get
+ */
 public fun Path.getOrNull(globPattern: String): Path? {
-    //var
-    return null
+    this.checkIfDirectory()
+    return this.entries.filterByGlob(globPattern).firstOrNull()
 }
+
+/**
+ * Returns a sequence containing only elements matching the given [globPattern].
+ *
+ * This function only allows looking *downwards* into the hierarchy, and not *upwards*. This means that glob
+ * patterns that are designed to match something that's in a *parent* directory or higher, will just return an empty
+ * `Sequence`.
+ *
+ * @receiver The [Sequence] to filter.
+ *
+ * @since 0.6.0
+ */
+public fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
+    this.filter { getPathMatcher("glob", globPattern).matches(it) }
 
 /**
  * Attempts to recursively delete all the files inside of this [directory][Path], and any files inside sub-directories.
@@ -2508,7 +2564,7 @@ public fun Path.getOrNull(globPattern: String): Path? {
  *
  * @param options Options to configure the traversal.
  *
- * @exception FileNotFoundException If `this` file doesn't actually exist.
+ * @exception NoSuchFileException If `this` file doesn't actually exist.
  * @exception NotDirectoryException If `this` file is **not** a directory.
  */
 public fun Path.cleanDirectory(
@@ -2603,12 +2659,15 @@ public val Path.directorySize: BigInteger
  *
  * ([DEFAULT_VIEWER][LaunchType.DEFAULT_VIEWER] by default)
  *
+ * @exception [NoSuchFileException] If `this` file doesn't exist.
  * @exception [UnsupportedOperationException] If the Java Desktop API is *not* supported on the current platform.
  *
  * @since 0.6.0
  */
-public fun Path.launch(launchWith: LaunchType = LaunchType.DEFAULT_VIEWER) =
+public fun Path.launch(launchWith: LaunchType = LaunchType.DEFAULT_VIEWER) {
+    checkIfExists()
     if (Desktop.isDesktopSupported()) launchWith.launch(this) else throw UnsupportedDesktopException()
+}
 
 /**
  * The different kinds of programs a file can be opened with.
@@ -2649,6 +2708,75 @@ public enum class LaunchType {
 public class UnsupportedDesktopException :
     IOException("The Java Desktop API is not supported on the current platform. (${System.getProperty("os.name")}")
 
+// Delete on Shutdown Things (Ported over from the old "DeleteOnExitHook" java file.)
+// Required to make sure the shutdown hook is registered when this class is created.
+private val static_init = run {
+    sun.misc.SharedSecrets.getJavaLangAccess().registerShutdownHook(2, true) { ShutdownHook.shutdownHook() }
+}
+
+/**
+ * Handles the deletion of files when the JVM is shutting down.
+ */
+private object ShutdownHook {
+    /**
+     * A `set` of all the files to delete when the JVM shuts down.
+     */
+    private var filesToDelete: MutableSet<Path>? = LinkedHashSet()
+
+    internal fun shutdownHook() {
+        val toBeDeleted: List<Path>
+
+        synchronized(this) {
+            toBeDeleted = filesToDelete!!.toList()
+            filesToDelete = null
+        }
+
+        // reverse the list to maintain previous jdk deletion order.
+        // Last in first deleted.
+        toBeDeleted.asReversed().forEach { it.deleteIfExists() }
+    }
+
+    @Synchronized
+    operator fun plusAssign(file: Path) {
+        checkNotNull(filesToDelete) {
+            "Failed to mark \"$this\" for shutdown deletion, as a shutdown is currently in progress."
+        }.add(file)
+    }
+}
+
+/**
+ * Requests that `this` file or directory be deleted when the virtual machine terminates.
+ *
+ * Files *(or directories)* are deleted in the reverse order that they are registered.
+ *
+ * Invoking this method to delete a file or directory that is already registered for deletion has no effect.
+ *
+ * Deletion will be attempted only for normal termination of the virtual machine, as defined by the Java Language
+ * Specification.
+ *
+ * Once deletion has been requested, it is not possible to cancel the request. This method should therefore be used
+ * with care.
+ *
+ * **Note:** This method should *not* be used for file-locking, as the resulting protocol cannot be made to work
+ * reliably. The [FileLock][java.nio.channels.FileLock] facility should be used instead.
+ *
+ * @receiver The file to delete on shutdown.
+ *
+ * @throws [NoSuchFileException] If `this` file doesn't exist.
+ * @throws [SecurityException] If a security manager exists and its [SecurityManager.checkDelete] method denies delete
+ * access to the file
+ * @throws [IllegalStateException] If a shutdown is currently in progress.
+ *
+ * @since 0.6.0
+ */
+public fun Path.deleteOnShutdown() {
+    checkIfExists()
+    // If the current system *is* running a security manager, then check if we have the correct permissions to delete
+    // this file, otherwise an exception will be thrown.
+    System.getSecurityManager()?.checkDelete(this.toAbsolutePath().toString())
+    ShutdownHook += this
+}
+
 // Check Functions
 /**
  * Tests whether this [file][Path] exists on the file system.
@@ -2659,7 +2787,7 @@ public class UnsupportedDesktopException :
  *
  * (`"File \"${this}\" doesn't exist!"` by default).
  */
-@Throws(IOException::class)
+@Throws(NoSuchFileException::class)
 public fun Path.checkIfExists(message: String = "File \"${this}\" doesn't exist!") {
     if (notExists) throw NoSuchFileException(message)
 }
@@ -2667,14 +2795,14 @@ public fun Path.checkIfExists(message: String = "File \"${this}\" doesn't exist!
 /**
  * Tests whether this [file][Path] exists, and if it is a directory.
  *
- * - If this `file` does not exist, an [IOException] will be thrown.
+ * - If this `file` does not exist, an [NoSuchFileException] will be thrown.
  * - If this `file` exists, but it is **not** a directory, a [NotDirectoryException] will be thrown.
  *
  * @param message The message the exception will cast.
  *
  * (`"\"${this.name}\" needs to be a directory!"` by default).
  */
-@Throws(IOException::class, NotDirectoryException::class)
+@Throws(NoSuchFileException::class, NotDirectoryException::class)
 public fun Path.checkIfDirectory(message: String = "\"${this.name}\" needs to be a directory!") {
     this.checkIfExists()
     if (!isDirectory) throw NotDirectoryException(message)
