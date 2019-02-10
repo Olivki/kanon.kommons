@@ -16,18 +16,29 @@ If you are unsure if something you're using may have changed when updating, or y
 
 Gradle
 
-```groovy
-repositories {
-    jcenter()
-}
+- Groovy
 
-dependencies {
-    // groovy
-    implementation "moe.kanon.kommons:kanon.kommons:0.6.0"
-    // kotlin
-    implementation("moe.kanon.kommons:kanon.kommons:0.6.0")
-}
-```
+  ```groovy
+  repositories {
+      jcenter()
+  }
+  
+  dependencies {
+      implementation "moe.kanon.kommons:kanon.kommons:0.6.0"
+  }
+  ```
+
+- Kotlin
+
+  ```kotlin
+  repositories {
+      jcenter()
+  }
+  
+  dependencies {
+      implementation(group = "moe.kanon.kommons", name = "moe.kanon", version = "0.6.0")
+  }
+  ```
 
 Maven
 
