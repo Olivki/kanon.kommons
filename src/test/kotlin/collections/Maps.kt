@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons.collections
+package moe.kanon.kommons.test.collections
 
 import forAll
 import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.BehaviorSpec
+import moe.kanon.kommons.collections.flip
 
 class NativeMapFlipTest : BehaviorSpec({
 

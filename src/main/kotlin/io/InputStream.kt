@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("InputStreamUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.io
 
@@ -68,4 +69,4 @@ import java.nio.file.*
  * Where the `REPLACE_EXISTING` option is specified, the security manager's
  * [checkDelete(String)][SecurityManager.checkDelete] method is invoked to check that an existing file can be deleted.
  */
-public fun InputStream.copyTo(target: Path, vararg options: CopyOption): Long = Files.copy(this, target, *options)
+public inline fun InputStream.copyTo(target: Path, vararg options: CopyOption): Long = Files.copy(this, target, *options)

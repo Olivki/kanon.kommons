@@ -34,8 +34,29 @@ import java.util.*
  * - `1:"entry_one"`
  * - `2:"entry_two"`
  *
+ * @since 0.6.0
  */
 public fun <K, V> Map<K, V>.flip(): Map<V, K> = this.asSequence().associate { it.value to it.key }
+
+/**
+ * Appends all entries from the [from] map onto `this` map.
+ *
+ * **Note:** This function is *generally* useless for most people, seeing as [MutableMap]s generally have the
+ * [putAll][MutableMap.putAll] function in them. This is only useful in *very* specific circumstances.
+ *
+ * @receiver The map that the entries will be appended onto.
+ *
+ * @param [from] The map which the entries will be taken from.
+ *
+ * *(This can be either a [Map] instance, or a [MutableMap] instance.)*
+ *
+ * @since 0.6.0
+ *
+ * @see MutableMap.putAll
+ */
+public fun <K, V> MutableMap<K, V>.inherit(from: Map<out K, V>) {
+    from.mapValuesTo(this) { it.value }
+}
 
 /**
  * Creates a [TreeMap] using the specified [pairs].

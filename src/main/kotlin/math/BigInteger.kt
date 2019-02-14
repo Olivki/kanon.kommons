@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("BigIntegerUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.math
 
@@ -37,117 +38,117 @@ import java.math.BigInteger
 /**
  * Returns the value of this [Byte] number as a [BigInteger].
  */
-public fun Byte.toBigInteger(): BigInteger = BigInteger.valueOf(this.toLong())
+public inline fun Byte.toBigInteger(): BigInteger = BigInteger.valueOf(this.toLong())
 
 /**
  * Returns the value of this [Short] number as a [BigInteger].
  */
-public fun Short.toBigInteger(): BigInteger = BigInteger.valueOf(this.toLong())
+public inline fun Short.toBigInteger(): BigInteger = BigInteger.valueOf(this.toLong())
 
 // Plus (+)
 /**
  * Adds the value of the given [byte] to this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.plus(byte: Byte): BigInteger = this.add(byte.toBigInteger())
+public inline operator fun BigInteger.plus(byte: Byte): BigInteger = this.add(byte.toBigInteger())
 
 /**
  * Adds the value of the given [short] to this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.plus(short: Short): BigInteger = this.add(short.toBigInteger())
+public inline operator fun BigInteger.plus(short: Short): BigInteger = this.add(short.toBigInteger())
 
 /**
  * Adds the value of the given [int] to this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.plus(int: Int): BigInteger = this.add(int.toBigInteger())
+public inline operator fun BigInteger.plus(int: Int): BigInteger = this.add(int.toBigInteger())
 
 /**
  * Adds the value of the given [long] to this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.plus(long: Long): BigInteger = this.add(long.toBigInteger())
+public inline operator fun BigInteger.plus(long: Long): BigInteger = this.add(long.toBigInteger())
 
 // Minus (-)
 /**
  * Subtracts the value of the given [byte] from this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.minus(byte: Byte): BigInteger = this.min(byte.toBigInteger())
+public inline operator fun BigInteger.minus(byte: Byte): BigInteger = this.min(byte.toBigInteger())
 
 /**
  * Subtracts the value of the given [short] from this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.minus(short: Short): BigInteger = this.min(short.toBigInteger())
+public inline operator fun BigInteger.minus(short: Short): BigInteger = this.min(short.toBigInteger())
 
 /**
  * Subtracts the value of the given [int] from this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.minus(int: Int): BigInteger = this.min(int.toBigInteger())
+public inline operator fun BigInteger.minus(int: Int): BigInteger = this.min(int.toBigInteger())
 
 /**
  * Subtracts the value of the given [long] from this [BigInteger], and returns the result.
  */
-public operator fun BigInteger.minus(long: Long): BigInteger = this.min(long.toBigInteger())
+public inline operator fun BigInteger.minus(long: Long): BigInteger = this.min(long.toBigInteger())
 
 // Times/Multiply (*)
 /**
  * Multiplies this [BigInteger] with the value of the given [byte], and returns the result.
  */
-public operator fun BigInteger.times(byte: Byte): BigInteger = this.multiply(byte.toBigInteger())
+public inline operator fun BigInteger.times(byte: Byte): BigInteger = this.multiply(byte.toBigInteger())
 
 /**
  * Multiplies this [BigInteger] with the value of the given [short], and returns the result.
  */
-public operator fun BigInteger.times(short: Short): BigInteger = this.multiply(short.toBigInteger())
+public inline operator fun BigInteger.times(short: Short): BigInteger = this.multiply(short.toBigInteger())
 
 /**
  * Multiplies this [BigInteger] with the value of the given [int], and returns the result.
  */
-public operator fun BigInteger.times(int: Int): BigInteger = this.multiply(int.toBigInteger())
+public inline operator fun BigInteger.times(int: Int): BigInteger = this.multiply(int.toBigInteger())
 
 /**
  * Multiplies this [BigInteger] with the value of the given [long], and returns the result.
  */
-public operator fun BigInteger.times(long: Long): BigInteger = this.multiply(long.toBigInteger())
+public inline operator fun BigInteger.times(long: Long): BigInteger = this.multiply(long.toBigInteger())
 
 // Divide (/)
 /**
  * Divides this [BigInteger] with the value of the given [byte], and returns the result.
  */
-public operator fun BigInteger.div(byte: Byte): BigInteger = this.divide(byte.toBigInteger())
+public inline operator fun BigInteger.div(byte: Byte): BigInteger = this.divide(byte.toBigInteger())
 
 /**
  * Divides this [BigInteger] with the value of the given [short], and returns the result.
  */
-public operator fun BigInteger.div(short: Short): BigInteger = this.divide(short.toBigInteger())
+public inline operator fun BigInteger.div(short: Short): BigInteger = this.divide(short.toBigInteger())
 
 /**
  * Divides this [BigInteger] with the value of the given [int], and returns the result.
  */
-public operator fun BigInteger.div(int: Int): BigInteger = this.divide(int.toBigInteger())
+public inline operator fun BigInteger.div(int: Int): BigInteger = this.divide(int.toBigInteger())
 
 /**
  * Divides this [BigInteger] with the value of the given [long], and returns the result.
  */
-public operator fun BigInteger.div(long: Long): BigInteger = this.divide(long.toBigInteger())
+public inline operator fun BigInteger.div(long: Long): BigInteger = this.divide(long.toBigInteger())
 
 // Rem (%)
 /**
  * Gets the remainder of dividing this [BigInteger] with the value of the given [byte], and returns the result.
  */
-public operator fun BigInteger.rem(byte: Byte): BigInteger = this.remainder(byte.toBigInteger())
+public inline operator fun BigInteger.rem(byte: Byte): BigInteger = this.remainder(byte.toBigInteger())
 
 /**
  * Gets the remainder of dividing this [BigInteger] with the value of the given [short], and returns the result.
  */
-public operator fun BigInteger.rem(short: Short): BigInteger = this.remainder(short.toBigInteger())
+public inline operator fun BigInteger.rem(short: Short): BigInteger = this.remainder(short.toBigInteger())
 
 /**
  * Gets the remainder of dividing this [BigInteger] with the value of the given [int], and returns the result.
  */
-public operator fun BigInteger.rem(int: Int): BigInteger = this.remainder(int.toBigInteger())
+public inline operator fun BigInteger.rem(int: Int): BigInteger = this.remainder(int.toBigInteger())
 
 /**
  * Gets the remainder of dividing this [BigInteger] with the value of the given [long], and returns the result.
  */
-public operator fun BigInteger.rem(long: Long): BigInteger = this.remainder(long.toBigInteger())
+public inline operator fun BigInteger.rem(long: Long): BigInteger = this.remainder(long.toBigInteger())
 
 // Infix operations
 

@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("PathUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.io
 
@@ -105,7 +106,7 @@ public typealias PathVisitor = FileVisitor<Path>
  *
  * @see FileSystem.getPath
  */
-public fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *more)!!
+public inline fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *more)
 
 /**
  * Converts the given [URI] to a [Path] instance.
@@ -141,41 +142,41 @@ public fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *
  *
  * @since 0.5.2
  */
-public fun pathOf(uri: URI): Path = Paths.get(uri)!!
+public inline fun pathOf(uri: URI): Path = Paths.get(uri)
 
 /**
  * Creates a [Path] from this [String].
  */
-public fun String.toPath() = Paths.get(this)!!
+public inline fun String.toPath(): Path = Paths.get(this)
 
 /**
  * Creates a [Path] from this [URI].
  */
-public fun URI.toPath() = Paths.get(this)!!
+public inline fun URI.toPath(): Path = Paths.get(this)
 
 // Operators
 // - Credits for the original implementation of this goes to superbobry.
 // - Div "hack".
 // -- Path
-public operator fun Path.div(other: String): Path = this / other.toPath()
+public inline operator fun Path.div(other: String): Path = this / other.toPath()
 
-public operator fun Path.div(other: Path): Path = resolve(other)!!
+public inline operator fun Path.div(other: Path): Path = resolve(other)!!
 
 // -- String
-public operator fun String.div(other: String): Path = this / other.toPath()
+public inline operator fun String.div(other: String): Path = this / other.toPath()
 
-public operator fun String.div(other: Path): Path = this.toPath() / other
+public inline operator fun String.div(other: Path): Path = this.toPath() / other
 
 // Not. (!)
 /**
  * Converts this [file][File] into a [Path].
  */
-public operator fun File.not(): Path = this.toPath()
+public inline operator fun File.not(): Path = this.toPath()
 
 /**
  * Converts this [path][Path] into a [File].
  */
-public operator fun Path.not(): File = this.toFile()
+public inline operator fun Path.not(): File = this.toFile()
 
 // Streams
 /**
@@ -196,7 +197,7 @@ public operator fun Path.not(): File = this.toFile()
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  */
-public fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInputStream(this, *options)!!
+public inline fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInputStream(this, *options)
 
 /**
  * Opens or creates this [file][Path], returning an output stream that may be used to write bytes to the file.
@@ -239,7 +240,7 @@ public fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.
  * [checkDelete(String)][SecurityManager.checkDelete] method is invoked to check delete access if the file is opened
  * with the `DELETE_ON_CLOSE` option.
  */
-public fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOutputStream(this, *options)!!
+public inline fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOutputStream(this, *options)
 
 /**
  * Opens or creates this [file][Path], returning a seekable byte channel to access the file.
@@ -289,8 +290,8 @@ public fun Path.newOutputStream(vararg options: OpenOption): OutputStream = File
  *
  * @see java.nio.channels.FileChannel.open
  */
-public fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribute<*>): ByteChannel =
-    Files.newByteChannel(this, options.toMutableSet(), *attributes)!!
+public inline fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribute<*>): ByteChannel =
+    Files.newByteChannel(this, options.toMutableSet(), *attributes)
 
 /**
  * Opens or creates this [file][Path], returning a seekable byte channel to access the file.
@@ -311,19 +312,20 @@ public fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: File
  *
  * @see java.nio.channels.FileChannel.open
  */
-public fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)!!
+public inline fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)
 
 public typealias PathDirectoryStream = DirectoryStream<Path>
 
 public typealias PathDirectoryFilter = DirectoryStream.Filter<Path>
 
 // This is a port of the one that exists in Files.java.
-internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
+public class AcceptAllFilter : PathDirectoryFilter {
 
     override fun accept(entry: Path) = true
 
     companion object {
-        internal val FILTER = AcceptAllFilter()
+        @JvmField
+        public val FILTER = AcceptAllFilter()
     }
 }
 
@@ -367,8 +369,8 @@ internal class AcceptAllFilter private constructor() : PathDirectoryFilter {
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  */
-public fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = AcceptAllFilter.FILTER): PathDirectoryStream =
-    Files.newDirectoryStream(this, dirFilter)!!
+public inline fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = AcceptAllFilter.FILTER): PathDirectoryStream =
+    Files.newDirectoryStream(this, dirFilter)
 
 /**
  * Opens this [directory][Path], returning a [DirectoryStream] to iterate over the entries in the directory.
@@ -404,7 +406,7 @@ public fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = AcceptAllFil
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] function is invoked to check read access to the directory.
  */
-public fun Path.newDirectoryStream(glob: String): PathDirectoryStream = Files.newDirectoryStream(this, glob)!!
+public inline fun Path.newDirectoryStream(glob: String): PathDirectoryStream = Files.newDirectoryStream(this, glob)
 
 // File System Changes
 // Creation Functions
@@ -430,7 +432,7 @@ public fun Path.newDirectoryStream(glob: String): PathDirectoryStream = Files.ne
  * @throws  SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new file.
  */
-public fun Path.createFile(vararg attributes: FileAttribute<*>): Path = Files.createFile(this, *attributes)!!
+public inline fun Path.createFile(vararg attributes: FileAttribute<*>): Path = Files.createFile(this, *attributes)
 
 /**
  * Creates a new directory.
@@ -457,8 +459,8 @@ public fun Path.createFile(vararg attributes: FileAttribute<*>): Path = Files.cr
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new directory.
  */
-public fun Path.createDirectory(vararg attributes: FileAttribute<*>): Path =
-    Files.createDirectory(this, *attributes)!!
+public inline fun Path.createDirectory(vararg attributes: FileAttribute<*>): Path =
+    Files.createDirectory(this, *attributes)
 
 /**
  * Creates a directory by creating all nonexistent parent directories first.
@@ -489,8 +491,8 @@ public fun Path.createDirectory(vararg attributes: FileAttribute<*>): Path =
  * [checkPropertyAccess(String)][SecurityManager.checkPropertyAccess] method to check access to the system property
  * `user.dir`.
  */
-public fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path =
-    Files.createDirectories(this, *attributes)!!
+public inline fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path =
+    Files.createDirectories(this, *attributes)
 
 /**
  * Creates a new empty file in this [directory][Path], using the given [prefix] and [suffix] strings to generate its
@@ -536,11 +538,11 @@ public fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path =
  *
  * @see Files.createTempFile
  */
-public fun Path.createTempFile(
+public inline fun Path.createTempFile(
     prefix: String? = null,
     suffix: String? = null,
     vararg attributes: FileAttribute<*>
-): Path = Files.createTempFile(this, prefix, suffix, *attributes)!!
+): Path = Files.createTempFile(this, prefix, suffix, *attributes)
 
 /**
  * Creates an empty file in the default temporary-file directory, using the given [prefix] and [suffix] to generate
@@ -570,7 +572,7 @@ public fun Path.createTempFile(
  *
  * @since 0.6.0
  */
-public fun createTempFile(
+public inline fun createTemporaryFile(
     prefix: String? = null,
     suffix: String? = null,
     vararg attributes: FileAttribute<*>
@@ -608,8 +610,8 @@ public fun createTempFile(
  *
  * @see Files.createTempDirectory
  */
-public fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
-    Files.createTempDirectory(this, name, *attributes)!!
+public inline fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+    Files.createTempDirectory(this, name, *attributes)
 
 /**
  * Creates a new directory in the default temporary-file directory, using the given [name] to generate its name. The
@@ -636,7 +638,7 @@ public fun Path.createTempDirectory(name: String? = null, vararg attributes: Fil
  *
  * @since 0.6.0
  */
-public fun createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+public inline fun createTemporaryDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
     Files.createTempDirectory(name, *attributes)
 
 // - Links
@@ -666,8 +668,8 @@ public fun createTempDirectory(name: String? = null, vararg attributes: FileAttr
  * [LinkPermission]`("symbolic")` or its [checkWrite(String)][SecurityManager.checkWrite] method denies write access
  * to the path of the symbolic link.
  */
-public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribute<*>): Path =
-    Files.createSymbolicLink(this, target, *attributes)!!
+public inline fun Path.createSymbolicLinkTo(target: Path, vararg attributes: FileAttribute<*>): Path =
+    Files.createSymbolicLink(this, target, *attributes)
 
 /**
  * Attempts to read this [path][Path] as the target of a symbolic link. *(optional operation)*.
@@ -685,7 +687,7 @@ public fun Path.createSymbolicLink(target: Path, vararg attributes: FileAttribut
  * @throws SecurityException In the case of the default provider, and a security manager is installed, it checks that
  * `FilePermission` has been  granted with the "`readlink`" action to read the link.
  */
-public fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)!!
+public inline fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)
 
 /**
  * Creates a new link (directory entry) for an existing file. *(optional operation)*.
@@ -710,7 +712,7 @@ public fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)!!
  * [LinkPermission]`("hard")` or its [checkWrite(String)][SecurityManager.checkWrite] method denies write access
  * to either the link or the existing file.
  */
-public fun Path.createLink(existing: Path): Path = Files.createLink(this, existing)!!
+public inline fun Path.createLinkTo(existing: Path): Path = Files.createLink(this, existing)
 
 // Deletion Functions
 /**
@@ -736,7 +738,7 @@ public fun Path.createLink(existing: Path): Path = Files.createLink(this, existi
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkDelete(String)][SecurityManager.checkDelete] method is invoked to check delete access to the file.
  */
-public fun Path.delete() = Files.delete(this)
+public inline fun Path.delete() = Files.delete(this)
 
 /**
  * Deletes this [file][Path] if it exists.
@@ -761,7 +763,7 @@ public fun Path.delete() = Files.delete(this)
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkDelete(String)][SecurityManager.checkDelete] method is invoked to check delete access to the file.
  */
-public fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
+public inline fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
 
 // Location Changes
 /**
@@ -831,12 +833,8 @@ public fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to both the source and
  * target file.
  */
-public fun Path.moveTo(target: Path, keepName: Boolean = false, vararg options: CopyOption): Path =
-    if (keepName) {
-        Files.move(this, target.resolve(this.name), *options)!!
-    } else {
-        Files.move(this, target, *options)!!
-    }
+public inline fun Path.moveTo(target: Path, keepName: Boolean = false, vararg options: CopyOption): Path =
+    Files.move(this, if (keepName) target.resolve(this.name) else target, *options)
 
 /**
  * Copies this [file][Path] to the [target] file.
@@ -888,19 +886,15 @@ public fun Path.moveTo(target: Path, keepName: Boolean = false, vararg options: 
  * [checkWrite(String)][SecurityManager.checkWrite] is invoked to check write access to the target file. If a symbolic
  * link is copied the security manager is invoked to check [LinkPermission]`("symbolic")`.
  */
-public fun Path.copyTo(target: Path, keepName: Boolean = false, vararg options: CopyOption): Path =
-    if (keepName) {
-        Files.copy(this, target.resolve(this.name), *options)!!
-    } else {
-        Files.copy(this, target, *options)!!
-    }
+public inline fun Path.copyTo(target: Path, keepName: Boolean = false, vararg options: CopyOption): Path =
+    Files.copy(this, if (keepName) target.resolve(this.name) else target, *options)
 
 /**
  * Attempts to rename this [file][Path] to the given [name].
  *
  * @see Path.name
  */
-public fun Path.renameTo(name: String, vararg options: CopyOption): Path =
+public inline fun Path.renameTo(name: String, vararg options: CopyOption): Path =
     this.moveTo(this.resolveSibling(name), options = *options)
 
 /**
@@ -917,7 +911,7 @@ public fun Path.renameTo(name: String, vararg options: CopyOption): Path =
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file, and in addition
  * it checks [RuntimePermission]` ("getFileStoreAttributes")`
  */
-public val Path.fileStore get() = Files.getFileStore(this)!!
+public inline val Path.fileStore: FileStore get() = Files.getFileStore(this)
 
 /**
  * The file name of this [file][Path] in [String] format.
@@ -931,7 +925,7 @@ public val Path.fileStore get() = Files.getFileStore(this)!!
  * @see Path.extension
  * @see Path.renameTo
  */
-public var Path.name: String
+public inline var Path.name: String
     get() = this.fileName.toString()
     set(name) {
         renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)
@@ -1009,7 +1003,7 @@ public var Path.extension: String
  *
  * @see java.nio.file.attribute.BasicFileAttributes.fileKey
  */
-public fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
+public inline fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
 
 /**
  * Tests if two paths locate the same file.
@@ -1036,7 +1030,7 @@ public fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
  *
  * @see java.nio.file.attribute.BasicFileAttributes.fileKey
  */
-public infix fun Path.sameFile(other: Path): Boolean = isSameFile(other)
+public inline infix fun Path.sameFile(other: Path): Boolean = isSameFile(other)
 
 /**
  * Tells whether or not this [file][Path] is considered *hidden*.
@@ -1055,7 +1049,7 @@ public infix fun Path.sameFile(other: Path): Boolean = isSameFile(other)
  * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file. If this method is invoked to
  * read security sensitive attributes then the security manager may be invoke to check for additional permissions
  */
-public val Path.isHidden: Boolean get() = Files.isHidden(this)
+public inline val Path.isHidden: Boolean get() = Files.isHidden(this)
 
 /**
  * Probes the content type of this [file][Path].
@@ -1087,7 +1081,7 @@ public val Path.isHidden: Boolean get() = Files.isHidden(this)
  * @throws SecurityException If a security manager is installed and it denies an unspecified permission required by
  * this [file][Path] type detector implementation.
  */
-public val Path.contentType: String get() = Files.probeContentType(this)!!
+public inline val Path.contentType: String get() = Files.probeContentType(this)
 
 // File Attributes
 /**
@@ -1123,7 +1117,7 @@ public val Path.contentType: String get() = Files.probeContentType(this)!!
  * @return This [file's][Path] attribute view of the specified type, or `null` if the attribute view type is not
  * available.
  */
-public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
+public inline fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
     Files.getFileAttributeView(this, type, *options)!!
 
 /**
@@ -1169,8 +1163,8 @@ public fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, var
  *
  * @see attributes
  */
-public fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg options: LinkOption): A =
-    Files.readAttributes(this, type, *options)!!
+public inline fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg options: LinkOption): A =
+    Files.readAttributes(this, type, *options)
 
 /**
  * Reads a set of file attributes from this [file][Path] as a bulk operation.
@@ -1209,7 +1203,7 @@ public fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg 
  *
  * @see attributes
  */
-public fun Path.readAttributes(attributes: String, vararg options: LinkOption): Map<String, Any> =
+public inline fun Path.readAttributes(attributes: String, vararg options: LinkOption): Map<String, Any> =
     Files.readAttributes(this, attributes, *options)
 
 /**
@@ -1263,8 +1257,8 @@ public fun Path.readAttributes(attributes: String, vararg options: LinkOption): 
  *
  * @see attributes
  */
-public fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption): Path =
-    Files.setAttribute(this, attribute, value, *options)!!
+public inline fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption): Path =
+    Files.setAttribute(this, attribute, value, *options)
 
 /**
  * Reads the value of this [file][Path] attribute.
@@ -1313,8 +1307,8 @@ public fun Path.setAttribute(attribute: String, value: Any?, vararg options: Lin
  *
  * @see attributes
  */
-public fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
-    Files.getAttribute(this, attribute, *options)!!
+public inline fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
+    Files.getAttribute(this, attribute, *options)
 
 public class AttributeMap internal constructor(
     private val path: Path,
@@ -1382,8 +1376,8 @@ public val Path.attributes: AttributeMap get() = AttributeMap(this, this.readAtt
  * [RuntimePermission]`("accessUserInformation")` or its [checkRead(String)][SecurityManager.checkRead] method
  *  denies read access to the file.
  */
-public fun Path.getPosixFilePermissions(vararg options: LinkOption): Set<PosixFilePermission> =
-    Files.getPosixFilePermissions(this, *options)!!.toSet()
+public inline fun Path.getPosixFilePermissions(vararg options: LinkOption): Set<PosixFilePermission> =
+    Files.getPosixFilePermissions(this, *options)
 
 /**
  * A property variant of [getPosixFilePermissions] and [Files.setPosixFilePermissions].
@@ -1392,10 +1386,10 @@ public fun Path.getPosixFilePermissions(vararg options: LinkOption): Set<PosixFi
  *
  * @see Files.setPosixFilePermissions
  */
-public var Path.permissions: Set<PosixFilePermission>
+public inline var Path.permissions: Set<PosixFilePermission>
     get() = this.getPosixFilePermissions()
     public set(perms) {
-        Files.setPosixFilePermissions(this, perms)!!
+        Files.setPosixFilePermissions(this, perms)
     }
 
 // Owner
@@ -1415,7 +1409,7 @@ public var Path.permissions: Set<PosixFilePermission>
  * [RuntimePermission]`("accessUserInformation")` or its [checkRead(String)][SecurityManager.checkRead]
  * method denies read access to the file.
  */
-public fun Path.getOwner(vararg options: LinkOption): UserPrincipal = Files.getOwner(this, *options)!!
+public inline fun Path.getOwner(vararg options: LinkOption): UserPrincipal = Files.getOwner(this, *options)
 
 /**
  * A property variant of [getOwner] and [Files.setOwner].
@@ -1424,8 +1418,8 @@ public fun Path.getOwner(vararg options: LinkOption): UserPrincipal = Files.getO
  *
  * @see Files.setOwner
  */
-public var Path.owner: UserPrincipal
-    get() = getOwner()
+public inline var Path.owner: UserPrincipal
+    get() = this.getOwner()
     set(newOwner) {
         Files.setOwner(this, newOwner)
     }
@@ -1444,7 +1438,7 @@ public var Path.owner: UserPrincipal
  * @throws SecurityException In the case of the default provider, and a security manager is installed, its
  * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file.
  */
-public val Path.isSymbolicLink: Boolean get() = Files.isSymbolicLink(this)
+public inline val Path.isSymbolicLink: Boolean get() = Files.isSymbolicLink(this)
 
 /**
  * Tests whether this [file][Path] is a directory.
@@ -1467,7 +1461,7 @@ public val Path.isSymbolicLink: Boolean get() = Files.isSymbolicLink(this)
  * @throws SecurityException In the case of the default provider, and a security manager is installed, its
  * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file.
  */
-public fun Path.isDirectory(vararg options: LinkOption): Boolean = Files.isDirectory(this, *options)
+public inline fun Path.isDirectory(vararg options: LinkOption): Boolean = Files.isDirectory(this, *options)
 
 /**
  * Tests whether this [file][Path] is a directory.
@@ -1482,7 +1476,7 @@ public fun Path.isDirectory(vararg options: LinkOption): Boolean = Files.isDirec
  * @throws SecurityException In the case of the default provider, and a security manager is installed, its
  * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file.
  */
-public val Path.isDirectory: Boolean get() = this.isDirectory()
+public inline val Path.isDirectory: Boolean get() = this.isDirectory()
 
 // Regular File
 /**
@@ -1504,7 +1498,7 @@ public val Path.isDirectory: Boolean get() = this.isDirectory()
  * @throws SecurityException In the case of the default provider, and a security manager is installed, its
  * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file.
  */
-public fun Path.isRegularFile(vararg options: LinkOption): Boolean = Files.isRegularFile(this, *options)
+public inline fun Path.isRegularFile(vararg options: LinkOption): Boolean = Files.isRegularFile(this, *options)
 
 /**
  * Tests whether this [file][Path] is a regular file with opaque content.
@@ -1519,7 +1513,7 @@ public fun Path.isRegularFile(vararg options: LinkOption): Boolean = Files.isReg
  * @throws SecurityException In the case of the default provider, and a security manager is installed, its
  * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file.
  */
-public val Path.isRegularFile: Boolean get() = this.isRegularFile()
+public inline val Path.isRegularFile: Boolean get() = this.isRegularFile()
 
 // Last Modified Time
 /**
@@ -1540,8 +1534,8 @@ public val Path.isRegularFile: Boolean get() = this.isRegularFile()
  *
  * @see BasicFileAttributes.lastModifiedTime
  */
-public fun Path.getLastModifiedTime(vararg options: LinkOption): FileTime =
-    Files.getLastModifiedTime(this, *options)!!
+public inline fun Path.getLastModifiedTime(vararg options: LinkOption): FileTime =
+    Files.getLastModifiedTime(this, *options)
 
 /**
  * A property variant of [getLastModifiedTime] and [Files.setLastModifiedTime].
@@ -1550,7 +1544,7 @@ public fun Path.getLastModifiedTime(vararg options: LinkOption): FileTime =
  *
  * @see Files.setPosixFilePermissions
  */
-public var Path.lastModifiedTime: FileTime
+public inline var Path.lastModifiedTime: FileTime
     get() = this.getLastModifiedTime()
     set(newTime) {
         Files.setLastModifiedTime(this, newTime)!!
@@ -1570,7 +1564,7 @@ public var Path.lastModifiedTime: FileTime
  *
  * @see BasicFileAttributes.size
  */
-public val Path.size: Long get() = Files.size(this)
+public inline val Path.size: Long get() = Files.size(this)
 
 // Exists
 /**
@@ -1594,7 +1588,7 @@ public val Path.size: Long get() = Files.size(this)
  *
  * @see notExists
  */
-public fun Path.exists(vararg options: LinkOption): Boolean = Files.exists(this, *options)
+public inline fun Path.exists(vararg options: LinkOption): Boolean = Files.exists(this, *options)
 
 /**
  * Tests whether this [file][Path] exists.
@@ -1611,7 +1605,7 @@ public fun Path.exists(vararg options: LinkOption): Boolean = Files.exists(this,
  *
  * @see notExists
  */
-public val Path.exists: Boolean get() = this.exists()
+public inline val Path.exists: Boolean get() = this.exists()
 
 // Not Exists
 /**
@@ -1636,7 +1630,7 @@ public val Path.exists: Boolean get() = this.exists()
  * @throws SecurityException In the case of the default provider, the [checkRead(String)][SecurityManager.checkRead] is
  * invoked to check read access to the file.
  */
-public fun Path.notExists(vararg options: LinkOption): Boolean = Files.notExists(this, *options)
+public inline fun Path.notExists(vararg options: LinkOption): Boolean = Files.notExists(this, *options)
 
 /**
  * Tests whether this [file][Path] does not exist.
@@ -1656,7 +1650,7 @@ public fun Path.notExists(vararg options: LinkOption): Boolean = Files.notExists
  * @throws SecurityException In the case of the default provider, the [checkRead(String)][SecurityManager.checkRead] is
  * invoked to check read access to the file.
  */
-public val Path.notExists: Boolean get() = this.notExists()
+public inline val Path.notExists: Boolean get() = this.notExists()
 
 // Accessibility
 /**
@@ -1677,7 +1671,7 @@ public val Path.notExists: Boolean get() = this.notExists()
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] is invoked to check read access to the file.
  */
-public val Path.isReadable: Boolean get() = Files.isReadable(this)
+public inline val Path.isReadable: Boolean get() = Files.isReadable(this)
 
 /**
  * A property variant of [Files.isWritable] and a custom setter.
@@ -1691,7 +1685,7 @@ public val Path.isReadable: Boolean get() = Files.isReadable(this)
  * @see Path.permissions
  */
 public var Path.isWritable: Boolean
-    get() = Files.isWritable(this)
+    inline get() = Files.isWritable(this)
     public set(writable) {
         if (writable) {
             val perms = permissions.toMutableSet()
@@ -1734,7 +1728,7 @@ public var Path.isWritable: Boolean
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkExec(String)][SecurityManager.checkExec] is invoked to check execute access to the file.
  */
-public val Path.isExecutable: Boolean get() = Files.isExecutable(this)
+public inline val Path.isExecutable: Boolean get() = Files.isExecutable(this)
 
 // Buffered Things
 /**
@@ -1759,8 +1753,8 @@ public val Path.isExecutable: Boolean get() = Files.isExecutable(this)
  *
  * @see Path.readLines
  */
-public fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
-    Files.newBufferedReader(this, charset)!!
+public inline fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
+    Files.newBufferedReader(this, charset)
 
 /**
  * Opens or creates this [file][Path] for writing, returning a [BufferedWriter] that may be used to write text to the
@@ -1789,10 +1783,10 @@ public fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): Bu
  *
  * @see Path.writeBytes
  */
-public fun Path.newBufferedWriter(
+public inline fun Path.newBufferedWriter(
     charset: Charset = StandardCharsets.UTF_8,
     vararg options: OpenOption
-): BufferedWriter = Files.newBufferedWriter(this, charset, *options)!!
+): BufferedWriter = Files.newBufferedWriter(this, charset, *options)
 
 // Copy
 /**
@@ -1841,7 +1835,7 @@ public fun Path.newBufferedWriter(
  * `REPLACE_EXISTING` option is specified, the security manager's [checkDelete(String)][SecurityManager.checkDelete]
  * method is invoked to check that an existing file can be deleted.
  */
-public fun Path.transform(inputStream: InputStream, vararg options: CopyOption): Long =
+public inline fun Path.transform(inputStream: InputStream, vararg options: CopyOption): Long =
     Files.copy(inputStream, this, *options)
 
 /**
@@ -1864,7 +1858,7 @@ public fun Path.transform(inputStream: InputStream, vararg options: CopyOption):
  * @throws SecurityException In the case of the default provider, and a security manager is  installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  */
-public fun Path.copyTo(outputStream: OutputStream): Long = Files.copy(this, outputStream)
+public inline fun Path.copyTo(outputStream: OutputStream): Long = Files.copy(this, outputStream)
 
 // Reading Functions
 /**
@@ -1884,7 +1878,7 @@ public fun Path.copyTo(outputStream: OutputStream): Long = Files.copy(this, outp
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  */
-public fun Path.readBytes(): ByteArray = Files.readAllBytes(this)!!
+public inline fun Path.readBytes(): ByteArray = Files.readAllBytes(this)
 
 /**
  * Reads all the lines from this [file][Path].
@@ -1917,8 +1911,8 @@ public fun Path.readBytes(): ByteArray = Files.readAllBytes(this)!!
  *
  * @see newBufferedReader
  */
-public fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
-    Files.readAllLines(this, charset)!!.toList()
+public inline fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
+    Files.readAllLines(this, charset)
 
 // Writing Functions
 /**
@@ -1953,7 +1947,8 @@ public fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<Strin
  * @throws SecurityException In the case of the default provider, and a security manager is  installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file.
  */
-public fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path = Files.write(this, bytes, *options)
+public inline fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path =
+    Files.write(this, bytes, *options)
 
 /**
  * Writes [lines] of text to this [file][Path].
@@ -1983,7 +1978,7 @@ public fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path =
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file.
  */
-public fun Path.writeLines(
+public inline fun Path.writeLines(
     lines: Iterable<CharSequence>,
     charset: Charset = StandardCharsets.UTF_8,
     vararg options: OpenOption
@@ -2053,7 +2048,7 @@ public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_
  *
  * @see newDirectoryStream
  */
-public val Path.entries: Sequence<Path> get() = Files.list(this)!!.asSequence()
+public inline val Path.entries: Sequence<Path> get() = Files.list(this).asSequence()
 
 /**
  * Returns a lazily populated [Sequence], the elements of which are the entries of this directory, and the entries of
@@ -2063,7 +2058,7 @@ public val Path.entries: Sequence<Path> get() = Files.list(this)!!.asSequence()
  *
  * @see Path.walk
  */
-public val Path.allEntries: Sequence<Path> get() = this.walk()
+public inline val Path.allEntries: Sequence<Path> get() = this.walk()
 
 /**
  * [List] version of [entries].
@@ -2142,7 +2137,7 @@ public val Path.children: List<Path>
  * provider, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  * @throws IOException If an I/O error is thrown by a visitor method.
  */
-public fun Path.walkFileTree(
+public inline fun Path.walkFileTree(
     options: Set<FileVisitOption> = emptySet(),
     maxDepth: Int = Int.MAX_VALUE,
     visitor: PathVisitor
@@ -2204,8 +2199,8 @@ public fun Path.walkFileTree(
  * the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  * @throws IOException If an I/O error is thrown when accessing the starting file.
  */
-public fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): Sequence<Path> =
-    Files.walk(this, maxDepth, *options)!!.asSequence()
+public inline fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): Sequence<Path> =
+    Files.walk(this, maxDepth, *options).asSequence()
 
 /**
  * Returns a [Sequence] that is lazily populated with [Path]s by searching for files in this [file][Path] tree rooted at
@@ -2278,8 +2273,8 @@ public fun Path.find(
  *
  * @since 0.6.0
  */
-public inline fun Path.filter(
-    crossinline predicate: (Path) -> Boolean,
+public fun Path.filter(
+    predicate: (Path) -> Boolean,
     maxDepth: Int = Int.MAX_VALUE,
     vararg options: FileVisitOption
 ): List<Path> {
@@ -2321,8 +2316,7 @@ public inline fun Path.filter(
  *
  * @since 0.6.0
  */
-public inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> =
-    this.filter(predicate, Int.MAX_VALUE)
+public inline fun Path.filter(noinline predicate: (Path) -> Boolean): List<Path> = this.filter(predicate, Int.MAX_VALUE)
 
 /**
  * Read all lines from a file as a [Sequence]. Bytes from the file are decoded into characters using the
@@ -2344,7 +2338,7 @@ public inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Pa
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-public val Path.lines: Sequence<String> get() = this.linesAsSequence()
+public inline val Path.lines: Sequence<String> get() = this.linesAsSequence()
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence].
@@ -2375,7 +2369,7 @@ public val Path.lines: Sequence<String> get() = this.linesAsSequence()
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-public fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> =
+public inline fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> =
     Files.lines(this, charset)!!.asSequence()
 
 // Fully custom operations
@@ -2441,7 +2435,7 @@ public fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequ
  * @see Path.newDirectoryStream
  * @see FileSystem.getPathMatcher
  */
-public fun getPathMatcher(syntax: String, pattern: String): PathMatcher =
+public inline fun getPathMatcher(syntax: String, pattern: String): PathMatcher =
     FileSystems.getDefault().getPathMatcher("$syntax:$pattern")
 
 /**
@@ -2469,7 +2463,7 @@ public operator fun Path.contains(other: Path): Boolean = this.entries.contains(
  * @see FileSystem.getPathMatcher
  */
 public operator fun Path.contains(globPattern: String): Boolean {
-    this.checkIfDirectory()
+    this.requireDirectory()
     return this.entries.filterByGlob(globPattern).any()
 }
 
@@ -2516,7 +2510,7 @@ public operator fun Path.get(globPattern: String): Path = this.getOrNull(globPat
  * @see Path.get
  */
 public fun Path.getOrNull(globPattern: String): Path? {
-    this.checkIfDirectory()
+    this.requireDirectory()
     return this.entries.filterByGlob(globPattern).firstOrNull()
 }
 
@@ -2531,7 +2525,7 @@ public fun Path.getOrNull(globPattern: String): Path? {
  *
  * @since 0.6.0
  */
-public fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
+public inline fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
     this.filter { getPathMatcher("glob", globPattern).matches(it) }
 
 /**
@@ -2573,7 +2567,7 @@ public fun Path.cleanDirectory(
     deleteDirectories: Boolean = false,
     vararg options: FileVisitOption
 ) {
-    this.checkIfDirectory("Can't clean a non-directory. (${toString()})")
+    this.requireDirectory { "Can't clean a non-directory. (${toString()})" }
 
     this.walkFileTree(options.toSet(), maxDepth, object : SimplePathVisitor() {
         override fun visitFile(file: Path, attributes: BasicFileAttributes): FileVisitResult {
@@ -2615,11 +2609,11 @@ public fun Path.cleanDirectory(
  *
  * @see readLines
  */
-public fun Path.readToString(
+public inline fun Path.readToString(
     charset: Charset = StandardCharsets.UTF_8,
     separator: String = System.lineSeparator()
 ): String {
-    this.checkIfExists()
+    this.requireExistence()
     return this.readLines(charset).joinToString(separator)
 }
 
@@ -2632,7 +2626,7 @@ public fun Path.readToString(
  */
 public val Path.directorySize: BigInteger
     get() {
-        this.checkIfDirectory()
+        this.requireDirectory()
 
         var size = BigInteger.ZERO
 
@@ -2665,8 +2659,9 @@ public val Path.directorySize: BigInteger
  * @since 0.6.0
  */
 public fun Path.launch(launchWith: LaunchType = LaunchType.DEFAULT_VIEWER) {
-    checkIfExists()
-    if (Desktop.isDesktopSupported()) launchWith.launch(this) else throw UnsupportedDesktopException()
+    this.requireExistence()
+    requireDesktop()
+    launchWith.launch(this)
 }
 
 /**
@@ -2701,16 +2696,26 @@ public enum class LaunchType {
 }
 
 /**
- * Generally thrown if [Desktop.isDesktopSupported] is `false`.
+ * Thrown if the Java Desktop API does not support the current desktop environment.
  *
  * @since 0.6.0
+ *
+ * @see requireDesktop
+ * @see Desktop.isDesktopSupported
  */
-public class UnsupportedDesktopException :
-    IOException("The Java Desktop API is not supported on the current platform. (${System.getProperty("os.name")}")
+public open class UnsupportedDesktopException : IOException {
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(message: String) : super(message)
+
+    constructor(cause: Throwable) : super(cause)
+
+}
 
 // Delete on Shutdown Things (Ported over from the old "DeleteOnExitHook" java file.)
 // Required to make sure the shutdown hook is registered when this class is created.
-private val static_init = run {
+private val STATIC_INIT = run {
     sun.misc.SharedSecrets.getJavaLangAccess().registerShutdownHook(2, true) { ShutdownHook.shutdownHook() }
 }
 
@@ -2762,6 +2767,9 @@ private object ShutdownHook {
  * **Note:** This method should *not* be used for file-locking, as the resulting protocol cannot be made to work
  * reliably. The [FileLock][java.nio.channels.FileLock] facility should be used instead.
  *
+ * If you are unsure if this file will be running on a system with a security-manager, it's recommended to wrap this
+ * in a try-catch, so that no accidents happen.
+ *
  * @receiver The file to delete on shutdown.
  *
  * @throws [NoSuchFileException] If `this` file doesn't exist.
@@ -2772,40 +2780,106 @@ private object ShutdownHook {
  * @since 0.6.0
  */
 public fun Path.deleteOnShutdown() {
-    checkIfExists()
+    requireExistence()
     // If the current system *is* running a security manager, then check if we have the correct permissions to delete
-    // this file, otherwise an exception will be thrown.
+    // this file, otherwise an exception will be thrown, which will abort everything.
     System.getSecurityManager()?.checkDelete(this.toAbsolutePath().toString())
     ShutdownHook += this
 }
 
+/**
+ * Performs the given [action] on each individual line of this `file`, using the given [charset].
+ *
+ * @receiver The file from which to read the lines.
+ * @param [charset] What `charset` to read the file with.
+ *
+ * ([UTF-8][StandardCharsets.UTF_8] by default.)
+ *
+ * @throws [NoSuchFileException] If `this` file doesn't exist.
+ *
+ * @since 0.6.0
+ */
+public inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
+    requireExistence()
+    for (line in linesAsSequence(charset)) action(line)
+}
+
 // Check Functions
 /**
- * Tests whether this [file][Path] exists on the file system.
+ * Throws a [NoSuchFileException] with the result of calling [lazyMessage] if `this` file does not exist on the current
+ * [file-system][FileSystem].
  *
- * If it does not exist, it will throw a [NoSuchFileException] with [NoSuchFileException.message] set to [message].
+ * @receiver The [Path] instance to check against.
  *
- * @param message The message the exception will cast.
+ * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
  *
- * (`"File \"${this}\" doesn't exist!"` by default).
+ * @since 0.6.0
  */
 @Throws(NoSuchFileException::class)
-public fun Path.checkIfExists(message: String = "File \"${this}\" doesn't exist!") {
-    if (notExists) throw NoSuchFileException(message)
+public inline fun Path.requireExistence(lazyMessage: () -> Any) {
+    if (this.notExists) throw NoSuchFileException(lazyMessage().toString())
 }
 
 /**
- * Tests whether this [file][Path] exists, and if it is a directory.
+ * Throws a [NoSuchFileException] with a default message if `this` file does not exist on the current
+ * [file-system][FileSystems.getDefault].
  *
- * - If this `file` does not exist, an [NoSuchFileException] will be thrown.
- * - If this `file` exists, but it is **not** a directory, a [NotDirectoryException] will be thrown.
+ * @receiver The [Path] instance to check against.
  *
- * @param message The message the exception will cast.
+ * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
  *
- * (`"\"${this.name}\" needs to be a directory!"` by default).
+ * @since 0.6.0
+ */
+@Throws(NoSuchFileException::class)
+public inline fun Path.requireExistence() = this.requireExistence { "File \"${this}\" doesn't exist!" }
+
+/**
+ * Throws a [NotDirectoryException] with the result of calling [lazyMessage] if `this` file is *not* a directory.
+ *
+ * @receiver The [Path] instance to check against.
+ *
+ * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
+ * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
+ *
+ * @since 0.6.0
  */
 @Throws(NoSuchFileException::class, NotDirectoryException::class)
-public fun Path.checkIfDirectory(message: String = "\"${this.name}\" needs to be a directory!") {
-    this.checkIfExists()
-    if (!isDirectory) throw NotDirectoryException(message)
+public inline fun Path.requireDirectory(lazyMessage: () -> Any) {
+    this.requireExistence()
+    if (!this.isDirectory) throw NotDirectoryException(lazyMessage().toString())
+}
+
+/**
+ * Throws a [NotDirectoryException] with a default message if `this` file is *not* a directory.
+ *
+ * @receiver The [Path] instance to check against.
+ *
+ * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
+ * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
+ *
+ * @since 0.6.0
+ */
+@Throws(NoSuchFileException::class, NotDirectoryException::class)
+public inline fun Path.requireDirectory() = this.requireDirectory { "\"${this.name}\" needs to be a directory!" }
+
+/**
+ * Throws a [UnsupportedDesktopException] with the result of calling [lazyMessage] if the Java Desktop API does not
+ * support the current desktop environment.
+ *
+ * @since 0.6.0
+ */
+@Throws(UnsupportedDesktopException::class)
+public inline fun requireDesktop(lazyMessage: () -> Any) {
+    if (!Desktop.isDesktopSupported()) throw UnsupportedDesktopException(lazyMessage().toString())
+}
+
+/**
+ * Throws a [UnsupportedDesktopException] with a default message if the Java Desktop API does not support the current
+ * desktop environment.
+ *
+ * @since 0.6.0
+ */
+@Throws(UnsupportedDesktopException::class)
+public inline fun requireDesktop() = requireDesktop {
+    "The Java Desktop API is not supported on the current platform. (OS:${System.getProperty("os.name")}"
 }

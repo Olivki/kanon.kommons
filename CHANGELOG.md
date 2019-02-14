@@ -3,6 +3,13 @@
 **0.6.0 comes with the biggest breaking change of them all, which is the change of the name!**
 I know this really isn't something you should do with something that's *already* out there, but "kextensions" just *really* didn't roll off the tongue very nicely, and I was growing more and more frustrated with it.
 
+- ### Everything
+
+  - #### General Changes
+
+    - All wrapper functions have been marked as `inline`.
+      This is so that the generated code *directly* refers to the function that's being wrapped, rather than the wrapper function.
+
 - ### Gradle
 
   - #### General Changes
@@ -58,15 +65,17 @@ I know this really isn't something you should do with something that's *already*
       The function has also had it's name changed from `find` to `filter`, this is to avoid confusion regarding how this function *actually* works.
       Generally, most people used to Kotlin will assume that a function called `find` will return *the first occurrence* of something, if it failed it will either throw an exception or return null. (`Iterable<T>.find` and `Iterable<T>.findOrNull` respectively.), this can cause confusion if one were to *just* go by the name of the `Files.find(...)` function, because that function behaves more akin to the `Iterable<T>.filter` function, which returns a `List<T>` with elements that matched the given `predicate`, and thus it's been renamed to represent this.
       This function also does ***not*** return a `Sequence<Path>` but rather a `List<Path>`, if you need a filtered `Sequence<Path>` use one of two following:
-    - `Path.entries.filter { ... }` Will give you a filtered `Sequence<Path>` of *only* the entries contained within the `receiver` directory, essentially this walks the directory with a max depth of 0.
-    - `Path.allEntries.filter { ... }` Will give you a filtered `Sequence<Path>` of *all* the entries contained within the `receiver` directory, essentially this walks the directory with a max depth of `Int.MAX_VALUE`.
-      If this is what you want, it might be better to use the `Path.walkFileTree` function instead, for more thorough control.
+      - `Path.entries.filter { ... }` Will give you a filtered `Sequence<Path>` of *only* the entries contained within the `receiver` directory, essentially this walks the directory with a max depth of 0.
+      - `Path.allEntries.filter { ... }` Will give you a filtered `Sequence<Path>` of *all* the entries contained within the `receiver` directory, essentially this walks the directory with a max depth of `Int.MAX_VALUE`.
+        If this is what you want, it might be better to use the `Path.walkFileTree` function instead, for more thorough control.
     - {+++} Added the `Path.filter((Path) -> Boolean)` function.
       This function just calls `Path.filter((Path) -> Boolean)` function with all the parameters with default values unchanged.
       This enables one to do `path.filter { ... }` rather than `path.filter({ ... })`.
     - {---} Deprecated the `Path.find(Int = Int.MAX_VALUE, BiPredicate<Path, BasicFileAttributes>, vararg FileVisitOption): Stream<Path>` function, in favor of the newly added `Path.filter(Path -> Boolean, Int = Int.MAX_VALUE, vararg FileVisitOption): List<Path>` function.
-    - {+++} Added the `createTempDirectory(String? = null, vararg FileAttribute<*>)` top-level function, this allows one to create a temporary directory inside the default temporary-file directory.
-    - {+++} Added the `createTempFile(String? = null, vararg FileAttribute<*>)`  top-level function, this allows one to create a temporary file inside the default temporary-file directory.
+    - {+++} Added the `createTemporaryDirectory(String? = null, vararg FileAttribute<*>)` top-level function, this allows one to create a temporary directory inside the default temporary-file directory.
+      *("Temporary" was used to stay in style with `createTemporaryFile`.)*
+    - {+++} Added the `createTemporaryFile(String? = null, vararg FileAttribute<*>)`  top-level function, this allows one to create a temporary file inside the default temporary-file directory.
+      *("Temporary" had to be used instead of "Temp" because the std-lib for Kotlin already comes with a `createTempFile` , which uses the old `File` class, and those functions take automatic priority, orz.)*
     - Replaced all `String` parameters of `Path.createTempFile(String, String, vararg FileAttribute<*>)` to `String?` and set the default value of them to `null`. 
       This is because I had missed the fact that they were intentionally `nullable` when I first ported the function over.
     - Replaced the `name: String` parameter of `Path.createTempDirectory(String, vararg FileAttribute<*>)` with `name: String?` and set the default value of it to `null`.
@@ -99,6 +108,15 @@ I know this really isn't something you should do with something that's *already*
     - {+++} Added the `Path.getOrNull(String)` function.
     - {+++} Added the `Path.deleteOnShutdown()` function.
       This is nothing more than a port of the way that the `File` class does it.
+    - {+++} Added the `Path.eachLine(Charset, (String) -> Unit)` function.
+      This acts like the  `.forEach(...)` function, but specific for the lines of a line, assumed to be in plain-text.
+    - Renamed `Path.createSymbolicLink` to `Path.createSymbolicLinkTo`.
+    - Renamed `Path.createLink` to `Path.createLinkTo`.
+    - Renamed `Path.checkIfExists(...)` to `Path.requireExistence(...)`.
+    - Renamed `Path.checkIfDirectory(...)` to `Path.requireDirectory(...)`.
+    - {+++} Reworked `Path.requireExistence(...)` & `Path.requireDirectory(...)` to be more like the functions found in the std-lib for Kotlin in the `Preconditions.kt` file.
+      This means that each function has been split up into two different functions, one accepting a closure for the message to send, and the other having the previously default value for the `message` parameter.
+    - {+++} Added the `requireDesktop(() -> Any)` & `requireDesktop()` functions.
 
 - ### /humanize/
   - #### File
@@ -134,20 +152,28 @@ I know this really isn't something you should do with something that's *already*
 
     - {+++} Added the `multiCatch(vararg KClass)` closure function. This function "simulates" the behaviour of the multi-catch feature in Java for Kotlin. Credit goes to carleslc for the original code.
 
-### /math/BigInteger.kt
+- ### /math/BigInteger.kt
 
-* #### Documentation
+  - #### Documentation
 
-  * {+++} Added documentation to all of the functions for `BigInteger.kt`.
-* #### Functions
+    - {+++} Added documentation to all of the functions for `BigInteger.kt`.
 
-  * {+++} 
+  - #### Functions
 
-* ### /dom/Element.kt
+    - {+++} 
+
+- ### /dom/Element.kt
 
   * #### Annotations
 
-    * Removed the `ExperimentalFeature` annotation from the `AttributeMap` class.
+    * Removed the `ExperimentalFeature` annotation from the `AttributeMap` class and the `attributeMap` property.
+
+- ### /misc/Reflection.kt
+
+  - #### File
+
+    - Added the `Reflection.kt` class.
+      This class will house utilities for operations regarding Kotlin reflection.
 
 ## 0.5.2 (2019-01-23)
 

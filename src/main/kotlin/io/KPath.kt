@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package moe.kanon.kommons.io
 
 import java.net.URI
@@ -64,7 +66,7 @@ object KPath {
      *
      * @see FileSystem.getPath
      */
-    public operator fun invoke(first: String, vararg more: String): Path = pathOf(first, *more)
+    public inline operator fun invoke(first: String, vararg more: String): Path = pathOf(first, *more)
 
     /**
      * Converts the given [URI] to a [Path] instance.
@@ -100,7 +102,7 @@ object KPath {
      *
      * @since 0.5.2
      */
-    public operator fun invoke(uri: URI): Path = pathOf(uri)
+    public inline operator fun invoke(uri: URI): Path = pathOf(uri)
 
     /**
      * Converts a given path string to a [Path] and resolves it against the [parent] `Path` in exactly the manner
@@ -120,6 +122,6 @@ object KPath {
      * @see Path.resolve
      * @see FileSystem.getPath
      */
-    public operator fun invoke(parent: Path, child: String): Path = parent.resolve(child)
+    public inline operator fun invoke(parent: Path, child: String): Path = parent.resolve(child)
 
 }

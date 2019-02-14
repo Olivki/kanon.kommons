@@ -15,10 +15,9 @@
  */
 
 @file:JvmName("ArrayUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.collections
-
-import moe.kanon.kommons.ExperimentalFeature
 
 // Generic Array
 /**
@@ -26,14 +25,14 @@ import moe.kanon.kommons.ExperimentalFeature
  *
  * @see take
  */
-public fun <V> Array<V>.from(start: Int): Array<V> = sliceArray(start until size)
+public inline fun <V> Array<V>.from(start: Int): Array<V> = sliceArray(start until size)
 
 /**
  * Returns an array inherited from this [array][Array] that's been spliced from index 0 until [end].
  *
  * @see takeLast
  */
-public fun <V> Array<V>.until(end: Int): Array<V> = sliceArray(0 until end)
+public inline fun <V> Array<V>.until(end: Int): Array<V> = sliceArray(0 until end)
 
 /**
  * Checks whether this [array][Array] contains all the values of the [other] array.
@@ -57,7 +56,6 @@ public operator fun <V> Array<V>.contains(other: Collection<V>): Boolean = when 
 /**
  * Checks whether this [array][Array] array contains the given [range].
  */
-@ExperimentalFeature
 public operator fun IntArray.contains(range: IntRange): Boolean = when {
     isEmpty() -> false
     else -> range.all { it in this }
