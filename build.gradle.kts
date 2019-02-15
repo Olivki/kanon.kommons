@@ -34,7 +34,7 @@ dependencies {
     
     // Test Dependencies
     testImplementation(group = "io.kotlintest", name = "kotlintest-runner-junit5", version = "3.1.11")
-    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = "1.6.1")
+    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = "1.8.0-beta2")
 }
 
 tasks.withType<KotlinCompile> {

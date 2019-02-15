@@ -8,6 +8,20 @@ Currently, the only thing that's unlikely to be changed (except for additions of
 
 If you are unsure if something you're using may have changed when updating, or you just want to get a better understanding of *what* has changed, and *how* it's changed, please read the [changelog](./CHANGELOG.md).
 
+## Credits
+
+- [Commons Lang 3](https://commons.apache.org/proper/commons-lang/) by the [Apache Software Foundation](https://www.apache.org/).
+
+  - [Booleans.kt](https://gitlab.com/Olivki/kanon-kommons/blob/master/src/main/kotlin/lang/Booleans.kt#L47) is taken from [BooleanUtils.java](https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/BooleanUtils.java#L546).
+
+  `Commons Lang 3` is under the Apache 2.0 License.
+
+- [Humanizer.jvm](https://github.com/MehdiK/Humanizer.jvm) by [MehdiK](https://github.com/MehdiK).
+
+  - Various functions and classes from the `/lang/humanize` package. 
+
+  `Humanizer.jvm` is under the Apache 2.0 License.
+
 ## What this library adds
 - Extension methods & properties for the `Path.java` class to make it less clunky to use. The available extensions are *all* of the methods available in `Files.java` and some additional ones. *(These extensions may be given their own library at a later point.)*
 - Extension methods & properties for classes that reside in `org.w3c.dom` to make them work better with the Kotlin syntatic sugar.

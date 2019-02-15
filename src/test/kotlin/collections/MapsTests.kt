@@ -16,12 +16,14 @@
 
 package moe.kanon.kommons.test.collections
 
-import forAll
-import io.kotlintest.shouldNotBe
+import io.kotlintest.shouldBe
 import io.kotlintest.specs.BehaviorSpec
 import moe.kanon.kommons.collections.flip
+import moe.kanon.kommons.test.forAll
 
 class NativeMapFlipTest : BehaviorSpec({
+
+    // TODO make the data random.
 
     val data = mapOf(
         0 to "zero",
@@ -36,26 +38,16 @@ class NativeMapFlipTest : BehaviorSpec({
         9 to "nine"
     )
 
-    val expectedData = mapOf(
-        "zero" to 0,
-        "one" to 1,
-        "two" to 2,
-        "three" to 3,
-        "four" to 4,
-        "five" to 5,
-        "six" to 6,
-        "seven" to 7,
-        "eight" to 8,
-        "nine" to 9
-    )
-
-    // TODO: Write more cohesively
-
-    Given("A map (Int to String) with entries in a specific order") {
-        When("Invoking \"flip()\" on the map") {
-            data.flip().forAll { (key) ->
-                Then("It should be possible to use the new \"key\" as a key on the \"expectedData\" map.") {
-                    expectedData[key] shouldNotBe null
+    Given("a map (Int to String) with entries in a specific order") {
+        When("invoking \"flip()\" on the map") {
+            val iterator = data.iterator()
+            val flipped = data.flip()
+            flipped.size shouldBe data.size
+            flipped.forAll { (flippedKey, flippedValue) ->
+                val (originalKey, originalValue) = iterator.next()
+                Then("the result should be a map (String to Int) in the same order") {
+                    originalKey shouldBe flippedValue
+                    originalValue shouldBe flippedKey
                 }
             }
         }

@@ -117,6 +117,8 @@ I know this really isn't something you should do with something that's *already*
     - {+++} Reworked `Path.requireExistence(...)` & `Path.requireDirectory(...)` to be more like the functions found in the std-lib for Kotlin in the `Preconditions.kt` file.
       This means that each function has been split up into two different functions, one accepting a closure for the message to send, and the other having the previously default value for the `message` parameter.
     - {+++} Added the `requireDesktop(() -> Any)` & `requireDesktop()` functions.
+    - {+++} Added the `Path.createChildFile(String, vararg FileAttribute<*>)` function.
+    - {+++} Added the `Path.createChildDirectory(String, vararg FileAttribute<*>)` function.
 
 - ### /humanize/
   - #### File
