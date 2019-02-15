@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("PathUtils")
+@file:JvmName("FileUtils")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.io
@@ -32,6 +32,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.*
 import java.nio.file.attribute.*
 import java.nio.file.spi.FileSystemProvider
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.function.BiPredicate
 import java.util.stream.Stream
@@ -50,14 +53,6 @@ import kotlin.streams.asSequence
  */
 
 // Transformers.
-
-/**
- * A type-alias mainly used for `find` functions.
- *
- * @since 0.6.0
- */
-public typealias PathBiPredicate = (file: Path, attributes: BasicFileAttributes) -> Boolean
-
 /**
  * Generally used in conjunction with [walkFileTree] or similar functions to make the syntax clearer.
  *
@@ -107,6 +102,42 @@ public typealias PathVisitor = FileVisitor<Path>
  * @see FileSystem.getPath
  */
 public inline fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *more)
+
+/**
+ * Converts a path string, or a sequence of strings that when joined form a path string, to a [Path].
+ *
+ * If [more] does not specify any elements then the value of the [parent] parameter is the path string to convert.
+ * If `more` specifies one or more elements then each non-empty string, including `first`, is considered to be a
+ * sequence of name elements *(see [Path])* and is joined to form a path string. The details as to how the Strings are
+ * joined is provider specific but typically they will be joined using the [name-separator][FileSystem.getSeparator]
+ * as the separator. For example, if the name separator is "`/`" and `getPath("/foo","bar","gus")` is invoked, then the
+ * path string `"/foo/bar/gus"` is converted to a `Path`.
+ *
+ * A `Path` representing an empty path is returned if `first` is the empty string and `more` does not contain any
+ * non-empty strings.
+ *
+ * The `Path` is obtained by invoking the [getPath][FileSystem.getPath] method of the [default][FileSystems.getDefault]
+ * [FileSystem].
+ *
+ * Note that while this method is very convenient, using it will imply an assumed reference to the default `FileSystem`
+ * and limit the utility of the calling code. Hence it should not be used in library code intended for flexible reuse.
+ * A more flexible alternative is to use an existing `Path` instance as an anchor, such as:
+ *
+ * ```kotlin
+ *      val dir: Path = ...
+ *      val path = dir.resolve("file")
+ * ```
+ *
+ * @param parent The path string or initial part of the path string
+ * @param more Additional strings to be joined to form the path string.
+ *
+ * @return The resulting `Path`.
+ *
+ * @throws InvalidPathException if the path string cannot be converted to a `Path`.
+ *
+ * @see FileSystem.getPath
+ */
+public inline fun pathOf(parent: Path, vararg more: String): Path = Paths.get(parent.toString(), *more)
 
 /**
  * Converts the given [URI] to a [Path] instance.
@@ -2441,7 +2472,7 @@ public inline fun getPathMatcher(syntax: String, pattern: String): PathMatcher =
 /**
  * Checks whether the [other] path is a child of this [directory][Path].
  */
-public operator fun Path.contains(other: Path): Boolean = this.entries.contains(other)
+public inline operator fun Path.contains(other: Path): Boolean = this.entries.contains(other)
 
 /**
  * Returns whether or not `this` [directory][Path] has any children that matches the specified [globPattern].
@@ -2780,7 +2811,7 @@ private object ShutdownHook {
  * @since 0.6.0
  */
 public fun Path.deleteOnShutdown() {
-    requireExistence()
+    this.requireExistence()
     // If the current system *is* running a security manager, then check if we have the correct permissions to delete
     // this file, otherwise an exception will be thrown, which will abort everything.
     System.getSecurityManager()?.checkDelete(this.toAbsolutePath().toString())
@@ -2791,17 +2822,107 @@ public fun Path.deleteOnShutdown() {
  * Performs the given [action] on each individual line of this `file`, using the given [charset].
  *
  * @receiver The file from which to read the lines.
+ *
  * @param [charset] What `charset` to read the file with.
  *
  * ([UTF-8][StandardCharsets.UTF_8] by default.)
  *
- * @throws [NoSuchFileException] If `this` file doesn't exist.
+ * @throws [NoSuchFileException] If `this` file does *not* exist.
  *
  * @since 0.6.0
  */
 public inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
     requireExistence()
     for (line in linesAsSequence(charset)) action(line)
+}
+
+/**
+ * Creates a new `file` with the given [fileName], using `this` directory as the root.
+ *
+ * @receiver The [Path] to use as the root directory for the new `file`.
+ *
+ * @return The newly created `file`.
+ *
+ * @throws [NoSuchFileException] If `this` file does *not* exist.
+ * @throws [NotDirectoryException] If `this` file is *not* a directory.
+ *
+ * @since 0.6.0
+ */
+public fun Path.createChildFile(fileName: String, vararg attributes: FileAttribute<*>): Path {
+    this.requireDirectory()
+    return this.resolve(fileName).createFile(*attributes)
+}
+
+/**
+ * Creates a new `directory` with the given [name], using `this` directory as the root.
+ *
+ * @receiver The [Path] to use as the root directory for the new `directory`.
+ *
+ * @return The newly created `directory`.
+ *
+ * @throws [NoSuchFileException] If `this` file does *not* exist.
+ * @throws [NotDirectoryException] If `this` file is *not* a directory.
+ *
+ * @since 0.6.0
+ */
+public fun Path.createChildDirectory(name: String, vararg attributes: FileAttribute<*>): Path {
+    this.requireDirectory()
+    return this.resolve(name).createDirectory(*attributes)
+}
+
+/**
+ * Creates *(if not already existing)* a series of directories reflecting the given [date], up to the day unit, under
+ * `this` directory.
+ *
+ * If the given [date] is that of `2018-05-25` then the following directories will be created;
+ *
+ * `./2018/05/25/`
+ *
+ * @receiver The `directory` that should act as the parent for the date directories.
+ *
+ * @param [date] The date to create the directories from.
+ *
+ * ([LocalDate.now] by default)
+ *
+ * @return The last directory in the chain of the newly created directories.
+ *
+ * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
+ * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
+ *
+ * @since 0.6.0
+ */
+public fun Path.createDateDirectories(date: LocalDate = LocalDate.now()): Path {
+    requireDirectory()
+    val text = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+    return this.resolve(text).createDirectories()
+}
+
+/**
+ * Creates *(if not already existing)* a series of directories reflecting the given [date and time][dateTime], up to the
+ * seconds, under `this` directory.
+ *
+ * If the given [date and time][dateTime] is that of `2018-05-25T20:16:03` then the following directories will be
+ * created;
+ *
+ * `./2018/05/25/20/16/03/`
+ *
+ * @receiver The `directory` that should act as the parent for the date directories.
+ *
+ * @param [dateTime] The date and time to create the directories from.
+ *
+ * ([LocalDateTime.now] by default)
+ *
+ * @return The last directory in the chain of the newly created directories.
+ *
+ * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
+ * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
+ *
+ * @since 0.6.0
+ */
+public fun Path.createDateTimeDirectories(dateTime: LocalDateTime = LocalDateTime.now()): Path {
+    requireDirectory()
+    val text = dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd/HH/mm/ss"))
+    return this.resolve(text).createDirectories()
 }
 
 // Check Functions

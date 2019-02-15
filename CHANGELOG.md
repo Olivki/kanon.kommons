@@ -27,13 +27,12 @@ I know this really isn't something you should do with something that's *already*
 
   - #### Annotations
 
-    - `@file:JvmName` has been changed from `"FilesWrapper"` to `"PathUtils"`.
+    - `@file:JvmName` has been changed from `"FilesWrapper"` to `"FileUtils"`.
 
   - #### Typealias's
 
     - {---} Removed the `PathStream = Stream<Path>` type-alias.
     - {---} Removed the `PathMatcher = BiPredicate<Path, BasicFileAttributes>` type-alias.
-    - {+++} Added the `PathBiPredicate = (file: Path, attributes: BasicFileAttributes) -> Boolean` type-alias.
     - {+++} Added the `SimplePathVisitor = SimpleFileVisitor<Path>` type-alias.
 
   - #### Properties
@@ -119,6 +118,8 @@ I know this really isn't something you should do with something that's *already*
     - {+++} Added the `requireDesktop(() -> Any)` & `requireDesktop()` functions.
     - {+++} Added the `Path.createChildFile(String, vararg FileAttribute<*>)` function.
     - {+++} Added the `Path.createChildDirectory(String, vararg FileAttribute<*>)` function.
+    - {+++} Added the `Path.createDateDirectories(LocalDate = LocalDate.now())` function.
+    - {+++} Added the `Path.createDateTimeDirectories(LocalDate = LocalDate.now())` function.
 
 - ### /humanize/
   - #### File
@@ -160,10 +161,6 @@ I know this really isn't something you should do with something that's *already*
 
     - {+++} Added documentation to all of the functions for `BigInteger.kt`.
 
-  - #### Functions
-
-    - {+++} 
-
 - ### /dom/Element.kt
 
   * #### Annotations
@@ -176,6 +173,12 @@ I know this really isn't something you should do with something that's *already*
 
     - Added the `Reflection.kt` class.
       This class will house utilities for operations regarding Kotlin reflection.
+
+- ### /time/
+
+  - #### File
+
+    - Added the `/time/` package.
 
 ## 0.5.2 (2019-01-23)
 
