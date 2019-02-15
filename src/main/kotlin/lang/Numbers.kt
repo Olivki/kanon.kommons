@@ -19,6 +19,70 @@
 
 package moe.kanon.kommons.lang
 
+import kotlin.experimental.and
+
+// Byte
+/**
+ * Returns whether or not this [Byte] number is odd.
+ */
+public val Byte.isOdd: Boolean get() = this and 1 != 0.toByte()
+
+/**
+ * Returns whether or not this [Byte] number is even.
+ */
+public val Byte.isEven: Boolean get() = this and 1 == 0.toByte()
+
+/**
+ * Parses the given [value] as a [Byte] number and returns the result.
+ *
+ * @throws [NumberFormatException] If the `string` is not a valid representation of a number.
+ */
+public inline fun Byte.Companion.parse(value: String): Byte = java.lang.Byte.parseByte(value)
+
+/**
+ * Parses the given [value] as a [Byte] number and returns the result.
+ *
+ * @throws [NumberFormatException]
+ *
+ * - The radix is either smaller than [MIN_RADIX][Character.MIN_RADIX] or larger than [MAX_RADIX][Character.MAX_RADIX].
+ *
+ * - Any character of the `string` is not a digit of the specified radix, except that the first character may be a
+ * minus sign `'-'` (`'\u005Cu002D'`) or plus sign `'+'` (`'\u005Cu002B'`) provided that the `string` is longer than
+ * length `1`.
+ */
+public inline fun Byte.Companion.parse(value: String, radix: Int): Byte = java.lang.Byte.parseByte(value, radix)
+
+// Short
+/**
+ * Returns whether or not this [Short] number is odd.
+ */
+public val Short.isOdd: Boolean get() = this and 1 != 0.toShort()
+
+/**
+ * Returns whether or not this [Short] number is even.
+ */
+public val Short.isEven: Boolean get() = this and 1 == 0.toShort()
+
+/**
+ * Parses the given [value] as a [Short] number and returns the result.
+ *
+ * @throws [NumberFormatException] If the `string` is not a valid representation of a number.
+ */
+public inline fun Short.Companion.parse(value: String): Short = java.lang.Short.parseShort(value)
+
+/**
+ * Parses the given [value] as a [Short] number and returns the result.
+ *
+ * @throws [NumberFormatException]
+ *
+ * - The radix is either smaller than [MIN_RADIX][Character.MIN_RADIX] or larger than [MAX_RADIX][Character.MAX_RADIX].
+ *
+ * - Any character of the `string` is not a digit of the specified radix, except that the first character may be a
+ * minus sign `'-'` (`'\u005Cu002D'`) or plus sign `'+'` (`'\u005Cu002B'`) provided that the `string` is longer than
+ * length `1`.
+ */
+public inline fun Short.Companion.parse(value: String, radix: Int): Short = java.lang.Short.parseShort(value, radix)
+
 // Int
 /**
  * Returns whether or not this [Int] number is odd.
@@ -35,7 +99,7 @@ public val Int.isEven: Boolean get() = this and 1 == 0
  *
  * @throws [NumberFormatException] If the `string` is not a valid representation of a number.
  */
-public inline fun Int.Companion.parse(value: String): Int = Integer.parseInt(value)
+public inline fun Int.Companion.parse(value: String): Int = java.lang.Integer.parseInt(value)
 
 /**
  * Parses the given [value] as an [Int] number and returns the result.
@@ -48,7 +112,7 @@ public inline fun Int.Companion.parse(value: String): Int = Integer.parseInt(val
  * minus sign `'-'` (`'\u005Cu002D'`) or plus sign `'+'` (`'\u005Cu002B'`) provided that the `string` is longer than
  * length `1`.
  */
-public inline fun Int.Companion.parse(value: String, radix: Int): Int = Integer.parseInt(value, radix)
+public inline fun Int.Companion.parse(value: String, radix: Int): Int = java.lang.Integer.parseInt(value, radix)
 
 // Long
 /**
@@ -80,3 +144,19 @@ public inline fun Long.Companion.parse(value: String): Long = java.lang.Long.par
  * length `1`.
  */
 public inline fun Long.Companion.parse(value: String, radix: Int): Long = java.lang.Long.parseLong(value, radix)
+
+// Float
+/**
+ * Parses the given [value] as a [Long] number and returns the result.
+ *
+ * @throws [NumberFormatException] If the `string` is not a valid representation of a number.
+ */
+public inline fun Float.Companion.parse(value: String): Float = java.lang.Float.parseFloat(value)
+
+// Double
+/**
+ * Parses the given [value] as a [Long] number and returns the result.
+ *
+ * @throws [NumberFormatException] If the `string` is not a valid representation of a number.
+ */
+public inline fun Double.Companion.parse(value: String): Double = java.lang.Double.parseDouble(value)

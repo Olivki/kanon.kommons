@@ -12,7 +12,7 @@ If you are unsure if something you're using may have changed when updating, or y
 
 - [Commons Lang 3](https://commons.apache.org/proper/commons-lang/) by the [Apache Software Foundation](https://www.apache.org/).
 
-  - [Booleans.kt](https://gitlab.com/Olivki/kanon-kommons/blob/master/src/main/kotlin/lang/Booleans.kt#L47) is taken from [BooleanUtils.java](https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/BooleanUtils.java#L546).
+  - [Booleans.kt](https://gitlab.com/Olivki/kanon-kommons/blob/master/src/main/kotlin/lang/Booleans.kt#L78) is taken from [BooleanUtils.java](https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/BooleanUtils.java#L546).
 
   `Commons Lang 3` is under the Apache 2.0 License.
 
