@@ -14,23 +14,38 @@
  * limitations under the License.
  */
 
-@file:JvmName("CaseUtils")
+@file:JvmName("CaseConverter")
 
 package moe.kanon.kommons.humanize
+
+private val CASING_REGEX =
+    Regex("(?<=[a-z])(?=[A-Z0-9])|(?<=[0-9])(?=[A-Za-z])|(?<=[A-Z])(?=[0-9])|(?<=[A-Z])(?=[A-Z][a-z])")
+private val DASH_CASING_REGEX = Regex("$CASING_REGEX|(_)|(-)")
 
 /**
  * @since 0.6.0
  */
 // Title Case
-// TODO: Implement a proper title case converter based on https://titlecaseconverter.com/rules/
-public fun String.toTitleCase(minLength: Int = 4): String = ""
+public fun String.toTitleCase(minLength: Int = 4): String = TODO("implement this")
 
-public fun String.toCase(style: CaseStyles): String = style.convert(this)
+
+/**
+ * Converts the casing format of this [String] into the specified [format], and returns the result.
+ *
+ * @param [format] The desired [CaseFormat] to convert to.
+ *
+ * @since 0.6.0
+ */
+public fun String.toCase(format: CaseFormat): String = format.convert(this)
+
+// TODO: Documentation
+
+private fun String.trimDelimiters(): String = this.replace("(_|-|\\s)".toRegex(), "")
 
 /**
  * @since 0.6.0
  */
-public enum class CaseStyles {
+public enum class CaseFormat {
 
     /**
      * Sentence case
@@ -46,7 +61,19 @@ public enum class CaseStyles {
      */
     CAMEL_CASE {
         override fun convert(input: String): String {
-            TODO("not implemented")
+            var shouldCapitalize = false
+            var result = ""
+
+
+            for (char in input.decapitalize()) {
+                if (char == '_' || char.isWhitespace()) shouldCapitalize = true
+                if (Character.isLetterOrDigit(char) && shouldCapitalize) {
+                    shouldCapitalize = false
+                    result = "$result${char.toUpperCase()}"
+                } else result = "$result$char"
+            }
+
+            return result.trimDelimiters()
         }
     },
 
@@ -55,7 +82,18 @@ public enum class CaseStyles {
      */
     PASCAL_CASE {
         override fun convert(input: String): String {
-            TODO("not implemented")
+            var previousWasUnderscore = false
+            var result = ""
+
+            for (char in input.capitalize()) {
+                if (char == '_') previousWasUnderscore = true
+                if (Character.isLetterOrDigit(char) && previousWasUnderscore) {
+                    previousWasUnderscore = false
+                    result = "$result${char.toUpperCase()}"
+                } else result = "$result$char"
+            }
+
+            return result.replace("_", "")
         }
     },
 
@@ -82,7 +120,18 @@ public enum class CaseStyles {
      */
     SNAKE_CASE {
         override fun convert(input: String): String {
-            TODO("not implemented")
+            var previousWasCapital = false
+            var result = ""
+
+            for (char in input.decapitalize()) {
+                if (Character.isUpperCase(char)) previousWasCapital = true
+                if (Character.isLetterOrDigit(char) && previousWasCapital) {
+                    previousWasCapital = false
+                    result = "${result}_${char.toLowerCase()}"
+                } else result = "$result$char"
+            }
+
+            return result.replace(" ", "_").toLowerCase()
         }
     },
 
@@ -91,12 +140,23 @@ public enum class CaseStyles {
      */
     DARWIN_CASE {
         override fun convert(input: String): String {
-            TODO("not implemented")
+            var previousWasCapital = false
+            var result = ""
+
+            for (char in input.decapitalize()) {
+                if (Character.isUpperCase(char)) previousWasCapital = true
+                if (Character.isLetterOrDigit(char) && previousWasCapital) {
+                    previousWasCapital = false
+                    result = "${result}_${char.toUpperCase()}"
+                } else result = "$result$char"
+            }
+
+            return result.replace(" ", "_")
         }
     },
 
     /**
-     * StUdLyCaPs/STuDLyCaPS
+     * StUdLyCaPs/STuDLyCaPS (basically random gibberish)
      */
     STUDLY_CASE {
         override fun convert(input: String): String {

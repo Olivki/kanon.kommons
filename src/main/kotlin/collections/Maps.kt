@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("MapUtils")
+@file:JvmName("KMaps")
 
 package moe.kanon.kommons.collections
 

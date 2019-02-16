@@ -24,6 +24,8 @@ import moe.kanon.kommons.lang.isOdd
 import moe.kanon.kommons.test.forAll
 import moe.kanon.kommons.test.setOfRandomIntegerNumbers
 
+// TODO: Change the way the behaviours are written.
+
 class IsIntOddTests : BehaviorSpec({
     val unsortedData = setOfRandomIntegerNumbers<Int>(
         size = 20,

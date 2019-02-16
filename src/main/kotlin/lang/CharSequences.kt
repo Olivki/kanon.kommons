@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons.test.lang
+@file:JvmName("KCharSequences")
+@file:Suppress("NOTHING_TO_INLINE")
 
-// TODO: Write tests for the boolean parsing.
+package moe.kanon.kommons.lang
+
+/**
+ * Returns the amount of occurrences of the given [char] in `this` [CharSequence].
+ *
+ * @receiver The [char-sequence][CharSequence] in which to check for occurrences.
+ */
+public fun CharSequence.occurrencesOf(char: Char): Int = this.count { it == char }
+

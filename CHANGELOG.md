@@ -27,7 +27,7 @@ I know this really isn't something you should do with something that's *already*
 
   - #### Annotations
 
-    - `@file:JvmName` has been changed from `"FilesWrapper"` to `"FileUtils"`.
+    - `@file:JvmName` has been changed from `"FilesWrapper"` to `"KFiles"`.
 
   - #### Typealias's
 
@@ -179,6 +179,12 @@ I know this really isn't something you should do with something that's *already*
   - #### File
 
     - Added the `/time/` package.
+
+- ### /lang/Strings.kt
+
+  - #### File
+
+    - Added the `/lang/Strings.kt` file.
 
 ## 0.5.2 (2019-01-23)
 

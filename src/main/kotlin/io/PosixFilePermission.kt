@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("PosixFilePermissionsWrapper")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.io

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("CollectionUtils")
+@file:JvmName("KCollections")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.collections

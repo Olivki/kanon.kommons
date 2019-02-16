@@ -29,7 +29,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("Booleans")
+@file:JvmName("KBooleans")
 
 package moe.kanon.kommons.lang
 

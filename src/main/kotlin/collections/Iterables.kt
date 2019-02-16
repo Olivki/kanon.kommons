@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons.test.lang
+@file:JvmName("KIterables")
 
-// TODO: Write tests for the boolean parsing.
+package moe.kanon.kommons.collections
+
+import moe.kanon.kommons.lang.occurrencesOf
+
+/**
+ * Returns a [List] that's sorted after the occurrences of the specific characters in the given [String].
+ */
+public fun Iterable<Char>.sortByOccurrences(string: String): List<Char> = this.sortedBy { string.occurrencesOf(it) }

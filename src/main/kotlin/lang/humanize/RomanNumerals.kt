@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("RomanNumeralUtils")
+@file:JvmName("RomanNumerals")
 
 package moe.kanon.kommons.humanize
 
@@ -70,7 +70,7 @@ public fun Long.toRomanNumeral(): String {
     val closestKey = ROMAN_NUMERALS.floorKey(this)
     return when (closestKey) {
         // If the closest key is the same value as this long, then just return the value that's stored under this key.
-        this -> ROMAN_NUMERALS[this]!!
+        this -> ROMAN_NUMERALS[this] ?: throw NoSuchElementException("'$this' does not exist in roman numeral tree.")
         // If not, just return the value of the closest key, and then recursively append the rest of the values.
         else -> ROMAN_NUMERALS[closestKey] + (this - closestKey).toRomanNumeral()
     }
@@ -78,16 +78,21 @@ public fun Long.toRomanNumeral(): String {
 
 // from
 
-// Taken from Humanizer.jvm.
+// Originally taken from Humanizer.jvm, but the actual regex is not the same anymore.
+// The old regex only worked with roman numerals up to 4000, while this one should work with most roman numerals,
+// regardless how ridiculous they get.
 private fun isInvalidRomanNumeral(input: String): Boolean = !Pattern.compile(
-    "^(?i:(?=[MDCLXVI])((M{0,3})((C[DM])|(D?C{0,3}))?((X[LC])|(L?XX{0,2})|L)?((I[VX])|(V?(II{0,2}))|V)?))$",
+    "(^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})\$)",
     Pattern.CASE_INSENSITIVE
 ).matcher(input).matches()
 
 /**
  * Converts the roman numerals contained in this [String] to the appropriate [Long] value.
+ *
+ * @author Humanizer.jvm
+ *
+ * @since 0.6.0
  */
-// Originally taken from Humanizer.jvm, but it's been modified from the original source.
 public fun String.fromRomanNumeral(): Long {
     val input = this.trim().toUpperCase()
     val length = input.length
@@ -97,16 +102,21 @@ public fun String.fromRomanNumeral(): Long {
     )
 
     var total = 0L
+    var i = length
 
-    for (i in length downTo 0) {
+    while (i > 0) {
         var digit = ROMAN_NUMERALS.entries.single { it.value == input[i - 1].toString() }.key
 
         if (i > 1) {
             val previousDigit = ROMAN_NUMERALS.entries.single { it.value == input[i - 2].toString() }.key
 
-            if (previousDigit < digit) digit -= previousDigit
+            if (previousDigit < digit) {
+                digit -= previousDigit
+                i--
+            }
         }
 
+        i--
         total += digit
     }
 
