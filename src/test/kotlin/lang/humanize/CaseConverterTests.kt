@@ -16,7 +16,7 @@
 
 package moe.kanon.kommons.test.lang.humanize
 
-import io.kotlintest.forAll
+/*import io.kotlintest.forAll
 import io.kotlintest.inspectors.forAll
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.BehaviorSpec
@@ -88,4 +88,4 @@ class ConvertToSnakeCaseTests : BehaviorSpec({
             }
         }
     }
-})
+})*/

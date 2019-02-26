@@ -40,9 +40,11 @@ public fun String.toCase(format: CaseFormat): String = format.convert(this)
 
 // TODO: Documentation
 
-private fun String.trimDelimiters(): String = this.replace("(_|-|\\s)".toRegex(), "")
+internal fun String.trimDelimiters(): String = this.replace("(_|-)".toRegex(), "")
 
 /**
+ * Contains all the different types of case-formatting available.
+ *
  * @since 0.6.0
  */
 public enum class CaseFormat {
@@ -61,9 +63,9 @@ public enum class CaseFormat {
      */
     CAMEL_CASE {
         override fun convert(input: String): String {
+            TODO("not implemented")
             var shouldCapitalize = false
             var result = ""
-
 
             for (char in input.decapitalize()) {
                 if (char == '_' || char.isWhitespace()) shouldCapitalize = true
@@ -82,6 +84,7 @@ public enum class CaseFormat {
      */
     PASCAL_CASE {
         override fun convert(input: String): String {
+            TODO("not implemented")
             var previousWasUnderscore = false
             var result = ""
 
@@ -120,6 +123,7 @@ public enum class CaseFormat {
      */
     SNAKE_CASE {
         override fun convert(input: String): String {
+            TODO("not implemented")
             var previousWasCapital = false
             var result = ""
 
@@ -140,6 +144,7 @@ public enum class CaseFormat {
      */
     DARWIN_CASE {
         override fun convert(input: String): String {
+            TODO("not implemented")
             var previousWasCapital = false
             var result = ""
 
@@ -164,5 +169,10 @@ public enum class CaseFormat {
         }
     };
 
+    /**
+     * Converts the casing of the given [input] into the appropriate casing.
+     *
+     * @param [input] The string to convert the casing of.
+     */
     abstract fun convert(input: String): String
 }

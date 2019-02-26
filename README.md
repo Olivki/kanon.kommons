@@ -38,7 +38,7 @@ Gradle
   }
   
   dependencies {
-      implementation "moe.kanon.kommons:kanon.kommons:0.6.0"
+      implementation "moe.kanon.kommons:kanon.kommons:0.6.0-alpha"
   }
   ```
 
@@ -50,7 +50,7 @@ Gradle
   }
   
   dependencies {
-      implementation(group = "moe.kanon.kommons", name = "moe.kanon", version = "0.6.0")
+      implementation(group = "moe.kanon.kommons", name = "moe.kanon", version = "0.6.0-alpha")
   }
   ```
 
@@ -60,7 +60,7 @@ Maven
 <dependency>
   <groupId>moe.kanon.kommons</groupId>
   <artifactId>kanon.kommons</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.0-alpha</version>
   <type>pom</type>
 </dependency>
 ```

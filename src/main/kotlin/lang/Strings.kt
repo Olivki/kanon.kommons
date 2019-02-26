@@ -60,6 +60,33 @@ public fun String.capitalizeWords(vararg delimiters: Char = charArrayOf(' ')): S
 }
 
 /**
+ * Capitalizes all the words in the [CharSequence] where the given [predicate] returns `true`.
+ *
+ * @param [predicate] The `predicate` that determines whether or not the following character will be in upper-case.
+ *
+ * @since 0.6.0
+ */
+// no inline for now because of possible generated bloat.
+public fun String.capitalizeWords(predicate: (Char) -> Boolean): String = buildString {
+    // set to true at the start so that the first word gets capitalized.
+    var capitalizeNext = true
+
+    for (char in this@capitalizeWords) {
+        when {
+            predicate(char) -> {
+                append(char)
+                capitalizeNext = true
+            }
+            capitalizeNext -> {
+                append(char.toUpperCase())
+                capitalizeNext = false
+            }
+            else -> append(char)
+        }
+    }
+}
+
+/**
  * Uncapitalizes all the words in the [CharSequence] that are pre-faced by any of the given [delimiters], only the
  * the first character of the word is uncapitalized, the rest are left as is.
  *
@@ -98,6 +125,32 @@ public fun String.uncapitalizeWords(vararg delimiters: Char = charArrayOf(' ')):
     }
 }
 
+/**
+ * Uncapitalizes all the words in the [CharSequence] where the given [predicate] returns `true`.
+ *
+ * @param [predicate] The `predicate` that determines whether or not the following character will be in lower-case.
+ *
+ * @since 0.6.0
+ */
+// no inline for now because of possible generated bloat.
+public fun String.uncapitalizeWords(predicate: (Char) -> Boolean): String = buildString {
+    // set to true at the start so that the first word gets capitalized.
+    var uncapitalizeNext = true
+
+    for (char in this@uncapitalizeWords) {
+        when {
+            predicate(char) -> {
+                append(char)
+                uncapitalizeNext = true
+            }
+            uncapitalizeNext -> {
+                append(char.toLowerCase())
+                uncapitalizeNext = false
+            }
+            else -> append(char)
+        }
+    }
+}
 
 /**
  * Converts all the words separated by the given [delimiters] into capitalized words, i.e; each word starts with one
@@ -119,4 +172,4 @@ public fun String.normalizeWordCasing(vararg delimiters: Char = charArrayOf(' ')
 /**
  * Returns whether or not all the characters in this [String] are uppercase.
  */
-public fun String.isAllCaps(): Boolean = this.all { it.isUpperCase() }
+public fun String.isAllUpperCase(): Boolean = this.all { it.isUpperCase() }

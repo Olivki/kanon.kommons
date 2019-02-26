@@ -1,7 +1,9 @@
-## 0.6.0 (2019-02-xx)
+## 0.6.0-alpha (2019-02-26)
 
 **0.6.0 comes with the biggest breaking change of them all, which is the change of the name!**
 I know this really isn't something you should do with something that's *already* out there, but "kextensions" just *really* didn't roll off the tongue very nicely, and I was growing more and more frustrated with it.
+
+This is also a `alpha` release, more things will come.
 
 - ### Everything
 
@@ -126,12 +128,12 @@ I know this really isn't something you should do with something that's *already*
 
     - {+++} Added the `humanize` package, this will contain various utilities for "humanizing" data, largely based on [Humanizer.jvm](https://github.com/MehdiK/Humanizer.jvm) and the original [Humanizer](https://github.com/Humanizr/Humanizer) for .NET. *(Go [here](https://gitlab.com/Olivki/humanizer-jvm) if you want a working version of `Humanizer.jvm`.)*
 
-- ### /humanize/CaseConverter.kt
+- ### /lang/humanize/CaseConverter.kt
   - #### File
 
     - {+++} Added the `CaseConverter.kt` file which adds utilities for converting *to* and *from* various cases.
 
-- ### /humanize/RomanNumerals.kt
+- ### /lang/humanize/RomanNumerals.kt
   - #### File
 
     - {+++} Added the `RomanNumerals.kt` file. This provides utilities for converting numbers *to* and *from* Roman numerals.
@@ -184,7 +186,13 @@ I know this really isn't something you should do with something that's *already*
 
   - #### File
 
-    - Added the `/lang/Strings.kt` file.
+    - Added the `Strings.kt` file.
+
+- ### /lang/humanize/StringHumanizer.kt
+
+  - #### File
+
+    - Added the `StringHumanizer.kt` file.
 
 ## 0.5.2 (2019-01-23)
 

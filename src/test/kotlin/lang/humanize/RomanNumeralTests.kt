@@ -48,9 +48,9 @@ class RomanNumeralTests : BehaviorSpec({
         27586 to "MMMMMMMMMMMMMMMMMMMMMMMMMMMDLXXXVI" // I see nothing wrong here.
     )
 
-    Given("an integer") {
-        data.forAll { (input, expected) ->
-            When("invoking 'toRomanNumeral' on it ($input)") {
+    data.forAll { (input, expected) ->
+        Given("an integer ($input)") {
+            When("invoking 'toRomanNumeral' on it") {
                 Then("it should return '$expected'") {
                     input.toRomanNumeral() shouldBe expected
                 }
@@ -58,9 +58,9 @@ class RomanNumeralTests : BehaviorSpec({
         }
     }
 
-    Given("a string representing a roman numeral") {
-        forAll(data) { (expected, input) ->
-            When("invoking 'fromRomanNumeral' on it ($input)") {
+    forAll(data) { (expected, input) ->
+        Given("a string representing a roman numeral ($input)") {
+            When("invoking 'fromRomanNumeral' on it") {
                 Then("it should return '$expected'") {
                     input.fromRomanNumeral() shouldBe expected
                 }
