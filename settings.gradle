@@ -1,2 +1,2 @@
-rootProject.name = 'kanon.kextensions'
-
+rootProject.name = 'kanon.kommons'
+enableFeaturePreview('STABLE_PUBLISHING')

@@ -15,8 +15,9 @@
  */
 
 @file:JvmName("NamedNodeMapUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.DOMException
 import org.w3c.dom.NamedNodeMap
@@ -52,7 +53,7 @@ import org.w3c.dom.Node
  *
  * @since 0.3.0
  */
-public operator fun NamedNodeMap.plusAssign(child: Node) {
+public inline operator fun NamedNodeMap.plusAssign(child: Node) {
     this.setNamedItem(child)
 }
 
@@ -73,7 +74,7 @@ public operator fun NamedNodeMap.plusAssign(child: Node) {
  *
  * @since 0.4.0
  */
-public operator fun NamedNodeMap.minusAssign(name: String) {
+public inline operator fun NamedNodeMap.minusAssign(name: String) {
     this.removeNamedItem(name)
 }
 
@@ -82,14 +83,15 @@ public operator fun NamedNodeMap.minusAssign(name: String) {
  *
  * @param name The [nodeName][Node.getNodeName] of a node to retrieve.
  *
- * @return A [Node] (of any type) with the specified [name], or it will throw a [KotlinNullPointerException] if no
+ * @return A [Node] (of any type) with the specified [name], or it will throw a [NoSuchElementException] if no
  * instance with a matching `nodeName` can be found.
  *
  * @throws KotlinNullPointerException if no instance with a matching `nodeName` can be found.
  *
  * @since 0.5.0
  */
-public operator fun NamedNodeMap.get(name: String): Node = this.getNamedItem(name)!!
+public operator fun NamedNodeMap.get(name: String): Node =
+    this.getOrNull(name) ?: throw NoSuchElementException("There's no node with the name $name in this map.")
 
 /**
  * Retrieves a node specified by name.
@@ -100,7 +102,7 @@ public operator fun NamedNodeMap.get(name: String): Node = this.getNamedItem(nam
  *
  * @since 0.5.0
  */
-public fun NamedNodeMap.getOrNull(name: String): Node? = this.getNamedItem(name)
+public inline fun NamedNodeMap.getOrNull(name: String): Node? = this.getNamedItem(name)
 
 /**
  * Retrieves a node specified by local name and namespace URI.
@@ -112,7 +114,7 @@ public fun NamedNodeMap.getOrNull(name: String): Node? = this.getNamedItem(name)
  * @param localName The local name of the node to retrieve.
  *
  * @return A [Node] *(of any type)* with the specified local name and namespace URI, or it will throw a
- * [KotlinNullPointerException] if they do not identify any node in this map.
+ * [NoSuchElementException] if they do not identify any node in this map.
  *
  * @exception DOMException
  *
@@ -120,13 +122,14 @@ public fun NamedNodeMap.getOrNull(name: String): Node? = this.getNamedItem(name)
  * exposed through the Document does not support XML Namespaces *(such as
  * [HTML 4.01](http://www.w3.org/TR/1999/REC-html401-19991224/))*.
  *
- * @exception KotlinNullPointerException If the specified local name and namespace URI do not identify any node in this
+ * @exception NoSuchElementException If the specified local name and namespace URI do not identify any node in this
  * map.
  *
  * @since 0.5.0
  */
 public operator fun NamedNodeMap.get(namespaceURI: String, localName: String): Node =
-    this.getNamedItemNS(namespaceURI, localName)!!
+    this.getOrNull(namespaceURI, localName)
+        ?: throw NoSuchElementException("There exists no node with ($namespaceURI, $localName) in this map.")
 
 /**
  * Retrieves a node specified by local name and namespace URI.
@@ -148,7 +151,7 @@ public operator fun NamedNodeMap.get(namespaceURI: String, localName: String): N
  *
  * @since 0.5.0
  */
-public fun NamedNodeMap.getOrNull(namespaceURI: String, localName: String): Node? =
+public inline fun NamedNodeMap.getOrNull(namespaceURI: String, localName: String): Node? =
     this.getNamedItemNS(namespaceURI, localName)
 
 /**
@@ -162,7 +165,8 @@ public fun NamedNodeMap.getOrNull(namespaceURI: String, localName: String): Node
  *
  * @since 0.5.0
  */
-public operator fun NamedNodeMap.get(index: Int): Node? = this.item(index)
+public operator fun NamedNodeMap.get(index: Int): Node =
+    this.item(index) ?: throw IndexOutOfBoundsException("$index is not in the bounds of this node map. (size:${this.length})")
 
 /**
  * Returns the [indexth][index] item in the map. If [index] is greater than or equal to the number of nodes in this map,
@@ -174,7 +178,7 @@ public operator fun NamedNodeMap.get(index: Int): Node? = this.item(index)
  *
  * @since 0.5.0
  */
-public fun NamedNodeMap.getOrNull(index: Int): Node = this.item(index)!!
+public inline fun NamedNodeMap.getOrNull(index: Int): Node? = this.item(index)
 
 /**
  * Tests whether or not this [map][NamedNodeMap] contains the specified [name].
@@ -192,9 +196,7 @@ public operator fun NamedNodeMap.contains(name: String): Boolean = this.getOrNul
 // anything, because the entries are NOT stored in any certain order, so the index of a specific Node will be different
 // with each access.
 public inline fun NamedNodeMap.forEach(action: Node.() -> Unit) {
-    val length = this.length
-
-    for (i in 0 until length) action(this.item(i))
+    for (i in 0 until this.length) action(this.item(i))
 }
 
 /**
@@ -243,20 +245,20 @@ public fun NamedNodeMap.toSet(): Set<Node> {
  *
  * @since 0.4.0
  */
-public fun NamedNodeMap.iterator(): Iterator<Node> = this.toSet().iterator()
+public inline fun NamedNodeMap.iterator(): Iterator<Node> = this.toSet().iterator()
 
 /**
  * Creates a [Sequence] instance that wraps the original collection returning its elements when being iterated.
  *
  * @since 0.4.0
  */
-public fun NamedNodeMap.asSequence(): Sequence<Node> = this.toSet().asSequence()
+public inline fun NamedNodeMap.asSequence(): Sequence<Node> = this.toSet().asSequence()
 
 /**
  * Adds all entries from the [other] collection into this node map.
  *
  * @since 0.4.0
  */
-public fun NamedNodeMap.putAll(other: Collection<Node>) {
+public inline fun NamedNodeMap.putAll(other: Collection<Node>) {
     for (node in other) this += node
 }

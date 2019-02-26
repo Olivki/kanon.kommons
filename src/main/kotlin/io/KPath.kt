@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package moe.kanon.kextensions.io
+@file:Suppress("NOTHING_TO_INLINE")
+
+package moe.kanon.kommons.io
 
 import java.net.URI
 import java.nio.file.*
@@ -64,7 +66,45 @@ object KPath {
      *
      * @see FileSystem.getPath
      */
-    public operator fun invoke(first: String, vararg more: String): Path = pathOf(first, *more)
+    public inline operator fun invoke(first: String, vararg more: String): Path = pathOf(first, *more)
+
+    /**
+     * Converts a path string, or a sequence of strings that when joined form a path string, to a [Path].
+     *
+     * If [more] does not specify any elements then the value of the [parent] parameter is the path string to convert.
+     * If `more` specifies one or more elements then each non-empty string, including `first`, is considered to be a
+     * sequence of name elements *(see [Path])* and is joined to form a path string. The details as to how the Strings are
+     * joined is provider specific but typically they will be joined using the [name-separator][FileSystem.getSeparator]
+     * as the separator. For example, if the name separator is "`/`" and `getPath("/foo","bar","gus")` is invoked, then the
+     * path string `"/foo/bar/gus"` is converted to a `Path`.
+     *
+     * A `Path` representing an empty path is returned if `first` is the empty string and `more` does not contain any
+     * non-empty strings.
+     *
+     * The `Path` is obtained by invoking the [getPath][FileSystem.getPath] method of the [default][FileSystems.getDefault]
+     * [FileSystem].
+     *
+     * Note that while this method is very convenient, using it will imply an assumed reference to the default `FileSystem`
+     * and limit the utility of the calling code. Hence it should not be used in library code intended for flexible reuse.
+     * A more flexible alternative is to use an existing `Path` instance as an anchor, such as:
+     *
+     * ```kotlin
+     *      val dir: Path = ...
+     *      val path = dir.resolve("file")
+     * ```
+     *
+     * @param parent The path string or initial part of the path string
+     * @param more Additional strings to be joined to form the path string.
+     *
+     * @return The resulting `Path`.
+     *
+     * @throws InvalidPathException if the path string cannot be converted to a `Path`.
+     *
+     * @since 0.5.2
+     *
+     * @see FileSystem.getPath
+     */
+    public inline operator fun invoke(parent: Path, vararg more: String): Path = pathOf(parent.toString(), *more)
 
     /**
      * Converts the given [URI] to a [Path] instance.
@@ -100,7 +140,7 @@ object KPath {
      *
      * @since 0.5.2
      */
-    public operator fun invoke(uri: URI): Path = pathOf(uri)
+    public inline operator fun invoke(uri: URI): Path = pathOf(uri)
 
     /**
      * Converts a given path string to a [Path] and resolves it against the [parent] `Path` in exactly the manner
@@ -120,6 +160,6 @@ object KPath {
      * @see Path.resolve
      * @see FileSystem.getPath
      */
-    public operator fun invoke(parent: Path, child: String): Path = parent.resolve(child)
+    public inline operator fun invoke(parent: Path, child: String): Path = parent.resolve(child)
 
 }

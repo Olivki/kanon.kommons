@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package moe.kanon.kextensions
+package moe.kanon.kommons
 
 /**
  * An annotation signifying that a feature of this library is experimental.

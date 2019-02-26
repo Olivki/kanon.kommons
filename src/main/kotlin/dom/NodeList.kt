@@ -15,8 +15,9 @@
  */
 
 @file:JvmName("NodeListUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -24,12 +25,13 @@ import org.w3c.dom.NodeList
 /**
  * Returns the [index]th item in the collection.
  *
- * If [index] is greater than or equal to the number of nodes in the list, a [KotlinNullPointerException] will be
+ * If [index] is greater than or equal to the number of nodes in the list, a [IndexOutOfBoundsException] will be
  * thrown.
  *
  * @since 0.5.0
  */
-public operator fun NodeList.get(index: Int): Node = this.item(index)!!
+public operator fun NodeList.get(index: Int): Node = this.item(index)
+    ?: throw IndexOutOfBoundsException("$index is not inside the bounds of this node list. (size:${this.length})")
 
 /**
  * Returns the [index]th item in the collection.
@@ -42,7 +44,7 @@ public operator fun NodeList.get(index: Int): Node = this.item(index)!!
  *
  * @since 0.5.0
  */
-public fun NodeList.getOrNull(index: Int): Node? = this.item(index)
+public inline fun NodeList.getOrNull(index: Int): Node? = this.item(index)
 
 /**
  * Returns the [Node] that has a [nodeName][Node.getNodeName] that matches the specified [name], it will throw a

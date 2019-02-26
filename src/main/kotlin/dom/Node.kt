@@ -15,8 +15,9 @@
  */
 
 @file:JvmName("NodeUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.*
 import java.io.StringWriter
@@ -53,7 +54,7 @@ import javax.xml.transform.stream.StreamResult
  *
  * @since 0.3.0
  */
-public operator fun Node.plusAssign(child: Node) {
+public inline operator fun Node.plusAssign(child: Node) {
     this.appendChild(child)
 }
 
@@ -73,7 +74,7 @@ public operator fun Node.plusAssign(child: Node) {
  *
  * @since 0.3.0
  */
-public operator fun Node.minusAssign(oldChild: Node) {
+public inline operator fun Node.minusAssign(oldChild: Node) {
     this.removeChild(oldChild)
 }
 
@@ -91,7 +92,7 @@ public operator fun Node.minusAssign(oldChild: Node) {
  *
  * @since 0.3.0
  */
-public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
+public inline infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
 
 /**
  * Tests whether two [nodes][Node] are equal.
@@ -136,7 +137,7 @@ public infix fun Node.isSame(other: Node): Boolean = this.isSameNode(other)
  *
  * @since 0.4.2
  */
-public infix fun Node.isEqual(other: Node): Boolean = this.isEqualNode(other)
+public inline infix fun Node.isEqual(other: Node): Boolean = this.isEqualNode(other)
 
 /**
  * Returns the [index]th item in the collection.
@@ -147,7 +148,7 @@ public infix fun Node.isEqual(other: Node): Boolean = this.isEqualNode(other)
  *
  * @since 0.4.0
  */
-public operator fun Node.get(index: Int): Node = this.childNodes[index]
+public inline operator fun Node.get(index: Int): Node = this.childNodes[index]
 
 /**
  * Returns the [Node] that has a [nodeName][Node.getNodeName] that matches the specified [name], or it will throw an
@@ -159,7 +160,7 @@ public operator fun Node.get(index: Int): Node = this.childNodes[index]
  *
  * @since 0.4.0
  */
-public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]
+public inline operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = this.childNodes[name, ignoreCase]
 
 /**
  * Checks whether the [childNodes][Node.getChildNodes] of this [node][Node] contains any instances of [that].
@@ -168,7 +169,7 @@ public operator fun Node.get(name: String, ignoreCase: Boolean = false): Node = 
  *
  * @since 0.5.0
  */
-public operator fun Node.contains(that: Node): Boolean = that in childNodes
+public inline operator fun Node.contains(that: Node): Boolean = that in childNodes
 
 /**
  * Checks whether the [childNodes][Node.getChildNodes] of this [node][Node]  contains any [nodes][Node] that has a
@@ -178,7 +179,7 @@ public operator fun Node.contains(that: Node): Boolean = that in childNodes
  *
  * @since 0.5.0
  */
-public operator fun Node.contains(name: String): Boolean = name in childNodes
+public inline operator fun Node.contains(name: String): Boolean = name in childNodes
 
 /**
  * Returns a pretty-printed string with all children included of this node.

@@ -15,8 +15,9 @@
  */
 
 @file:JvmName("DocumentUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
 import org.w3c.dom.*
 
@@ -25,7 +26,7 @@ import org.w3c.dom.*
  *
  * @since 0.4.0
  */
-public fun Document.appendElement(tagName: String): Element =
+public inline fun Document.appendElement(tagName: String): Element =
     this.appendChild(this.createElement(tagName))!! as Element
 
 /**
@@ -33,7 +34,7 @@ public fun Document.appendElement(tagName: String): Element =
  *
  * @since 0.4.0
  */
-public fun Document.appendElementNS(namespaceURI: String?, qualifiedName: String): Element =
+public inline fun Document.appendElementNS(namespaceURI: String?, qualifiedName: String): Element =
     this.appendChild(this.createElementNS(namespaceURI, qualifiedName))!! as Element
 
 /**
@@ -41,7 +42,7 @@ public fun Document.appendElementNS(namespaceURI: String?, qualifiedName: String
  *
  * @since 0.4.0
  */
-public fun Document.appendComment(data: String): Comment =
+public inline fun Document.appendComment(data: String): Comment =
     this.appendChild(this.createComment(data))!! as Comment
 
 /**
@@ -49,7 +50,7 @@ public fun Document.appendComment(data: String): Comment =
  *
  * @since 0.4.0
  */
-public fun Document.appendTextNode(data: String): Text =
+public inline fun Document.appendTextNode(data: String): Text =
     this.appendChild(this.createTextNode(data))!! as Text
 
 /**
@@ -58,7 +59,7 @@ public fun Document.appendTextNode(data: String): Text =
  *
  * @since 0.4.1
  */
-public fun Document.appendTextContainer(name: String, data: String): Element {
+public inline fun Document.appendTextContainer(name: String, data: String): Element {
     val parent = this.createElement(name)
 
     parent.appendTextNode(data)
@@ -71,7 +72,7 @@ public fun Document.appendTextContainer(name: String, data: String): Element {
  *
  * @since 0.4.0
  */
-public fun Document.appendCDataSection(data: String): CDATASection =
+public inline fun Document.appendCDataSection(data: String): CDATASection =
     this.appendChild(this.createCDATASection(data))!! as CDATASection
 
 /**
@@ -79,7 +80,7 @@ public fun Document.appendCDataSection(data: String): CDATASection =
  *
  * @since 0.4.0
  */
-public fun Document.appendProcessingInstruction(target: String, data: String): ProcessingInstruction =
+public inline fun Document.appendProcessingInstruction(target: String, data: String): ProcessingInstruction =
     this.appendChild(this.createProcessingInstruction(target, data))!! as ProcessingInstruction
 
 /**
@@ -87,5 +88,5 @@ public fun Document.appendProcessingInstruction(target: String, data: String): P
  *
  * @since 0.4.0
  */
-public fun Document.appendEntityReference(name: String): EntityReference =
+public inline fun Document.appendEntityReference(name: String): EntityReference =
     this.appendChild(this.createEntityReference(name))!! as EntityReference

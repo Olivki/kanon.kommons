@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-@file:JvmName("ArrayUtils")
+@file:JvmName("KArrays")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.collections
+package moe.kanon.kommons.collections
 
-import moe.kanon.kextensions.ExperimentalFeature
+import moe.kanon.kommons.lang.occurrencesOf
 
 // Generic Array
 /**
  * Returns an array inherited from this [array][Array] that's been spliced from [start] until the size of the array.
  *
  * @see take
+ * @see sliceArray
  */
 public fun <V> Array<V>.from(start: Int): Array<V> = sliceArray(start until size)
 
@@ -32,6 +34,7 @@ public fun <V> Array<V>.from(start: Int): Array<V> = sliceArray(start until size
  * Returns an array inherited from this [array][Array] that's been spliced from index 0 until [end].
  *
  * @see takeLast
+ * @see sliceArray
  */
 public fun <V> Array<V>.until(end: Int): Array<V> = sliceArray(0 until end)
 
@@ -57,9 +60,18 @@ public operator fun <V> Array<V>.contains(other: Collection<V>): Boolean = when 
 /**
  * Checks whether this [array][Array] array contains the given [range].
  */
-@ExperimentalFeature
 public operator fun IntArray.contains(range: IntRange): Boolean = when {
     isEmpty() -> false
     else -> range.all { it in this }
 }
+
+/**
+ * Returns a [List] that's sorted after the occurrences of the specific characters in the given [String].
+ */
+public fun CharArray.sortByOccurrences(string: String): List<Char> = this.sortedBy { string.occurrencesOf(it) }
+
+/**
+ * Returns a [List] that's sorted after the occurrences of the specific characters in the given [String].
+ */
+public fun Array<Char>.sortByOccurrences(string: String): List<Char> = this.sortedBy { string.occurrencesOf(it) }
 

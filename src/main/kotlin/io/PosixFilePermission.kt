@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-@file:JvmName("PosixFilePermissionsWrapper")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.io
+package moe.kanon.kommons.io
 
 import java.nio.file.attribute.FileAttribute
 import java.nio.file.attribute.PosixFilePermission
@@ -31,8 +31,8 @@ import java.nio.file.attribute.PosixFilePermissions
  *
  * @throws  ClassCastException If the set contains elements that are not of type [PosixFilePermission].
  */
-public fun Set<PosixFilePermission>.toFileAttribute(): FileAttribute<Set<PosixFilePermission>> =
-        PosixFilePermissions.asFileAttribute(this)!!
+public inline fun Set<PosixFilePermission>.toFileAttribute(): FileAttribute<Set<PosixFilePermission>> =
+        PosixFilePermissions.asFileAttribute(this)
 
 
 /**
@@ -41,7 +41,7 @@ public fun Set<PosixFilePermission>.toFileAttribute(): FileAttribute<Set<PosixFi
  *
  * @return  An attribute encapsulating the given file permissions with [FileAttribute.name] `"posix:permissions"`.
  */
-public fun PosixFilePermission.toFileAttribute(): FileAttribute<Set<PosixFilePermission>> =
+public inline fun PosixFilePermission.toFileAttribute(): FileAttribute<Set<PosixFilePermission>> =
         PosixFilePermissions.asFileAttribute(setOf(this))
 
 /**
@@ -51,7 +51,4 @@ public fun PosixFilePermission.toFileAttribute(): FileAttribute<Set<PosixFilePer
  * If the set contains `null` or elements that are not of type [PosixFilePermission] then these elements are ignored.
  */
 // Because you can't create an extension method for toString() because it gets shadowed.
-public fun Set<PosixFilePermission>.toSerializedString(): String = PosixFilePermissions.toString(this)!!
-
-// I opted to *not* include an extension method on the String class for [PosixFilePermissions.fromString] because I felt
-// that it would be too close to bloat when working on strings, because this is a very specialized case.
+public inline fun Set<PosixFilePermission>.toSerializedString(): String = PosixFilePermissions.toString(this)

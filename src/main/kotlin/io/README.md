@@ -85,7 +85,7 @@ But in Kotlin, we can make the `Path` class act much like that of the
 
 #### Creating a Path
 
-kanon.kextensions offers a variety of different ways to actually go about creating a Path instance:
+kanon.kommons offers a variety of different ways to actually go about creating a Path instance:
 
 ```kotlin
 // Via the top-level function. (There exists two versions of this function, 

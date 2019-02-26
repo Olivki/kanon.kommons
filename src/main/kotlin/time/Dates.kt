@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-@file:JvmName("KLists")
-@file:Suppress("NOTHING_TO_INLINE")
+package moe.kanon.kommons.lang
 
-package moe.kanon.kommons.collections
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
-public inline fun <V> List<V>.from(start: Int) = slice(start until size)
+/**
+ * The current date of the computer.
+ *
+ * This uses the [default-zone-id][ZoneId.systemDefault] to determine where in the world the user is located.
+ */
+public inline val currentDate: ZonedDateTime get() = Instant.now().atZone(ZoneId.systemDefault())
+

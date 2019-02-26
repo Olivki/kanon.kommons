@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-@file:JvmName("CollectionUtils")
+@file:JvmName("KCollections")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.collections
+package moe.kanon.kommons.collections
 
 /**
  * Removes all of the supplied [elements] from the collection and returns this [collection][MutableCollection].
  */
-fun <V, C : MutableCollection<V>> C.removeAll(vararg elements: V): C {
-    for (it in elements) { this -= it }
+public inline fun <V, C : MutableCollection<V>> C.removeAll(vararg elements: V): C {
+    this.removeAll(elements)
     return this
 }
 
 /**
  * Adds all of the supplied [elements] to the collection and returns this [collection][MutableCollection].
  */
-fun <V, C : MutableCollection<V>> C.addAll(vararg elements: V): C {
-    for (it in elements) { this += it }
+public inline fun <V, C : MutableCollection<V>> C.addAll(vararg elements: V): C {
+    this.removeAll(elements)
     return this
 }

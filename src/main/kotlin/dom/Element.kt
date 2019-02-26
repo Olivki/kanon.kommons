@@ -15,10 +15,11 @@
  */
 
 @file:JvmName("ElementUtils")
+@file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kextensions.dom
+package moe.kanon.kommons.dom
 
-import moe.kanon.kextensions.ExperimentalFeature
+import moe.kanon.kommons.ExperimentalFeature
 import org.w3c.dom.*
 
 /**
@@ -40,7 +41,6 @@ import org.w3c.dom.*
  * This is by all means a "hack", and thus it might be removed at a later date, or revised, hence the
  * [ExperimentalFeature] annotation.
  */
-@ExperimentalFeature
 public class AttributeMap @PublishedApi internal constructor(private val parent: Element) : MutableMap<String, String> {
 
     private val document: Document = parent.ownerDocument
@@ -421,7 +421,6 @@ public class AttributeMap @PublishedApi internal constructor(private val parent:
  *
  * @see AttributeMap
  */
-@ExperimentalFeature
 public inline val Element.attributeMap: AttributeMap
     get() = AttributeMap(this)
 
@@ -430,7 +429,7 @@ public inline val Element.attributeMap: AttributeMap
  *
  * @since 0.4.0
  */
-public fun Element.appendElement(tagName: String): Element =
+public inline fun Element.appendElement(tagName: String): Element =
     this.appendChild(this.ownerDocument.createElement(tagName))!! as Element
 
 /**
@@ -438,7 +437,7 @@ public fun Element.appendElement(tagName: String): Element =
  *
  * @since 0.4.0
  */
-public fun Element.appendElementNS(namespaceURI: String?, qualifiedName: String): Element =
+public inline fun Element.appendElementNS(namespaceURI: String?, qualifiedName: String): Element =
     this.appendChild(this.ownerDocument.createElementNS(namespaceURI, qualifiedName))!! as Element
 
 /**
@@ -446,7 +445,7 @@ public fun Element.appendElementNS(namespaceURI: String?, qualifiedName: String)
  *
  * @since 0.4.0
  */
-public fun Element.appendComment(data: String): Comment =
+public inline fun Element.appendComment(data: String): Comment =
     this.appendChild(this.ownerDocument.createComment(data))!! as Comment
 
 /**
@@ -454,7 +453,7 @@ public fun Element.appendComment(data: String): Comment =
  *
  * @since 0.4.0
  */
-public fun Element.appendTextNode(data: String): Text =
+public inline fun Element.appendTextNode(data: String): Text =
     this.appendChild(this.ownerDocument.createTextNode(data))!! as Text
 
 /**
@@ -463,7 +462,7 @@ public fun Element.appendTextNode(data: String): Text =
  *
  * @since 0.4.1
  */
-public fun Element.appendTextContainer(name: String, data: String): Element {
+public inline fun Element.appendTextContainer(name: String, data: String): Element {
     val parent = this.ownerDocument.createElement(name)
 
     parent.appendTextNode(data)
@@ -476,7 +475,7 @@ public fun Element.appendTextContainer(name: String, data: String): Element {
  *
  * @since 0.4.0
  */
-public fun Element.appendCDataSection(data: String): CDATASection =
+public inline fun Element.appendCDataSection(data: String): CDATASection =
     this.appendChild(this.ownerDocument.createCDATASection(data))!! as CDATASection
 
 /**
@@ -484,7 +483,7 @@ public fun Element.appendCDataSection(data: String): CDATASection =
  *
  * @since 0.4.0
  */
-public fun Element.appendProcessingInstruction(target: String, data: String): ProcessingInstruction =
+public inline fun Element.appendProcessingInstruction(target: String, data: String): ProcessingInstruction =
     this.appendChild(this.ownerDocument.createProcessingInstruction(target, data))!! as ProcessingInstruction
 
 /**
@@ -492,5 +491,5 @@ public fun Element.appendProcessingInstruction(target: String, data: String): Pr
  *
  * @since 0.4.0
  */
-public fun Element.appendEntityReference(name: String): EntityReference =
+public inline fun Element.appendEntityReference(name: String): EntityReference =
     this.appendChild(this.ownerDocument.createEntityReference(name))!! as EntityReference
