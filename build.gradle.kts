@@ -92,6 +92,7 @@ bintray {
     
     // Whether or not the "package" should automatically be published.
     publish = true
+    override = true
     
     // Sets the publication to our created maven publication instance.
     setPublications("mavenPublication")
