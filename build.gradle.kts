@@ -130,7 +130,7 @@ publishing {
                 artifact(sourcesJar)
                 artifact(javaDocJar)
 
-                with(pom) {
+                pom {
                     name.set(project.name)
                     description.set(project.description)
                     url.set(gitUrl)
