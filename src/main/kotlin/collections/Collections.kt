@@ -34,3 +34,19 @@ public inline fun <V, C : MutableCollection<V>> C.addAll(vararg elements: V): C 
     this.removeAll(elements)
     return this
 }
+
+/**
+ * Invokes the specified [action] only if `this` collection is empty.
+ *
+ * @receiver the [Collection] to check against.
+ */
+public inline fun <reified T, reified C : Collection<T>> C.ifEmpty(action: (C) -> Unit): C =
+    if (this.isEmpty()) this.apply(action) else this
+
+/**
+ * Invokes the specified [action] only if `this` collection is not empty.
+ *
+ * @receiver the [Collection] to check against.
+ */
+public inline fun <reified T, reified C : Collection<T>> C.ifNotEmpty(action: (C) -> Unit): C =
+    if (this.isNotEmpty()) this.apply(action) else this

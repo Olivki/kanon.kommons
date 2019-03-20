@@ -15,7 +15,7 @@ plugins {
 // Project Specific Variables
 project.group = "moe.kanon.kommons"
 project.description = "Various extensions and utilities for the Kotlin programming language."
-project.version = "0.6.0-alpha"
+project.version = "0.6.0-alpha-2"
 val artifactName = "kanon.kommons"
 val gitUrl = "https://gitlab.com/Olivki/kanon-kommons"
 

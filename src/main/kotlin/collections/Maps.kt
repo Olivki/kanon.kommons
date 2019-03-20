@@ -29,7 +29,7 @@ import java.util.*
  * - `"entry_one":1`
  * - `"entry_two":2`
  *
- * Invoking `flip` on this map would give you a map with the following entries:
+ * Invoking `flip` on `this` map would give you a map with the following entries:
  *
  * - `1:"entry_one"`
  * - `2:"entry_two"`
@@ -64,3 +64,25 @@ public fun <K, V> MutableMap<K, V>.inherit(from: Map<out K, V>) {
  * @since 0.6.0
  */
 public fun <K, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = TreeMap(pairs.toMap())
+
+/**
+ * Stores the specified [value] under the specified [key] in `this` map, and then returns [value].
+ *
+ * @return [value]
+ *
+ * @since 0.6.0
+ */
+public inline fun <reified K, reified V, M : MutableMap<K, V>> M.putAndReturn(key: K, value: V): V {
+    this.put(key, value)
+    return value
+}
+
+/**
+ * Stores the specified [value] under the specified [key] in `this` map, and then returns [value].
+ *
+ * @return [value]
+ *
+ * @since 0.6.0
+ */
+public inline fun <reified K, reified V, M : MutableMap<K, V>> M.putAndReturn(key: K, value: () -> V): V =
+    this.putAndReturn(key, value())

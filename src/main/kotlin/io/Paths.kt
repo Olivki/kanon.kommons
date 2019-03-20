@@ -39,6 +39,7 @@ import java.util.*
 import java.util.function.BiPredicate
 import java.util.stream.Stream
 import kotlin.collections.LinkedHashSet
+import kotlin.concurrent.thread
 import kotlin.streams.asSequence
 
 
@@ -2747,7 +2748,7 @@ public open class UnsupportedDesktopException : IOException {
 // Delete on Shutdown Things (Ported over from the old "DeleteOnExitHook" java file.)
 // Required to make sure the shutdown hook is registered when this class is created.
 private val STATIC_INIT = run {
-    sun.misc.SharedSecrets.getJavaLangAccess().registerShutdownHook(2, true) { ShutdownHook.shutdownHook() }
+    Runtime.getRuntime().addShutdownHook(thread(start = false) { ShutdownHook.shutdownHook() })
 }
 
 /**
