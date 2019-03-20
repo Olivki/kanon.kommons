@@ -19,10 +19,30 @@
 package moe.kanon.kommons.misc
 
 import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.KClass
 
 /**
  * Returns whether or not this element has any occurrences of the specified [Annotation].
  *
- * @receiver The element to check against.
+ * @receiver the element to check against.
  */
 public inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean = this.annotations.any { it is A }
+
+/**
+ * Returns whether or not `this` [KClass] is an actual Kotlin class.
+ *
+ * @receiver the [KClass] to check against.
+ *
+ * @since 0.6.0
+ */
+public val KClass<*>.isKotlinClass: Boolean get() = this.hasAnnotation<kotlin.Metadata>()
+
+/**
+ * Returns whether or not `this` [Class] is a Kotlin class.
+ *
+ * @receiver the [KClass] to check against.
+ *
+ * @since 0.6.0
+ */
+public val Class<*>.isKotlinClass: Boolean
+    get() = this.declaredAnnotations.any { it.annotationClass.qualifiedName == "kotlin.Metadata" }

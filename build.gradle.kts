@@ -1,5 +1,3 @@
-
-import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -17,7 +15,7 @@ plugins {
 // Project Specific Variables
 project.group = "moe.kanon.kommons"
 project.description = "Various extensions and utilities for the Kotlin programming language."
-project.version = "0.6.0-alpha"
+project.version = "0.6.0-alpha-2"
 val artifactName = "kanon.kommons"
 val gitUrl = "https://gitlab.com/Olivki/kanon-kommons"
 
@@ -29,9 +27,9 @@ repositories {
 
 dependencies {
     // Normal Dependencies
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
-    
+    compile(kotlin("stdlib-jdk8"))
+    compile(kotlin("reflect"))
+
     // Test Dependencies
     testImplementation(group = "io.kotlintest", name = "kotlintest-runner-junit5", version = "3.1.11")
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = "1.8.0-beta2")
@@ -67,14 +65,14 @@ val sourcesJar by tasks.creating(Jar::class) {
     dependsOn(JavaPlugin.CLASSES_TASK_NAME)
     description = "Assembles the sources of this project into a *-sources.jar file."
     classifier = "sources"
-    
+
     from(project.sourceSets["main"].allSource)
 }
 
 val javaDocJar by tasks.creating(Jar::class) {
     description = "Creates a *-javadoc.jar from the generated dokka output."
     classifier = "javadoc"
-    
+
     from(dokkaJavaDoc)
 }
 
@@ -89,16 +87,16 @@ bintray {
     // Credentials.
     user = getVariable("BINTRAY_USER")
     key = getVariable("BINTRAY_KEY")
-    
+
     // Whether or not the "package" should automatically be published.
     publish = true
     override = true
-    
+
     // Sets the publication to our created maven publication instance.
     setPublications("mavenPublication")
-    
+
     // Details for the actual package that's going up on BinTray.
-    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+    with(pkg) {
         repo = "kanon"
         desc = project.description
         name = artifactName
@@ -107,20 +105,19 @@ bintray {
         publicDownloadNumbers = true
         setLicenses("Apache-2.0")
         setLabels("kotlin")
-        
-        version(delegateClosureOf<BintrayExtension.VersionConfig> {
+
+        with(version) {
             name = project.version.toString()
             desc = project.version.toString()
             released = `java.util`.Date().toString()
-        })
-    })
+        }
+    }
 }
 
 // Maven Tasks
 publishing {
     publications.invoke {
         register("mavenPublication", MavenPublication::class.java) {
-            // Adds all the dependencies this project uses to the pom.
             from(components["java"])
 
             afterEvaluate {
@@ -132,6 +129,32 @@ publishing {
                 // Any extra artifacts that need to be added, ie: sources & javadoc jars.
                 artifact(sourcesJar)
                 artifact(javaDocJar)
+
+                pom {
+                    name.set(project.name)
+                    description.set(project.description)
+                    url.set(gitUrl)
+
+                    licenses {
+                        license {
+                            name.set("The Apache Software License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            distribution.set("repo")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            email.set("oliver@berg.moe")
+                            id.set("Olivki")
+                            name.set("Oliver Berg")
+                        }
+                    }
+
+                    scm {
+                        url.set(gitUrl)
+                    }
+                }
             }
         }
     }
