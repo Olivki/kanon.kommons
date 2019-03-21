@@ -24,7 +24,7 @@ import java.nio.file.attribute.PosixFilePermissions
 
 /**
  * Creates a [FileAttribute], encapsulating a copy of the given file permissions, suitable for passing to the
- * [createFile] or [createDirectory] functions.
+ * [createChildFile] or [createChildDirectory] functions.
  *
  *
  * @return  An attribute encapsulating the given file permissions with [FileAttribute.name] `"posix:permissions"`.
@@ -37,7 +37,7 @@ public inline fun Set<PosixFilePermission>.toFileAttribute(): FileAttribute<Set<
 
 /**
  * Creates a [FileAttribute] from [this] singular instance of [PosixFilePermission], suitable for passing to the
- * [createFile] or [createDirectory] functions.
+ * [createChildFile] or [createChildDirectory] functions.
  *
  * @return  An attribute encapsulating the given file permissions with [FileAttribute.name] `"posix:permissions"`.
  */
