@@ -36,7 +36,7 @@ inline val <reified E : Enum<E>> E.normalizedName: String get() = this.name.norm
  *
  * @param [predicate] The `predicate` to match for.
  */
-inline fun <reified E : Enum<E>> E.valueOf(predicate: (E) -> Boolean): E? = enumValues<E>().find { predicate(it) }
+inline fun <reified E : Enum<E>> valueOf(predicate: (E) -> Boolean): E? = enumValues<E>().find { predicate(it) }
 
 /**
  * Returns an enum that matches the specified [predicate], or [default] if none is found.
@@ -44,8 +44,8 @@ inline fun <reified E : Enum<E>> E.valueOf(predicate: (E) -> Boolean): E? = enum
  * @param [default] The value to return back if no match is found.
  * @param [predicate] The `predicate` to match for.
  */
-inline fun <reified E : Enum<E>> E.valueOf(default: E, predicate: (E) -> Boolean): E =
-    this.valueOf { predicate(it) } ?: default
+inline fun <reified E : Enum<E>> valueOf(default: E, predicate: (E) -> Boolean): E =
+    valueOf<E> { predicate(it) } ?: default
 
 /**
  * Returns an enum that has a [name][Enum.name] matching the specified [name], or [default] if none can be found.
@@ -57,8 +57,8 @@ inline fun <reified E : Enum<E>> E.valueOf(default: E, predicate: (E) -> Boolean
  * (`false` by default)
  */
 @JvmOverloads
-inline fun <reified E : Enum<E>> E.valueOf(name: String, default: E, ignoreCase: Boolean = false): E =
-    this.valueOf(default) { it.name.equals(name, ignoreCase) }
+inline fun <reified E : Enum<E>> valueOf(name: String, default: E, ignoreCase: Boolean = false): E =
+    valueOf(default) { it.name.equals(name, ignoreCase) }
 
 /**
  * Returns an enum that has a [normalizedName][normalizedName] matching the specified [name], or [default] if none can
@@ -71,8 +71,8 @@ inline fun <reified E : Enum<E>> E.valueOf(name: String, default: E, ignoreCase:
  * (`false` by default)
  */
 @JvmOverloads
-inline fun <reified E : Enum<E>> E.valueOfNormalizedName(name: String, default: E, ignoreCase: Boolean = false): E =
-    this.valueOf(default) { it.name.equals(name, ignoreCase) }
+inline fun <reified E : Enum<E>> valueOfNormalizedName(name: String, default: E, ignoreCase: Boolean = false): E =
+    valueOf(default) { it.name.equals(name, ignoreCase) }
 
 /**
  * Returns an enum that has a [ordinal][Enum.ordinal] matching the specified [ordinal], or [default] if none can be
@@ -81,5 +81,5 @@ inline fun <reified E : Enum<E>> E.valueOfNormalizedName(name: String, default: 
  * @param [ordinal] The [ordinal][Enum.ordinal] to match against.
  * @param [default] The value to return back if no match is found.
  */
-inline fun <reified E : Enum<E>> E.valueOf(ordinal: Int, default: E): E =
-    this.valueOf(default) { it.ordinal == ordinal }
+inline fun <reified E : Enum<E>> valueOf(ordinal: Int, default: E): E =
+    valueOf(default) { it.ordinal == ordinal }
