@@ -460,8 +460,8 @@ public inline fun Path.newDirectoryStream(glob: String): PathDirectoryStream = F
  * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically when creating
  * the file.
  * @throws FileAlreadyExistsException If this [file][Path] of that name already exists. *(optional specific exception)*.
- * @throws  IOException If an I/O error occurs or the parent directory does not exist.
- * @throws  SecurityException In the case of the default provider, and a security manager is installed, the
+ * @throws IOException If an I/O error occurs or the parent directory does not exist.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new file.
  */
 public inline fun Path.createFile(vararg attributes: FileAttribute<*>): Path = Files.createFile(this, *attributes)
@@ -497,7 +497,7 @@ public inline fun Path.createDirectory(vararg attributes: FileAttribute<*>): Pat
 /**
  * Creates a directory by creating all nonexistent parent directories first.
  *
- * Unlike the [createDirectory][Path.createDirectory] method, an exception  is not thrown if the directory could not be
+ * Unlike the [createDirectory][Path.createChildDirectory] method, an exception  is not thrown if the directory could not be
  * created because it already exists.
  *
  * The [attributes] parameter is optional [file-attributes][FileAttribute] to set atomically when creating the
@@ -2810,6 +2810,8 @@ private object ShutdownHook {
  * @throws [IllegalStateException] If a shutdown is currently in progress.
  *
  * @since 0.6.0
+ *
+ * @see StandardOpenOption.DELETE_ON_CLOSE
  */
 public fun Path.deleteOnShutdown() {
     this.requireExistence()
@@ -2838,14 +2840,16 @@ public inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, actio
 }
 
 /**
- * Creates a new `file` with the given [fileName], using `this` directory as the root.
+ * Creates a new file with the given [fileName], using `this` directory as the root, and returns the result.
  *
- * @receiver The [Path] to use as the root directory for the new `file`.
+ * @receiver the [Path] to use as the root directory for the new file.
  *
- * @return The newly created `file`.
+ * @return the newly created file, or the file that already existed.
  *
- * @throws [NoSuchFileException] If `this` file does *not* exist.
- * @throws [NotDirectoryException] If `this` file is *not* a directory.
+ * @throws [FileAlreadyExistsException] if there already exists a directory in `this` directory with the specified
+ * [name].
+ * @throws [NoSuchFileException] if `this` file does *not* exist.
+ * @throws [NotDirectoryException] if `this` file is *not* a directory.
  *
  * @since 0.6.0
  */
@@ -2855,20 +2859,68 @@ public fun Path.createChildFile(fileName: String, vararg attributes: FileAttribu
 }
 
 /**
- * Creates a new `directory` with the given [name], using `this` directory as the root.
+ * Returns the file with the specified [fileName] stored in `this` directory, or creates a new file using the
+ * specified `fileName` and returns that.
  *
- * @receiver The [Path] to use as the root directory for the new `directory`.
+ * @receiver the [Path] to use as the root directory for the new file.
  *
- * @return The newly created `directory`.
+ * @return the file stored under the specified [fileName], or the newly created file.
  *
- * @throws [NoSuchFileException] If `this` file does *not* exist.
- * @throws [NotDirectoryException] If `this` file is *not* a directory.
+ * @throws [NoSuchFileException] if `this` file does *not* exist.
+ * @throws [NotDirectoryException] if `this` file is *not* a directory.
  *
  * @since 0.6.0
+ *
+ * @see createChildFile
+ */
+public fun Path.getOrCreateChildFile(fileName: String, vararg attributes: FileAttribute<*>): Path {
+    this.requireDirectory()
+    return if (this.resolve(name).notExists) this.resolve(fileName).createFile(*attributes) else this.resolve(name)
+}
+
+/**
+ * Creates a new directory with the given [name], using `this` directory as the root, and returns the result.
+ *
+ * Note that this function will throw a [FileAlreadyExistsException] if there already exists a directory with the
+ * specified `name`, use [getOrCreateChildDirectory] if you are unsure whether a directory already exists with the specified
+ * `name`.
+ *
+ * @receiver the [Path] to use as the root directory for the new directory.
+ *
+ * @return the newly created `directory`.
+ *
+ * @throws [FileAlreadyExistsException] if there already exists a directory in `this` directory with the specified
+ * [name].
+ * @throws [NoSuchFileException] if `this` file does not exist.
+ * @throws [NotDirectoryException] if `this` file is not a directory.
+ *
+ * @since 0.6.0
+ *
+ * @see getOrCreateChildDirectory
  */
 public fun Path.createChildDirectory(name: String, vararg attributes: FileAttribute<*>): Path {
     this.requireDirectory()
     return this.resolve(name).createDirectory(*attributes)
+}
+
+/**
+ * Returns the directory with the specified [name] stored in `this` directory, or creates a new directory using the
+ * specified `name` and returns that.
+ *
+ * @receiver the [Path] to use as the root directory for the new file.
+ *
+ * @return the directory stored under the specified [name], or the newly created directory.
+ *
+ * @throws [NoSuchFileException] if `this` file does *not* exist.
+ * @throws [NotDirectoryException] if `this` file is *not* a directory.
+ *
+ * @since 0.6.0
+ *
+ * @see createChildDirectory
+ */
+public fun Path.getOrCreateChildDirectory(name: String, vararg attributes: FileAttribute<*>): Path {
+    this.requireDirectory()
+    return if (this.resolve(name).notExists) this.resolve(name).createDirectory(*attributes) else this.resolve(name)
 }
 
 /**
@@ -2907,16 +2959,16 @@ public fun Path.createDateDirectories(date: LocalDate = LocalDate.now()): Path {
  *
  * `./2018/05/25/20/16/03/`
  *
- * @receiver The `directory` that should act as the parent for the date directories.
+ * @receiver the `directory` that should act as the parent for the date directories.
  *
- * @param [dateTime] The date and time to create the directories from.
+ * @param [dateTime] the date and time to create the directories from.
  *
  * ([LocalDateTime.now] by default)
  *
- * @return The last directory in the chain of the newly created directories.
+ * @return the last directory in the chain of the newly created directories.
  *
- * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
- * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
+ * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`.
+ * @throws [NotDirectoryException] if the `Path` receiver is *not* a directory.
  *
  * @since 0.6.0
  */
@@ -2926,14 +2978,48 @@ public fun Path.createDateTimeDirectories(dateTime: LocalDateTime = LocalDateTim
     return this.resolve(text).createDirectories()
 }
 
+/**
+ * Executes the specified [action] if `this` file [is a regular file][Path.isRegularFile].
+ *
+ * @receiver the [Path] to check against.
+ *
+ * @return if `this` file is a regular file, then it returns `this` file with the specified [action] applied to it,
+ * otherwise it just returns `this` file.
+ *
+ * @throws [NoSuchFileException] if `this` file does not exist on the `file-system`.
+ *
+ * @since 0.6.0
+ */
+public inline fun Path.ifRegularFile(action: (Path) -> Unit): Path {
+    this.requireExistence()
+    return if (this.isRegularFile) this.apply(action) else this
+}
+
+/**
+ * Executes the specified [action] if `this` file [is a directory][Path.isDirectory].
+ *
+ * @receiver the [Path] to check against.
+ *
+ * @return if `this` file is a directory, then it returns `this` file with the specified [action] applied to it,
+ * otherwise it just returns `this` file.
+ *
+ * @throws [NoSuchFileException] if `this` file does not exist on the `file-system`.
+ *
+ * @since 0.6.0
+ */
+public inline fun Path.ifDirectory(action: (Path) -> Unit): Path {
+    this.requireExistence()
+    return if (this.isDirectory) this.apply(action) else this
+}
+
 // Check Functions
 /**
  * Throws a [NoSuchFileException] with the result of calling [lazyMessage] if `this` file does not exist on the current
  * [file-system][FileSystem].
  *
- * @receiver The [Path] instance to check against.
+ * @receiver the [Path] instance to check against.
  *
- * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
+ * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`.
  *
  * @since 0.6.0
  */

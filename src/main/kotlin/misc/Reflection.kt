@@ -20,6 +20,7 @@ package moe.kanon.kommons.misc
 
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 /**
  * Returns whether or not this element has any occurrences of the specified [Annotation].
@@ -27,6 +28,39 @@ import kotlin.reflect.KClass
  * @receiver the element to check against.
  */
 public inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean = this.annotations.any { it is A }
+
+/**
+ * Executes the specified [action] only if `this` [KAnnotatedElement] has the specified [annotation][A] and then
+ * returns the resulting [Annotation], or `null` if it does not have the specified `annotation`.
+ *
+ * @receiver the element to check against.
+ *
+ * @param [A] the annotation to find.
+ * @param [action] the action to execute if `this` element has the specified [annotation][A].
+ *
+ * @return the found annotation after applying the specified [action] on it, or `null` if `this` element does not have
+ * the specified `annotation`.
+ *
+ * @since 0.6.0
+ */
+public inline fun <reified A : Annotation> KAnnotatedElement.ifHasAnnotation(action: (A) -> Unit): A? =
+    this.findAnnotation<A>()?.apply(action)
+
+/**
+ * Returns the specified [annotation][A], or it throws a [NoSuchFieldException] if the specified `annotation` could not
+ * be found on `this` class.
+ *
+ * @receiver the element to check against.
+ *
+ * @param [A] the annotation to find.
+ *
+ * @since 0.6.0
+ *
+ * @see findAnnotation
+ */
+public inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A =
+    this.findAnnotation()
+        ?: throw NoSuchFieldException("The class <${this::class}> does not have a property matching <${A::class}>")
 
 /**
  * Returns whether or not `this` [KClass] is an actual Kotlin class.

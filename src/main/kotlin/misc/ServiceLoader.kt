@@ -23,14 +23,17 @@ import java.util.*
 /**
  * Creates a [ServiceLoader] for the specified [S] type.
  *
+ * @param [S] the service to create the [loader][ServiceLoader] for.
  * @since 0.6.0
  */
-public inline fun <reified S> serviceLoaderOf(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
+public inline fun <reified S> serviceLoaderFor(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
 
 /**
  * Creates a [ServiceLoader] for the specified [S] type, with the specified [loader].
  *
+ * @param [S] the service to create the [loader][ServiceLoader] for.
+ * @param [loader] the specific [class-loader][ClassLoader] to use for loading the services.
  * @since 0.6.0
  */
-public inline fun <reified S> serviceLoaderOf(loader: ClassLoader): ServiceLoader<S> =
+public inline fun <reified S> serviceLoaderFor(loader: ClassLoader): ServiceLoader<S> =
     ServiceLoader.load(S::class.java, loader)
