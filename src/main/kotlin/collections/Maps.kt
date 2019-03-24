@@ -66,6 +66,16 @@ public fun <K, V> MutableMap<K, V>.inherit(from: Map<out K, V>) {
 public fun <K, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = TreeMap(pairs.toMap())
 
 /**
+ * Creates and returns a [EnumMap] containing the specified [entries].
+ *
+ * @since 0.6.0
+ */
+public inline fun <reified EK : Enum<EK>, V> enumMapOf(vararg entries: Pair<EK, V>): EnumMap<EK, V> =
+    EnumMap<EK, V>(EK::class.java).apply {
+        for ((key, value) in entries) this[key] = value
+    }
+
+/**
  * Stores the specified [value] under the specified [key] in `this` map, and then returns [value].
  *
  * @return [value]
