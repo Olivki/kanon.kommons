@@ -69,7 +69,7 @@ public inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A 
  *
  * @since 0.6.0
  */
-public val KClass<*>.isKotlinClass: Boolean get() = this.hasAnnotation<kotlin.Metadata>()
+public val KClass<*>.isKotlinClass: Boolean get() = this::class.java.isKotlinClass
 
 /**
  * Returns whether or not `this` [Class] is a Kotlin class.
