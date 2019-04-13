@@ -19,6 +19,8 @@
 
 package moe.kanon.kommons.collections
 
+import java.util.*
+
 /**
  * Removes all of the supplied [elements] from the collection and returns this [collection][MutableCollection].
  */
@@ -50,3 +52,26 @@ public inline fun <reified T, reified C : Collection<T>> C.ifEmpty(action: (C) -
  */
 public inline fun <reified T, reified C : Collection<T>> C.ifNotEmpty(action: (C) -> Unit): C =
     if (this.isNotEmpty()) this.apply(action) else this
+
+// collections jvm
+/**
+ * Returns an unmodifiable view of `this` collection.
+ *
+ * This function allows modules to provide users with "read-only" access to internal collections.
+ *
+ * Query operations on the returned collection "read through" to the specified collection, and attempts to modify the
+ * returned collection, whether direct or via its iterator, result in an [UnsupportedOperationException].
+ *
+ * The returned collection does *not* pass the hashCode and equals operations through to the backing collection, but
+ * relies on `Any`'s `equals` and `hashCode` function.  This is necessary to preserve the contracts of these operations
+ * in the case that the backing collection is a [Set] or a [List].
+ *
+ * The returned collection will be serializable if the specified collection is serializable.
+ *
+ * @receiver the collection for which an unmodifiable view is to be returned
+ *
+ * @param [V] the type that `this` collection stores
+ *
+ * @return an unmodifiable view of `this` collection
+ */
+public inline fun <V> Collection<V>.toUnmodifiableCollection(): Collection<V> = Collections.unmodifiableCollection(this)

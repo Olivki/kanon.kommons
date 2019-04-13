@@ -27,7 +27,7 @@ import java.nio.file.*
  *
  * By default, the copy fails if the target file already exists or is a symbolic link.
  * If the [REPLACE_EXISTING][StandardCopyOption.REPLACE_EXISTING] option is specified, and the target file already
- * exists, then it is replaced if it is not a non-empty directory. If the target ile exists and is a symbolic link,
+ * exists, then it is replaced if it is not a non-empty directory. If the target file exists and is a symbolic link,
  * then the symbolic link is replaced.
  *
  * In this release, the `REPLACE_EXISTING` option is the only option required to be supported by this method.

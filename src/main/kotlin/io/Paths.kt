@@ -190,24 +190,30 @@ public inline fun URI.toPath(): Path = Paths.get(this)
 // - Credits for the original implementation of this goes to superbobry.
 // - Div "hack".
 // -- Path
+@JvmName("resolve")
 public inline operator fun Path.div(other: String): Path = this / other.toPath()
 
-public inline operator fun Path.div(other: Path): Path = resolve(other)!!
+@JvmName("resolve")
+public inline operator fun Path.div(other: Path): Path = resolve(other)
 
 // -- String
+@JvmName("resolve")
 public inline operator fun String.div(other: String): Path = this / other.toPath()
 
+@JvmName("resolve")
 public inline operator fun String.div(other: Path): Path = this.toPath() / other
 
 // Not. (!)
 /**
  * Converts this [file][File] into a [Path].
  */
+@JvmName("toPath")
 public inline operator fun File.not(): Path = this.toPath()
 
 /**
  * Converts this [path][Path] into a [File].
  */
+@JvmName("toFile")
 public inline operator fun Path.not(): File = this.toFile()
 
 // Streams
@@ -453,16 +459,16 @@ public inline fun Path.newDirectoryStream(glob: String): PathDirectoryStream = F
  * Each attribute is identified by its [name][FileAttribute.name]. If more than one attribute of the same name is
  * included in the array then all but the last occurrence is ignored.
  *
- * @receiver The file to create.
+ * @receiver the file to create
  *
- * @return The newly created file.
+ * @return the newly created file
  *
- * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically when creating
- * the file.
- * @throws FileAlreadyExistsException If this [file][Path] of that name already exists. *(optional specific exception)*.
- * @throws IOException If an I/O error occurs or the parent directory does not exist.
- * @throws SecurityException In the case of the default provider, and a security manager is installed, the
- * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new file.
+ * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically when creating
+ * the file
+ * @throws FileAlreadyExistsException if this [file][Path] of that name already exists. *(optional specific exception)*.
+ * @throws IOException if an I/O error occurs or the parent directory does not exist
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new file
  */
 public inline fun Path.createFile(vararg attributes: FileAttribute<*>): Path = Files.createFile(this, *attributes)
 
@@ -479,17 +485,17 @@ public inline fun Path.createFile(vararg attributes: FileAttribute<*>): Path = F
  * directory. Each attribute is identified by its [name][FileAttribute.name]. If more than one attribute of the same
  * name is included in the array then all but the last occurrence is ignored.
  *
- * @receiver The directory to create.
+ * @receiver the directory to create
  *
- * @return The newly created directory.
+ * @return the newly created directory
  *
- * @throws UnsupportedOperationException If the array contains an attribute that cannot be set atomically
- * when creating the directory.
- * @throws FileAlreadyExistsException If a directory could not otherwise be created because this [file][Path] of
- * that name already exists *(optional specific exception)*.
- * @throws IOException If an I/O error occurs or the parent directory does not exist.
- * @throws SecurityException In the case of the default provider, and a security manager is installed, the
- * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new directory.
+ * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically
+ * when creating the directory
+ * @throws FileAlreadyExistsException if a directory could not otherwise be created because this [file][Path] of
+ * that name already exists *(optional specific exception)*
+ * @throws IOException if an I/O error occurs or the parent directory does not exist
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new directory
  */
 public inline fun Path.createDirectory(vararg attributes: FileAttribute<*>): Path =
     Files.createDirectory(this, *attributes)
@@ -899,6 +905,57 @@ public inline fun Path.moveTo(target: Path, keepName: Boolean = false, vararg op
  *     source.copyTo(target = newDir, keepName = true)
  * ```
  *
+ * @param target the path to the target file. *(May be associated with a different provider to the source path)*
+ * @param keepName whether or not this [file][Path] should keep its original name after being copied over to [target]
+ * @param options options specifying how the copy should be done.
+ *
+ * @return the path to the target file
+ *
+ * @throws UnsupportedOperationException if the array contains a copy option that is not supported
+ * @throws FileAlreadyExistsException if the target file exists but cannot be replaced because the REPLACE_EXISTING`
+ * option is not specified. *(optional specific exception)*
+ * @throws DirectoryNotEmptyException the `REPLACE_EXISTING` option is specified but the file cannot be replaced
+ * because it is a non-empty directory. *(optional specific exception)*
+ * @throws IOException if an I/O error occurs
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the source file, the
+ * [checkWrite(String)][SecurityManager.checkWrite] is invoked to check write access to the target file. If a symbolic
+ * link is copied the security manager is invoked to check [LinkPermission]`("symbolic")`
+ */
+public inline fun Path.copyTo(target: Path, keepName: Boolean, vararg options: CopyOption): Path =
+    Files.copy(this, if (keepName) target.resolve(this.name) else target, *options)
+
+/**
+ * Copies this [file][Path] to the [target] file.
+ *
+ * This method copies this [file][Path] to the target file with the [options] parameter specifying how the copy is
+ * performed. By default, the copy fails if the target file already exists or is a symbolic link, except if the source
+ * and target are the [same][Path.isSameFile] file, in which case the method completes without copying the file. File
+ * attributes are not required to be copied to the target file. If symbolic links are supported, and the file is a
+ * symbolic link, then the final target of the link is copied. If the file is a directory then it creates an empty
+ * directory in the target location (entries in the directory are not copied). This method can be used with the
+ * [walkFileTree][Path.walkFileTree] method to copy a directory and all entries in the directory, or an entire
+ * *file-tree* where required.
+ *
+ *
+ * An implementation of this interface may support additional implementation specific options.
+ *
+ * Copying this [file][Path] is not an atomic operation. If an [IOException] is thrown, then it is possible that the
+ * target file is incomplete or some of its file attributes have not been copied from the source file. When the
+ * `REPLACE_EXISTING` option is specified and the target file exists, then the target file is replaced. The check for
+ * the existence of the file and the creation of the new file may not be atomic with respect to other file system
+ * activities.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want to copy this [file][Path] into a directory, giving it the same file name as the source file:
+ *
+ * ```kotlin
+ *     val source: Path = ...
+ *     val newDir: Path = ...
+ *     source.copyTo(target = newDir, keepName = true)
+ * ```
+ *
  * @param target The path to the target file. *(May be associated with a different provider to the source path)*
  * @param keepName Whether or not this [file][Path] should keep the original name after being copied over to [target].
  *
@@ -918,8 +975,7 @@ public inline fun Path.moveTo(target: Path, keepName: Boolean = false, vararg op
  * [checkWrite(String)][SecurityManager.checkWrite] is invoked to check write access to the target file. If a symbolic
  * link is copied the security manager is invoked to check [LinkPermission]`("symbolic")`.
  */
-public inline fun Path.copyTo(target: Path, keepName: Boolean = false, vararg options: CopyOption): Path =
-    Files.copy(this, if (keepName) target.resolve(this.name) else target, *options)
+public inline fun Path.copyTo(target: Path, vararg options: CopyOption): Path = this.copyTo(target, false, *options)
 
 /**
  * Attempts to rename this [file][Path] to the given [name].
@@ -1035,7 +1091,7 @@ public var Path.extension: String
  *
  * @see java.nio.file.attribute.BasicFileAttributes.fileKey
  */
-public inline fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
+public inline infix fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this, other)
 
 /**
  * Tests if two paths locate the same file.
@@ -1062,6 +1118,7 @@ public inline fun Path.isSameFile(other: Path): Boolean = Files.isSameFile(this,
  *
  * @see java.nio.file.attribute.BasicFileAttributes.fileKey
  */
+@Deprecated(message = "Unnecessary overload for 'isSameFile' function", replaceWith = ReplaceWith("isSameFile(other)"))
 public inline infix fun Path.sameFile(other: Path): Boolean = isSameFile(other)
 
 /**
@@ -1150,7 +1207,7 @@ public inline val Path.contentType: String get() = Files.probeContentType(this)
  * available.
  */
 public inline fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
-    Files.getFileAttributeView(this, type, *options)!!
+    Files.getFileAttributeView(this, type, *options)
 
 /**
  * Reads this [file][Path]'s attributes as a bulk operation.
@@ -1342,7 +1399,7 @@ public inline fun Path.setAttribute(attribute: String, value: Any?, vararg optio
 public inline fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
     Files.getAttribute(this, attribute, *options)
 
-public class AttributeMap internal constructor(
+public class AttributeMap private constructor(
     private val path: Path,
     private val original: Map<out String, Any>
 ) : MutableMap<String, Any> by original.toMutableMap() {
@@ -1375,6 +1432,12 @@ public class AttributeMap internal constructor(
         false
     }
 
+    companion object {
+        @PublishedApi
+        @JvmSynthetic
+        internal fun newInstance(path: Path, original: Map<out String, Any>): AttributeMap =
+            AttributeMap(path, original)
+    }
 }
 
 /**
@@ -1384,7 +1447,7 @@ public class AttributeMap internal constructor(
  *
  * @see readAttributes
  */
-public val Path.attributes: AttributeMap get() = AttributeMap(this, this.readAttributes("*"))
+public val Path.attributes: AttributeMap get() = AttributeMap.newInstance(this, this.readAttributes("*"))
 
 // Permissions
 /**
@@ -1637,7 +1700,7 @@ public inline fun Path.exists(vararg options: LinkOption): Boolean = Files.exist
  *
  * @see notExists
  */
-public inline val Path.exists: Boolean get() = this.exists()
+public inline val Path.exists: Boolean @JvmName("exists") get() = this.exists()
 
 // Not Exists
 /**
@@ -1682,7 +1745,7 @@ public inline fun Path.notExists(vararg options: LinkOption): Boolean = Files.no
  * @throws SecurityException In the case of the default provider, the [checkRead(String)][SecurityManager.checkRead] is
  * invoked to check read access to the file.
  */
-public inline val Path.notExists: Boolean get() = this.notExists()
+public inline val Path.notExists: Boolean @JvmName("notExists") get() = this.notExists()
 
 // Accessibility
 /**
@@ -1867,7 +1930,61 @@ public inline fun Path.newBufferedWriter(
  * `REPLACE_EXISTING` option is specified, the security manager's [checkDelete(String)][SecurityManager.checkDelete]
  * method is invoked to check that an existing file can be deleted.
  */
+@Deprecated(
+    "The function name is ambiguous",
+    ReplaceWith("Path.createFrom(inputStream, vararg options)", "moe.kanon.kommons.io"),
+    DeprecationLevel.WARNING
+)
 public inline fun Path.transform(inputStream: InputStream, vararg options: CopyOption): Long =
+    Files.copy(inputStream, this, *options)
+
+/**
+ * Copies all bytes from an input stream to this [file][Path].
+ *
+ * On return, the input stream will be at end of the stream.
+ *
+ * By default, the copy fails if the target file already exists or is a symbolic link. If the
+ * [REPLACE_EXISTING][StandardCopyOption.REPLACE_EXISTING] option is specified, and the target file already exists,
+ * then it is replaced if it is not a non-empty directory. If the target file exists and is a symbolic link, then the
+ * symbolic link is replaced. In this release, the `REPLACE_EXISTING` option is the only option required to be
+ * supported by this method. Additional options may be  supported in future releases.
+ *
+ * If an I/O error occurs reading from the input stream or writing to this file, then it may do so after the target
+ * file has been created and after some bytes have been read or written. Consequently the input stream may not be at
+ * end of stream and may be in an inconsistent state. It is strongly recommended that the input stream be promptly
+ * closed if an I/O error occurs.
+ *
+ * This method may block indefinitely reading from the [inputStream] *(or writing to the file)*. The behavior for the
+ * case that the input stream is *asynchronously closed* or the thread interrupted during the copy is highly input
+ * stream and file system provider specific and therefore not specified.
+ *
+ * **Usage example**:
+ *
+ * Suppose we want to capture a web page and save it to this a file:
+ *
+ * ```kotlin
+ *     val path: Path = ...
+ *     val uri = URI.create("http://java.sun.com/")
+ *     uri.toURL().openStream().use { path.transform(it) }
+ * ```
+ *
+ * @param inputStream the [InputStream] to read from.
+ * @param options Options specifying how the copy should be done.
+ *
+ * @return The number of bytes read or written.
+ *
+ * @throws IOException If an I/O error occurs when reading or writing
+ * @throws FileAlreadyExistsException if the target file exists but cannot be replaced because the `REPLACE_EXISTING`
+ * option is not specified *(optional specific exception)*
+ * @throws DirectoryNotEmptyException The `REPLACE_EXISTING` option is specified but the file cannot be replaced
+ * because it is a non-empty directory *(optional specific exception)*
+ * @throws UnsupportedOperationException If [options] contains a copy option that is not supported.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed,
+ * the [checkWrite(String)][SecurityManager.checkWrite]  method is invoked to check write access to the file. Where the
+ * `REPLACE_EXISTING` option is specified, the security manager's [checkDelete(String)][SecurityManager.checkDelete]
+ * method is invoked to check that an existing file can be deleted.
+ */
+public inline fun Path.createFrom(inputStream: InputStream, vararg options: CopyOption): Long =
     Files.copy(inputStream, this, *options)
 
 /**
@@ -1884,11 +2001,11 @@ public inline fun Path.transform(inputStream: InputStream, vararg options: CopyO
  * Note that if the given output stream is [java.io.Flushable] then its [flush][java.io.Flushable.flush] method may
  * need to invoked after this method completes so as to flush any buffered output.
  *
- * @return The number of bytes read or written.
+ * @return the number of bytes read or written
  *
- * @throws IOException If an I/O error occurs when reading or writing.
- * @throws SecurityException In the case of the default provider, and a security manager is  installed, the
- * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
+ * @throws IOException if an I/O error occurs when reading or writing
+ * @throws SecurityException in the case of the default provider, and a security manager is  installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
  */
 public inline fun Path.copyTo(outputStream: OutputStream): Long = Files.copy(this, outputStream)
 
@@ -1943,6 +2060,7 @@ public inline fun Path.readBytes(): ByteArray = Files.readAllBytes(this)
  *
  * @see newBufferedReader
  */
+@JvmOverloads
 public inline fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
     Files.readAllLines(this, charset)
 
@@ -2000,8 +2118,6 @@ public inline fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption):
  *
  * @param lines An object to iterate over the char sequences.
  * @param charset The charset to use for decoding.
- *
- * (Set to [UTF_8][StandardCharsets.UTF_8] by default)
  * @param options Options specifying how the file is opened.
  *
  * @throws IOException If an I/O error occurs writing to or creating the file, or the text cannot be encoded using the
@@ -2012,9 +2128,39 @@ public inline fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption):
  */
 public inline fun Path.writeLines(
     lines: Iterable<CharSequence>,
-    charset: Charset = StandardCharsets.UTF_8,
+    charset: Charset,
     vararg options: OpenOption
-): Path = Files.write(this, lines, charset, *options)!!
+): Path = Files.write(this, lines, charset, *options)
+
+/**
+ * Writes [lines] of text to this [file][Path].
+ *
+ * Each line is a char sequence and is written to the file in sequence with each line terminated by the platform's
+ * line separator, as defined by the system property [line.separator][System.lineSeparator]. Characters are encoded into
+ * bytes using the specified [charset].
+ *
+ * The [options] parameter specifies how the the file is created or opened. If no options are present then this method
+ * works as if the [CREATE][StandardOpenOption.CREATE], [WRITE][StandardOpenOption.WRITE], and
+ * [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING] options are present.
+ *
+ * In other words, it opens the file for writing, creating the file if it doesn't exist, or initially truncating an
+ * existing [regular-file][isRegularFile] to a size of `0`. The method ensures that the file is closed when all lines
+ * have been written *(or an I/O error or other runtime exception is thrown)*. If an I/O error occurs then it may do so
+ * after the file has created or truncated, or after some bytes have been written to the file.
+ *
+ * @param lines An object to iterate over the char sequences.
+ * @param options Options specifying how the file is opened.
+ *
+ * @throws IOException If an I/O error occurs writing to or creating the file, or the text cannot be encoded using the
+ * specified charset.
+ * @throws UnsupportedOperationException If an unsupported option is specified.
+ * @throws SecurityException In the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file.
+ */
+public inline fun Path.writeLines(
+    lines: Iterable<CharSequence>,
+    vararg options: OpenOption
+): Path = Files.write(this, lines, *options)
 
 /**
  * Appends a [String] to this [file][Path].
@@ -2034,10 +2180,38 @@ public inline fun Path.writeLines(
  *      """.trimMargin()
  * )
  * ```
- *
  */
-public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_8, vararg options: OpenOption): Path {
+public fun Path.writeLine(line: String, charset: Charset, vararg options: OpenOption): Path {
     val encoder = charset.newEncoder()
+    val out = this.newOutputStream(*options)
+    BufferedWriter(OutputStreamWriter(out, encoder)).use { writer ->
+        writer.append(line)
+        writer.newLine()
+    }
+    return this
+}
+
+/**
+ * Appends a [String] to this [file][Path].
+ *
+ * **Example Usage:**
+ *
+ * Say we want to create a text file containing a list, using the multi-line strings feature in Kotlin, we can do this:
+ *
+ * ```kotlin
+ * val path: Path = ...
+ * path.writeLine(
+ *      """
+ *      | 1. ..
+ *      | 2. ...
+ *      | 3. ...
+ *      | 4. ...
+ *      """.trimMargin()
+ * )
+ * ```
+ */
+public fun Path.writeLine(line: String, vararg options: OpenOption): Path {
+    val encoder = StandardCharsets.UTF_8.newEncoder()
     val out = this.newOutputStream(*options)
     BufferedWriter(OutputStreamWriter(out, encoder)).use { writer ->
         writer.append(line)
@@ -2080,7 +2254,59 @@ public fun Path.writeLine(line: String, charset: Charset = StandardCharsets.UTF_
  *
  * @see newDirectoryStream
  */
-public inline val Path.entries: Sequence<Path> get() = Files.list(this).asSequence()
+public val Path.entries: Sequence<Path>
+    get() {
+        val directoryStream = this.newDirectoryStream()
+        try {
+            val delegate = directoryStream.iterator()
+
+            // Re-wrap DirectoryIteratorException to UncheckedIOException
+            val iterator = object : Iterator<Path> {
+                override fun hasNext(): Boolean {
+                    try {
+                        return delegate.hasNext()
+                    } catch (e: DirectoryIteratorException) {
+                        throw UncheckedIOException(e.cause)
+                    }
+
+                }
+
+                override fun next(): Path {
+                    try {
+                        return delegate.next()
+                    } catch (e: DirectoryIteratorException) {
+                        throw UncheckedIOException(e.cause)
+                    }
+
+                }
+            }
+
+            return iterator.asSequence()
+        } catch (e: Error) {
+            try {
+                directoryStream.close()
+            } catch (ex: IOException) {
+                try {
+                    e.addSuppressed(ex)
+                } catch (ignore: Throwable) {
+                }
+            }
+
+            throw e
+        } catch (e: RuntimeException) {
+            try {
+                directoryStream.close()
+            } catch (ex: IOException) {
+                try {
+                    e.addSuppressed(ex)
+                } catch (ignore: Throwable) {
+                }
+            }
+
+            throw e
+        }
+
+    }
 
 /**
  * Returns a lazily populated [Sequence], the elements of which are the entries of this directory, and the entries of
@@ -2169,6 +2395,7 @@ public val Path.children: List<Path>
  * provider, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  * @throws IOException If an I/O error is thrown by a visitor method.
  */
+@JvmOverloads
 public inline fun Path.walkFileTree(
     options: Set<FileVisitOption> = emptySet(),
     maxDepth: Int = Int.MAX_VALUE,
@@ -2231,6 +2458,7 @@ public inline fun Path.walkFileTree(
  * the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  * @throws IOException If an I/O error is thrown when accessing the starting file.
  */
+@JvmOverloads
 public inline fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): Sequence<Path> =
     Files.walk(this, maxDepth, *options).asSequence()
 
@@ -2305,12 +2533,12 @@ public fun Path.find(
  *
  * @since 0.6.0
  */
+@JvmName("filterChildren")
 public fun Path.filter(
     predicate: (Path) -> Boolean,
     maxDepth: Int = Int.MAX_VALUE,
     vararg options: FileVisitOption
 ): List<Path> {
-
     val tempMatches: MutableList<Path> = ArrayList()
 
     this.walkFileTree(options.toSet(), maxDepth, object : SimplePathVisitor() {
@@ -2348,7 +2576,8 @@ public fun Path.filter(
  *
  * @since 0.6.0
  */
-public inline fun Path.filter(noinline predicate: (Path) -> Boolean): List<Path> = this.filter(predicate, Int.MAX_VALUE)
+@JvmName("filterChildren")
+public fun Path.filter(predicate: (Path) -> Boolean): List<Path> = this.filter(predicate, Int.MAX_VALUE)
 
 /**
  * Read all lines from a file as a [Sequence]. Bytes from the file are decoded into characters using the
@@ -2370,7 +2599,7 @@ public inline fun Path.filter(noinline predicate: (Path) -> Boolean): List<Path>
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-public inline val Path.lines: Sequence<String> get() = this.linesAsSequence()
+public val Path.lines: Sequence<String> get() = this.linesAsSequence()
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence].
@@ -2401,78 +2630,73 @@ public inline val Path.lines: Sequence<String> get() = this.linesAsSequence()
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-public inline fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> =
-    Files.lines(this, charset)!!.asSequence()
+@Throws(IOException::class)
+public fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
+    val reader = this.newBufferedReader(charset)
+    try {
+        return reader.lineSequence()
+    } catch (e: Error) {
+        try {
+            reader.close()
+        } catch (ex: IOException) {
+            try {
+                e.addSuppressed(ex)
+            } catch (ignore: Throwable) {
+            }
+        }
+
+        throw e
+    } catch (e: RuntimeException) {
+        try {
+            reader.close()
+        } catch (ex: IOException) {
+            try {
+                e.addSuppressed(ex)
+            } catch (ignore: Throwable) {
+            }
+        }
+
+        throw e
+    }
+}
 
 // Fully custom operations
 /**
- * Returns a [PathMatcher] that performs match operations on the [String] representation of [Path] objects by
- * interpreting a given pattern.
+ * Returns a [PathMatcher] instance from the [fileSystem][Path.getFileSystem] used by `this` path.
  *
- * **Note:** This function simply just invokes the [getPathMatcher][FileSystem.getPathMatcher] function of the
- * [default-file-system][FileSystems.getDefault], with the `syntaxAndPattern` parameter set to
- * "[syntax]**:**[pattern]".
+ * For more information regarding how a path matcher works, see [FileSystem.getPathMatcher].
  *
- * A [FileSystem] implementation supports the "`glob`" and "`regex`" syntaxes, and may support others. The value of the
- * syntax component is compared without regard to case.
+ * @receiver the [Path] instance to use the underlying `fileSystem` of
  *
- * When the syntax is "`glob`" then the `String` representation of the path is matched using a limited pattern language
- * that resembles regular expressions but with a simpler syntax.
+ * @param [syntax] the syntax to use
+ * @param [pattern] the pattern to use
  *
- * For example:
+ * @since 0.6.0
  *
- * **The table that's supposed to be here is missing due to dokka not supporting markdown tables, please refer to
- * [FileSystem.getPathMatcher] for the actual proper documentation.**
- *
- * The following rules are used to interpret glob patterns:
- *
- * - The `*` character matches *zero* or *more* [characters][Char] of a [name][Path.getName] component without
- * crossing directory boundaries
- * - The `**` character matches *zero* or *more* [characters][Char] crossing directory boundaries.
- * - The `?` character matches exactly one character of a name component.
- * - The backslash character `\` is used to escape characters that would otherwise be interpreted as special characters.
- * The expression `\\` matches a single backslash and "`\{`" matches a left brace for example.
- * - The `[ ]` characters characters are a *bracket expression* that match a single character of a name component
- * out of a set of characters. For example, `[abc]` matches `"a"`, `"b"`, or `"c"`. The hyphen (`-`) may be used
- * to specify a range so `[a-z]` specifies a range that matches from `"a"` to `"z"` *(inclusive)*. These forms can be
- * mixed so `[abce-g]` matches `"a"`, `"b"`, `"c"`, `"e"`, `"f"` or `"g"`. If the character after the `[` is a `!` then
- * it is used for negation so `[!a-c]` matches any character except `"a"`, `"b"`, or `"c"`.
- *
- *    Within a bracket expression the `*`, `?` and `\` characters match themselves. The (`-`) character matches itself if
- *    it is the first character within the brackets, or the first character after the `!` if negating.
- * - The `{ }` characters are a group of sub-patterns, where the group matches if any sub-pattern in the group matches.
- * The `","` character is used to separate the sub-patterns. Groups cannot be nested.
- * - Leading period/dot characters in file name are treated as regular characters in match operations. For example,
- * the `"*"` glob pattern matches file name `".login"`. The [Path.isHidden] property may be used to test whether a file
- * is considered hidden.
- * - All other characters match themselves in an implementation dependent manner. This includes characters representing
- * any [name-separators][FileSystem.getSeparator].
- * - The matching of [root][Path.getRoot] components is highly implementation-dependent and is not specified.
- *
- * When the syntax is "`regex`" then the pattern component is a regular expression as defined by the
- * [Pattern][java.util.regex.Pattern] class.
- *
- * For both the glob and regex syntaxes, the matching details, such as whether the matching is case sensitive, are
- * implementation-dependent and therefore not specified.
- *
- * @param syntax The syntax to use.
- *
- * @param pattern The pattern to use.
- *
- * @return A path matcher that may be used to match paths against the pattern.
- *
- * @throws java.util.regex.PatternSyntaxException If the pattern is invalid.
- * @throws UnsupportedOperationException If the pattern syntax is not known to the implementation.
- *
- * @see Path.newDirectoryStream
+ * @see Path.getFileSystem
  * @see FileSystem.getPathMatcher
  */
-public inline fun getPathMatcher(syntax: String, pattern: String): PathMatcher =
-    FileSystems.getDefault().getPathMatcher("$syntax:$pattern")
+@JvmName("getPathMatcherFrom")
+public inline fun Path.pathMatcherOf(syntax: String, pattern: String): PathMatcher =
+    this.fileSystem.getPathMatcher("$syntax:$pattern")
+
+/**
+ * Returns whether or not `this` file matches the specified [globPattern].
+ *
+ * @param [globPattern] The glob pattern to match the files in `this` directory against.
+ *
+ * If you are unfamiliar with *glob syntax*, see [What is a Glob](https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob).
+ *
+ * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
+ *
+ * @receiver the directory of which to check through
+ */
+public fun Path.matchesGlobPattern(globPattern: String): Boolean = this.pathMatcherOf("glob", globPattern).matches(this)
 
 /**
  * Checks whether the [other] path is a child of this [directory][Path].
  */
+@JvmName("isChild")
 public inline operator fun Path.contains(other: Path): Boolean = this.entries.contains(other)
 
 /**
@@ -2487,16 +2711,17 @@ public inline operator fun Path.contains(other: Path): Boolean = this.entries.co
  *
  * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
  *
- * @exception NoSuchFileException If `this` file doesn't actually exist.
- * @exception NotDirectoryException If `this` file is **not** a directory.
+ * @exception NoSuchFileException if `this` file doesn't actually exist
+ * @exception NotDirectoryException if `this` file is **not** a directory
  *
  * @since 0.6.0
  *
  * @see FileSystem.getPathMatcher
  */
+@JvmName("hasChild")
 public operator fun Path.contains(globPattern: String): Boolean {
     this.requireDirectory()
-    return this.entries.filterByGlob(globPattern).any()
+    return this.entries.any { it.matchesGlobPattern(globPattern) }
 }
 
 /**
@@ -2509,7 +2734,7 @@ public operator fun Path.contains(globPattern: String): Boolean {
  *
  * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
  *
- * @receiver The directory of which to check through.
+ * @receiver the directory of which to check through
  *
  * @exception NoSuchFileException If `this` file doesn't actually exist, or if there exists no child that matches the
  * given `globPattern`.
@@ -2519,8 +2744,9 @@ public operator fun Path.contains(globPattern: String): Boolean {
  *
  * @see Path.getOrNull
  */
+@JvmName("getChild")
 public operator fun Path.get(globPattern: String): Path = this.getOrNull(globPattern) ?: throw FileNotFoundException(
-    "No file matching the \"$globPattern\" glob pattern could be found in \"$this\"."
+    "No file matching the glob pattern <$globPattern> could be found in <$this>"
 )
 
 /**
@@ -2532,7 +2758,7 @@ public operator fun Path.get(globPattern: String): Path = this.getOrNull(globPat
  *
  * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
  *
- * @receiver The directory of which to check through.
+ * @receiver the directory of which to check through
  *
  * @exception NoSuchFileException If `this` file doesn't actually exist.
  * @exception NotDirectoryException If `this` file is **not** a directory.
@@ -2541,9 +2767,10 @@ public operator fun Path.get(globPattern: String): Path = this.getOrNull(globPat
  *
  * @see Path.get
  */
+@JvmName("getChildOrNull")
 public fun Path.getOrNull(globPattern: String): Path? {
     this.requireDirectory()
-    return this.entries.filterByGlob(globPattern).firstOrNull()
+    return this.entries.firstOrNull { it.matchesGlobPattern(globPattern) }
 }
 
 /**
@@ -2553,12 +2780,19 @@ public fun Path.getOrNull(globPattern: String): Path? {
  * patterns that are designed to match something that's in a *parent* directory or higher, will just return an empty
  * `Sequence`.
  *
- * @receiver The [Sequence] to filter.
+ * @receiver the [Sequence] to filter
+ *
+ * @param globPattern The glob pattern to match the files in `this` directory against.
+ *
+ * If you are unfamiliar with *glob syntax*, see [What is a Glob](https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob).
+ *
+ * For a more thorough explanation, see the documentation for [FileSystem.getPathMatcher].
  *
  * @since 0.6.0
  */
+@JvmName("filterChildrenByGlob")
 public inline fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
-    this.filter { getPathMatcher("glob", globPattern).matches(it) }
+    this.filter { it.fileSystem.pathMatcherOf("glob", globPattern).matches(it) }
 
 /**
  * Attempts to recursively delete all the files inside of this [directory][Path], and any files inside sub-directories.
@@ -2593,6 +2827,7 @@ public inline fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Pat
  * @exception NoSuchFileException If `this` file doesn't actually exist.
  * @exception NotDirectoryException If `this` file is **not** a directory.
  */
+@JvmOverloads
 public fun Path.cleanDirectory(
     globPattern: String = "*",
     maxDepth: Int = Int.MAX_VALUE,
@@ -2607,7 +2842,7 @@ public fun Path.cleanDirectory(
             requireNotNull(attributes)
 
             // Only delete the file if it matches the specified globPattern.
-            if (getPathMatcher("glob", globPattern).matches(file)) file.deleteIfExists()
+            if (getDefaultPathMatcher("glob", globPattern).matches(file)) file.deleteIfExists()
 
             return FileVisitResult.CONTINUE
         }
@@ -2641,7 +2876,8 @@ public fun Path.cleanDirectory(
  *
  * @see readLines
  */
-public inline fun Path.readToString(
+@JvmOverloads
+public fun Path.readToString(
     charset: Charset = StandardCharsets.UTF_8,
     separator: String = System.lineSeparator()
 ): String {
@@ -2824,20 +3060,27 @@ public fun Path.deleteOnShutdown() {
 /**
  * Performs the given [action] on each individual line of this `file`, using the given [charset].
  *
+ * @receiver the file from which to read the lines
+ *
+ * @throws [NoSuchFileException] if `this` file does *not* exist
+ *
+ * @since 0.6.0
+ */
+public inline fun Path.eachLine(charset: Charset, action: (String) -> Unit) {
+    requireExistence()
+    for (line in linesAsSequence(charset)) action(line)
+}
+
+/**
+ * Performs the given [action] on each individual line of this `file`, using the given [charset].
+ *
  * @receiver The file from which to read the lines.
- *
- * @param [charset] What `charset` to read the file with.
- *
- * ([UTF-8][StandardCharsets.UTF_8] by default.)
  *
  * @throws [NoSuchFileException] If `this` file does *not* exist.
  *
  * @since 0.6.0
  */
-public inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
-    requireExistence()
-    for (line in linesAsSequence(charset)) action(line)
-}
+public inline fun Path.eachLine(action: (String) -> Unit) = this.eachLine(StandardCharsets.UTF_8, action)
 
 /**
  * Creates a new file with the given [fileName], using `this` directory as the root, and returns the result.
@@ -2944,6 +3187,7 @@ public fun Path.getOrCreateChildDirectory(name: String, vararg attributes: FileA
  *
  * @since 0.6.0
  */
+@JvmOverloads
 public fun Path.createDateDirectories(date: LocalDate = LocalDate.now()): Path {
     requireDirectory()
     val text = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
@@ -2972,6 +3216,7 @@ public fun Path.createDateDirectories(date: LocalDate = LocalDate.now()): Path {
  *
  * @since 0.6.0
  */
+@JvmOverloads
 public fun Path.createDateTimeDirectories(dateTime: LocalDateTime = LocalDateTime.now()): Path {
     requireDirectory()
     val text = dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd/HH/mm/ss"))
@@ -3003,7 +3248,7 @@ public inline fun Path.ifRegularFile(action: (Path) -> Unit): Path {
  * @return if `this` file is a directory, then it returns `this` file with the specified [action] applied to it,
  * otherwise it just returns `this` file.
  *
- * @throws [NoSuchFileException] if `this` file does not exist on the `file-system`.
+ * @throws [NoSuchFileException] if `this` file does not exist on the file-system
  *
  * @since 0.6.0
  */
@@ -3011,6 +3256,73 @@ public inline fun Path.ifDirectory(action: (Path) -> Unit): Path {
     this.requireExistence()
     return if (this.isDirectory) this.apply(action) else this
 }
+
+/**
+ * Overwrites the bytes of `this` file with the bytes of the specified [source].
+ *
+ * If `this` file does not exist, it will be created.
+ *
+ * @receiver the file to overwrite the bytes of
+ *
+ * @param [source] the file to use the bytes from for overwriting `this` file
+ *
+ * @throws [NoSuchFileException] if the specified [source] file does not exist on the file-system
+ *
+ * @since 0.6.0
+ */
+public fun Path.overwriteBytes(source: Path): Path {
+    source.requireExistence()
+    return this.writeBytes(
+        source.readBytes(),
+        StandardOpenOption.WRITE,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING
+    )
+}
+
+/**
+ * Creates and returns a [FileSystem] based on `this` file, with the specified [env] variables and the specified
+ * [classLoader].
+ */
+@JvmOverloads
+@JvmName("createFileSystemFrom")
+fun Path.createFileSystem(env: Map<String, String> = emptyMap(), classLoader: ClassLoader? = null): FileSystem =
+    FileSystems.newFileSystem(toUri(), env, classLoader)
+
+/**
+ * Returns `this` directory if it exists, otherwise creates a new directory and returns that.
+ *
+ * @receiver the directory to retrieve or create
+ *
+ * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically
+ * when creating the directory
+ * @throws FileAlreadyExistsException if a directory could not otherwise be created because this [file][Path] of
+ * that name already exists *(optional specific exception)*
+ * @throws IOException if an I/O error occurs or the parent directory does not exist
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new directo
+ *
+ * @since 0.6.0
+ */
+fun Path.getOrCreateDirectory(vararg attributes: FileAttribute<*>): Path =
+    if (this.exists) this else this.createDirectory(*attributes)
+
+/**
+ * Returns `this` file if it exists, otherwise creates a new directory and returns that.
+ *
+ * @receiver the file to retrieve or create
+ *
+ * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically when creating
+ * the file
+ * @throws FileAlreadyExistsException if this [file][Path] of that name already exists. *(optional specific exception)*.
+ * @throws IOException if an I/O error occurs or the parent directory does not exist
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new file
+ *
+ * @since 0.6.0
+ */
+fun Path.getOrCreateFile(vararg attributes: FileAttribute<*>): Path =
+    if (this.exists) this else this.createFile(*attributes)
 
 // Check Functions
 /**
@@ -3039,7 +3351,7 @@ public inline fun Path.requireExistence(lazyMessage: () -> Any) {
  * @since 0.6.0
  */
 @Throws(NoSuchFileException::class)
-public inline fun Path.requireExistence() = this.requireExistence { "File \"${this}\" doesn't exist!" }
+public inline fun Path.requireExistence() = this.requireExistence { "File <$this> doesn't exist!" }
 
 /**
  * Throws a [NotDirectoryException] with the result of calling [lazyMessage] if `this` file is *not* a directory.
@@ -3068,7 +3380,7 @@ public inline fun Path.requireDirectory(lazyMessage: () -> Any) {
  * @since 0.6.0
  */
 @Throws(NoSuchFileException::class, NotDirectoryException::class)
-public inline fun Path.requireDirectory() = this.requireDirectory { "\"${this.name}\" needs to be a directory!" }
+public inline fun Path.requireDirectory() = this.requireDirectory { "File <$this> needs to be a directory!" }
 
 /**
  * Throws a [UnsupportedDesktopException] with the result of calling [lazyMessage] if the Java Desktop API does not
@@ -3089,5 +3401,5 @@ public inline fun requireDesktop(lazyMessage: () -> Any) {
  */
 @Throws(UnsupportedDesktopException::class)
 public inline fun requireDesktop() = requireDesktop {
-    "The Java Desktop API is not supported on the current platform. (OS:${System.getProperty("os.name")}"
+    "The Java Desktop API is not supported on the current platform. (OS:${System.getProperty("os.name")})"
 }

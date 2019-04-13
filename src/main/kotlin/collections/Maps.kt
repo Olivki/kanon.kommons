@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("KMaps")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.collections
 
@@ -72,29 +73,62 @@ public fun <K, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = TreeMap(p
  */
 // we're using the enum class constructor rather than the one that accepts a map so that the function won't fail if
 // the supplied 'entries' is empty.
-public inline fun <reified EK : Enum<EK>, V> enumMapOf(vararg entries: Pair<EK, V>): EnumMap<EK, V> =
-    EnumMap<EK, V>(EK::class.java).apply {
+public inline fun <reified E : Enum<E>, V> enumMapOf(vararg entries: Pair<E, V>): EnumMap<E, V> =
+    EnumMap<E, V>(E::class.java).apply {
         for ((key, value) in entries) this[key] = value
     }
 
 /**
- * Stores the specified [value] under the specified [key] in `this` map, and then returns [value].
+ * Stores the specified [value] under the specified [key] in `this` map, and then returns the specified [value].
  *
- * @return [value]
+ * @return the specified [value]
  *
  * @since 0.6.0
  */
-public inline fun <reified K, reified V, M : MutableMap<K, V>> M.putAndReturn(key: K, value: V): V {
+public fun <K, V, M : MutableMap<K, V>> M.putAndReturn(key: K, value: V): V {
     this.put(key, value)
     return value
 }
 
 /**
- * Stores the specified [value] under the specified [key] in `this` map, and then returns [value].
+ * Stores the specified [value] under the specified [key] in `this` map, and then returns the specified [value].
  *
- * @return [value]
+ * @return the specified [value]
  *
  * @since 0.6.0
  */
-public inline fun <reified K, reified V, M : MutableMap<K, V>> M.putAndReturn(key: K, value: () -> V): V =
+public fun <K, V, M : MutableMap<K, V>> M.putAndReturn(key: K, value: () -> V): V =
     this.putAndReturn(key, value())
+
+// collections jvm
+/**
+ * Returns an unmodifiable view of `this` map.
+ *
+ * This function allows modules to provide users with "read-only" access to internal maps.
+ *
+ * Query operations on the returned map "read through" to the specified map, and attempts to modify the returned map,
+ * whether direct or via its collection views, result in an [UnsupportedOperationException].
+ *
+ * The returned map will be serializable if the specified map is serializable.
+ *
+ * @receiver the map for which an unmodifiable view is to be returned.
+ *
+ * @param [K] the type of the [map keys][Map.keys]
+ * @param [V] the type of the [map values][Map.values]
+ *
+ * @return an unmodifiable view of `this` map
+ *
+ * @since 0.6.0
+ */
+public inline fun <K, V> Map<K, V>.toUnmodifiableMap(): Map<K, V> = Collections.unmodifiableMap(this)
+
+/**
+ * Creates and returns a unmodifiable map containing the specified [pairs].
+ *
+ * @param [K] the type of the [map keys][Map.keys]
+ * @param [V] the type of the [map values][Map.values]
+ * @param [pairs] the contents of the map
+ *
+ * @return the newly created map
+ */
+public fun <K, V> unmodifiableMapOf(vararg pairs: Pair<K, V>): Map<K, V> = pairs.toMap().toUnmodifiableMap()

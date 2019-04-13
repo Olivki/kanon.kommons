@@ -19,4 +19,36 @@
 
 package moe.kanon.kommons.collections
 
+import java.util.*
+
 public inline fun <V> List<V>.from(start: Int) = slice(start until size)
+
+// collections jvm
+/**
+ * Returns an unmodifiable view of `this` list.
+ *
+ * This function allows modules to provide users with "read-only" access to internal lists.
+ *
+ * Query operations on the returned list "read through" to the specified list, and attempts to modify the returned list,
+ * whether direct or via its iterator, result in an [UnsupportedOperationException].
+ *
+ * The returned list will be serializable if the specified list is serializable. Similarly, the returned list will
+ * implement [RandomAccess] if the specified list does.
+ *
+ * @receiver the list for which an unmodifiable view is to be returned
+ *
+ * @param [V] the type that `this` list stores
+ *
+ * @return an unmodifiable view of `this` list
+ */
+public inline fun <V> List<V>.toUnmodifiableList(): List<V> = Collections.unmodifiableList(this)
+
+/**
+ * Creates and returns a unmodifiable list containing the specified [values].
+ *
+ * @param [V] the type of the entries of the list
+ * @param [values] the values to populate the list with
+ *
+ * @return the newly created list
+ */
+public fun <V> unmodifiableListOf(vararg values: V): List<V> = Collections.unmodifiableList(values.toList())
