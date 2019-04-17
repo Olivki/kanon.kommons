@@ -161,4 +161,4 @@ publishing {
 }
 
 // Misc Functions & Properties
-fun getVariable(name: String) = System.getenv(name)!!
+fun getVariable(name: String) = System.getenv(name)
