@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
 @file:JvmName("KMaps")
 @file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kommons.collections
+package moe.kanon.kommons.collections.maps
 
 import java.util.*
 
@@ -59,6 +60,37 @@ fun <K, V> MutableMap<K, V>.inherit(from: Map<out K, V>) {
     from.mapValuesTo(this) { it.value }
 }
 
+// this function differs from the one in the std-lib in that this function returns the map
+/**
+ * Puts all the entries of the specified [pairs] into `this` [MutableMap].
+ *
+ * @return `this` map
+ */
+@JvmName("populate")
+infix fun <K, V> MutableMap<K, V>.populateWith(pairs: Iterable<Pair<K, V>>): MutableMap<K, V> = apply {
+    for ((key, value) in pairs) put(key, value)
+}
+
+/**
+ * Puts all the entries of the specified [pairs] into `this` [MutableMap].
+ *
+ * @return `this` map
+ */
+infix fun <K, V> MutableMap<K, V>.populateWith(pairs: Array<out Pair<K, V>>): MutableMap<K, V> = apply {
+    for ((key, value) in pairs) put(key, value)
+}
+
+/**
+ * Puts all the specified [entries] into `this` [MutableMap].
+ *
+ * @return `this` map
+ */
+@JvmName("populate")
+fun <K, V> MutableMap<K, V>.putAll(vararg entries: Pair<K, V>): MutableMap<K, V> = apply {
+    for ((key, value) in entries) put(key, value)
+}
+
+
 /**
  * Creates a [TreeMap] using the specified [pairs].
  *
@@ -74,10 +106,8 @@ fun <K, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = TreeMap(pairs.to
  */
 // we're using the enum class constructor rather than the one that accepts a map so that the function won't fail if
 // the supplied 'entries' is empty.
-inline fun <reified E : Enum<E>, V> enumMapOf(vararg entries: Pair<E, V>): EnumMap<E, V> =
-    EnumMap<E, V>(E::class.java).apply {
-        for ((key, value) in entries) this[key] = value
-    }
+inline fun <reified K : Enum<K>, V> enumMapOf(vararg entries: Pair<K, V>): Map<K, V> =
+    EnumMap<K, V>(K::class.java).populateWith(entries)
 
 /**
  * Stores the specified [value] under the specified [key] in `this` map, and then returns the specified [value].

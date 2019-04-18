@@ -28,13 +28,9 @@ import moe.kanon.kommons.func.Supplier
 @Suppress("UNCHECKED_CAST")
 sealed class Either<L, R> {
 
-    val isLeft: Boolean by lazy {
-        this is Left<*>
-    }
+    abstract fun isLeft(): Boolean
 
-    val isRight: Boolean by lazy {
-        this is Right<*>
-    }
+    abstract fun isRight(): Boolean
 
     inline fun <U> fold(ifLeft: Func<in L, out U>, ifRight: Func<in R, out U>): U = when (this) {
         is Left -> ifLeft(value)
@@ -64,6 +60,9 @@ sealed class Either<L, R> {
 }
 
 data class Left<L> private constructor(val value: L) : Either<L, Nothing>() {
+    override fun isLeft(): Boolean = true
+    override fun isRight(): Boolean = false
+
     override fun toString(): String = "Left[$value]"
 
     companion object {
@@ -78,6 +77,9 @@ data class Left<L> private constructor(val value: L) : Either<L, Nothing>() {
 }
 
 data class Right<R> private constructor(val value: R) : Either<Nothing, R>() {
+    override fun isLeft(): Boolean = false
+    override fun isRight(): Boolean = true
+
     override fun toString(): String = "Right[$value]"
 
     companion object {
@@ -90,6 +92,3 @@ data class Right<R> private constructor(val value: R) : Either<Nothing, R>() {
         operator fun <T> invoke(value: T): Either<Nothing, T> = Right(value)
     }
 }
-
-@JvmName("fromPair")
-fun <L, R> Pair<L, R>.toEither(): Either<L, R> = TODO()

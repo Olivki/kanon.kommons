@@ -17,7 +17,7 @@
 @file:JvmName("KSets")
 @file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kommons.collections
+package moe.kanon.kommons.collections.sets
 
 import java.util.*
 
@@ -31,7 +31,7 @@ import java.util.*
  * This function allows modules to provide users with "read-only" access to internal sets.
  *
  * Query operations on the returned list "read through" to the specified set, and attempts to modify the returned set,
- * whether direct or via its iterator, result in an [UnsupportedOperationException].
+ * whether direct or via its iterators, result in an [UnsupportedOperationException].
  *
  * The returned list will be serializable if the specified set is serializable. Similarly, the returned set will
  * implement [RandomAccess] if the specified set does.

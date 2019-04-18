@@ -418,9 +418,9 @@ public class AcceptAllFilter : PathDirectoryFilter {
 /**
  * Opens this [directory][Path], returning a [DirectoryStream] to iterate over the entries in the directory.
  *
- * The elements returned by the directory stream's [iterator][DirectoryStream] are of type  [Path], each one
+ * The elements returned by the directory stream's [iterators][DirectoryStream] are of type  [Path], each one
  * representing an entry in the directory. The [Path] objects are obtained as if by [resolving][Path.resolve] the
- * name of the directory entry against this [directory][Path]. The entries returned by the iterator are filtered by
+ * name of the directory entry against this [directory][Path]. The entries returned by the iterators are filtered by
  * the given [filter][DirectoryStream.Filter].
  *
  * When not using the try-with-resources construct, then directory stream's [close][DirectoryStream.close] method
@@ -461,9 +461,9 @@ public inline fun Path.newDirectoryStream(dirFilter: PathDirectoryFilter = Accep
 /**
  * Opens this [directory][Path], returning a [DirectoryStream] to iterate over the entries in the directory.
  *
- * The elements returned by the directory stream's [iterator][DirectoryStream] are of type [Path], each one
+ * The elements returned by the directory stream's [iterators][DirectoryStream] are of type [Path], each one
  * representing an entry in the directory. The [Path] objects are obtained as if by [resolving][Path.resolve] the
- * name of the directory entry against [this]. The entries returned by the iterator are filtered by matching the
+ * name of the directory entry against [this]. The entries returned by the iterators are filtered by matching the
  * [String] representation  of their file names against the given [globbing][glob] pattern.
  *
  * **Usage Example:**

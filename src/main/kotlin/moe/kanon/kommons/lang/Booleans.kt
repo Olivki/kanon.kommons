@@ -33,8 +33,6 @@
 
 package moe.kanon.kommons.lang
 
-import moe.kanon.kommons.func.result.Try
-
 /**
  * Converts the given [value] to a [Boolean].
  *

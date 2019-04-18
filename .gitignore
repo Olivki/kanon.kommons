@@ -99,3 +99,4 @@ fabric.properties
 .idea/httpRequests
 /src/test/kotlin/Test.kt
 !/appender.jar
+/.directory

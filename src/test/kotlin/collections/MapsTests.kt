@@ -18,7 +18,7 @@ package moe.kanon.kommons.test.collections
 
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.BehaviorSpec
-import moe.kanon.kommons.collections.flip
+import moe.kanon.kommons.collections.maps.flip
 import moe.kanon.kommons.test.forAll
 
 class NativeMapFlipTest : BehaviorSpec({

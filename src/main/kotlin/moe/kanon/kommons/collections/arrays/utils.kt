@@ -17,7 +17,7 @@
 @file:JvmName("KArrays")
 @file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kommons.collections
+package moe.kanon.kommons.collections.arrays
 
 import moe.kanon.kommons.lang.occurrencesOf
 

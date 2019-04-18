@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,16 +14,27 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
 @file:JvmName("KLists")
 @file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kommons.collections
+package moe.kanon.kommons.collections.lists
 
 import java.util.*
 
-infix fun <T> List<T>.from(start: Int) = slice(start until size)
+/**
+ * Returns a list containing all the entries of `this` list, starting from the specified [start] index until the end of
+ * `this` collection.
+ */
+@JvmName("sliceFrom")
+infix fun <T> List<T>.from(start: Int): List<T> = slice(start until size)
 
-infix fun <T> List<T>.until(end: Int) = slice(0 until end)
+/**
+ * Returns a list containing all the entries of `this` list, starting from the beginning of `this` list until the end
+ * of the specified [end] index.
+ */
+@JvmName("sliceUntil")
+infix fun <T> List<T>.until(end: Int): List<T> = slice(0 until end)
 
 // collections jvm
 /**
@@ -32,7 +43,7 @@ infix fun <T> List<T>.until(end: Int) = slice(0 until end)
  * This function allows modules to provide users with "read-only" access to internal lists.
  *
  * Query operations on the returned list "read through" to the specified list, and attempts to modify the returned list,
- * whether direct or via its iterator, result in an [UnsupportedOperationException].
+ * whether direct or via its iterators, result in an [UnsupportedOperationException].
  *
  * The returned list will be serializable if the specified list is serializable. Similarly, the returned list will
  * implement [RandomAccess] if the specified list does.

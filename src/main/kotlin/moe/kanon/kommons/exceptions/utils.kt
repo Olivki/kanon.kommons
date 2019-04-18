@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
 @file:JvmName("KExceptions")
 
-package moe.kanon.kommons.misc
+package moe.kanon.kommons.exceptions
 
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf

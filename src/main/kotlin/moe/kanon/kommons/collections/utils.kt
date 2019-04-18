@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
 @file:JvmName("KCollections")
 @file:Suppress("NOTHING_TO_INLINE")
 
@@ -24,7 +25,7 @@ import java.util.*
 /**
  * Removes all of the supplied [elements] from the collection and returns this [collection][MutableCollection].
  */
-public inline fun <V, C : MutableCollection<V>> C.removeAll(vararg elements: V): C {
+inline fun <V, C : MutableCollection<V>> C.removeAll(vararg elements: V): C {
     this.removeAll(elements)
     return this
 }
@@ -32,7 +33,7 @@ public inline fun <V, C : MutableCollection<V>> C.removeAll(vararg elements: V):
 /**
  * Adds all of the supplied [elements] to the collection and returns this [collection][MutableCollection].
  */
-public inline fun <V, C : MutableCollection<V>> C.addAll(vararg elements: V): C {
+inline fun <V, C : MutableCollection<V>> C.addAll(vararg elements: V): C {
     this.removeAll(elements)
     return this
 }
@@ -40,17 +41,17 @@ public inline fun <V, C : MutableCollection<V>> C.addAll(vararg elements: V): C 
 /**
  * Invokes the specified [action] only if `this` collection is empty.
  *
- * @receiver the [Collection] to check against.
+ * @receiver the [Collection] to check against
  */
-public inline fun <reified T, reified C : Collection<T>> C.ifEmpty(action: (C) -> Unit): C =
+inline fun <reified T, reified C : Collection<T>> C.ifEmpty(action: (C) -> Unit): C =
     if (this.isEmpty()) this.apply(action) else this
 
 /**
  * Invokes the specified [action] only if `this` collection is not empty.
  *
- * @receiver the [Collection] to check against.
+ * @receiver the [Collection] to check against
  */
-public inline fun <reified T, reified C : Collection<T>> C.ifNotEmpty(action: (C) -> Unit): C =
+inline fun <reified T, reified C : Collection<T>> C.ifNotEmpty(action: (C) -> Unit): C =
     if (this.isNotEmpty()) this.apply(action) else this
 
 // collections jvm
@@ -60,7 +61,7 @@ public inline fun <reified T, reified C : Collection<T>> C.ifNotEmpty(action: (C
  * This function allows modules to provide users with "read-only" access to internal collections.
  *
  * Query operations on the returned collection "read through" to the specified collection, and attempts to modify the
- * returned collection, whether direct or via its iterator, result in an [UnsupportedOperationException].
+ * returned collection, whether direct or via its iterators, result in an [UnsupportedOperationException].
  *
  * The returned collection does *not* pass the hashCode and equals operations through to the backing collection, but
  * relies on `Any`'s `equals` and `hashCode` function.  This is necessary to preserve the contracts of these operations
@@ -74,4 +75,4 @@ public inline fun <reified T, reified C : Collection<T>> C.ifNotEmpty(action: (C
  *
  * @return an unmodifiable view of `this` collection
  */
-public inline fun <V> Collection<V>.toUnmodifiableCollection(): Collection<V> = Collections.unmodifiableCollection(this)
+inline fun <V> Collection<V>.toUnmodifiableCollection(): Collection<V> = Collections.unmodifiableCollection(this)

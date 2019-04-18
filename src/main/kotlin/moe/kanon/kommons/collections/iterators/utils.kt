@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-@file:JvmName("KIterables")
+@file:JvmMultifileClass
+@file:JvmName("KIterators")
 
-package moe.kanon.kommons.collections
+package moe.kanon.kommons.collections.iterators
 
-import moe.kanon.kommons.lang.occurrencesOf
-
-/**
- * Returns a [List] that's sorted after the occurrences of the specific characters in the given [String].
- */
-fun Iterable<Char>.sortByOccurrences(string: String): List<Char> = this.sortedBy { string.occurrencesOf(it) }

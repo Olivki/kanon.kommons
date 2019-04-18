@@ -726,13 +726,13 @@ public final class ConversionTool {
     }
 
     /**
-     * Returns an iterator over the simple values of a composite value. This
+     * Returns an iterators over the simple values of a composite value. This
      * implementation calls {@link #flatten(Object, char)} and returns an
-     * iterator over the returned collection.
+     * iterators over the returned collection.
      *
      * @param value     the value to "split"
      * @param delimiter the delimiter for String values
-     * @return an iterator for accessing the single values
+     * @return an iterators for accessing the single values
      */
     public static Iterator<?> toIterator(final Object value,
                                          final char delimiter) {
@@ -790,11 +790,11 @@ public final class ConversionTool {
     }
 
     /**
-     * Flattens the given iterator. For each element in the iteration
+     * Flattens the given iterators. For each element in the iteration
      * {@code flatten()} will be called recursively.
      *
      * @param target    the target collection
-     * @param it        the iterator to process
+     * @param it        the iterators to process
      * @param delimiter the delimiter for String values
      */
     private static void flattenIterator(final Collection<Object> target,
