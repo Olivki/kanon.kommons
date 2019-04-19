@@ -22,6 +22,9 @@ package moe.kanon.kommons.collections.lists
 
 import java.util.*
 
+val <T> List<T>.head: T get() = first()
+val <T> List<T>.tail: T get() = last()
+
 /**
  * Returns a list containing all the entries of `this` list, starting from the specified [start] index until the end of
  * `this` collection.

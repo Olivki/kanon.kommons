@@ -20,6 +20,9 @@
 
 package moe.kanon.kommons.collections.iterators
 
+import moe.kanon.kommons.func.tuples.Duad
+import moe.kanon.kommons.func.tuples.toT
+
 private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
 
 // TODO: Spliterators
@@ -113,3 +116,12 @@ class SingletonListIterator<T>(private val item: T) : ListIterator<T> {
 
     override fun previousIndex(): Int = 0
 }
+
+// zip
+class ZippedIterator<A, B>(private val first: Iterator<A>, private val second: Iterator<B>) : Iterator<Duad<A, B>> {
+    override fun hasNext(): Boolean = first.hasNext() && second.hasNext()
+
+    override fun next(): Duad<A, B> = first.next() toT second.next()
+}
+
+infix fun <A, B> Iterator<A>.zipWith(other: Iterator<B>): Iterator<Duad<A, B>> = ZippedIterator(this, other)

@@ -33,3 +33,12 @@ inline fun <T : Comparable<T>> requireValueInsideOfRange(value: T, range: Closed
 inline fun <T : Comparable<T>> requireValueInsideOfRange(value: T, range: ClosedRange<T>, lazyMsg: Supplier<String>) {
     if (value !in range) throw ValueOutsideOfRangeException(value, range, lazyMsg())
 }
+
+/**
+ * Throws `this` if it is a *fatal* throwable.
+ */
+inline fun <T : Throwable> T.requireNonFatal() {
+    when (this) {
+        is StackOverflowError -> throw this
+    }
+}

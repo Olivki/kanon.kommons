@@ -56,7 +56,6 @@ inline fun <reified E : Enum<E>> valueOf(default: E, predicate: (E) -> Boolean):
  *
  * (`false` by default)
  */
-@JvmOverloads
 inline fun <reified E : Enum<E>> valueOf(name: String, default: E, ignoreCase: Boolean = false): E =
     valueOf(default) { it.name.equals(name, ignoreCase) }
 
@@ -70,7 +69,6 @@ inline fun <reified E : Enum<E>> valueOf(name: String, default: E, ignoreCase: B
  *
  * (`false` by default)
  */
-@JvmOverloads
 inline fun <reified E : Enum<E>> valueOfNormalizedName(name: String, default: E, ignoreCase: Boolean = false): E =
     valueOf(default) { it.name.equals(name, ignoreCase) }
 

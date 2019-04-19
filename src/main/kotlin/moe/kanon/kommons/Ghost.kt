@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-@file:JvmMultifileClass
-@file:JvmName("KIterables")
-
-package moe.kanon.kommons.collections.iterables
-
-/*
- * This file contains ports of internal utility functions used in the Kotlin standard library.
- */
+package moe.kanon.kommons
 
 /**
- * Returns the size of `this` iterable if it is known, or `null` otherwise.
+ * Represents a class that by all means does not exist.
  */
-fun <T> Iterable<T>.collectionSizeOrNull(): Int? = if (this is Collection<*>) this.size else null
-
-/**
- * Returns the size of `this` iterable if it is known, or the specified [default] value otherwise.
- */
-fun <T> Iterable<T>.collectionSizeOrDefault(default: Int): Int = if (this is Collection<*>) this.size else default
+open class Ghost {
+    override fun equals(other: Any?): Boolean = false
+    override fun hashCode(): Int = 0
+    override fun toString(): String = ""
+}

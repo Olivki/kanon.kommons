@@ -2,7 +2,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm").version("1.3.21")
+    kotlin("jvm").version("1.3.30")
 
     id("com.adarshr.test-logger").version("1.6.0") // For pretty-printing for tests.
     id("com.jfrog.bintray").version("1.8.4") // For publishing to BinTray.
@@ -39,6 +39,8 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     // Enables the use of the @Experimental annotation.
     kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    kotlinOptions.freeCompilerArgs += "-XXLanguage:+InlineClasses"
+    kotlinOptions.freeCompilerArgs += "-Xjvm-default=enable"
 }
 
 // Dokka Tasks
@@ -78,7 +80,8 @@ val javaDocJar by tasks.creating(Jar::class) {
 
 artifacts {
     add("archives", sourcesJar)
-    add("archives", javaDocJar)
+    // TODO: Re-enable this
+    //add("archives", javaDocJar)
 }
 
 // Publishing Tasks

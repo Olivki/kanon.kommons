@@ -16,9 +16,9 @@
 
 @file:JvmName("RomanNumerals")
 
-package moe.kanon.kommons.humanize
+package moe.kanon.kommons.lang.humanize
 
-import moe.kanon.kommons.collections.treeMapOf
+import moe.kanon.kommons.collections.maps.treeMapOf
 import java.util.regex.Pattern
 
 private val ROMAN_NUMERALS = treeMapOf(
@@ -44,36 +44,32 @@ private val ROMAN_NUMERALS = treeMapOf(
  *
  * @since 0.6.0
  */
-public fun Byte.toRomanNumeral(): String = this.toLong().toRomanNumeral()
+fun Byte.toRomanNumeral(): String = this.toLong().toRomanNumeral()
 
 /**
  * Converts this [Short] to a roman numeral in [String] format.
  *
  * @since 0.6.0
  */
-public fun Short.toRomanNumeral(): String = this.toLong().toRomanNumeral()
+fun Short.toRomanNumeral(): String = this.toLong().toRomanNumeral()
 
 /**
  * Converts this [Int] to a roman numeral in [String] format.
  *
  * @since 0.6.0
  */
-public fun Int.toRomanNumeral(): String = this.toLong().toRomanNumeral()
+fun Int.toRomanNumeral(): String = this.toLong().toRomanNumeral()
 
 /**
  * Converts this [Long] to a roman numeral in [String] format.
  *
  * @since 0.6.0
  */
-public fun Long.toRomanNumeral(): String {
-    // Gets the key that has the closest value rounding downwards to this long.
-    val closestKey = ROMAN_NUMERALS.floorKey(this)
-    return when (closestKey) {
-        // If the closest key is the same value as this long, then just return the value that's stored under this key.
-        this -> ROMAN_NUMERALS[this] ?: throw NoSuchElementException("'$this' does not exist in roman numeral tree.")
-        // If not, just return the value of the closest key, and then recursively append the rest of the values.
-        else -> ROMAN_NUMERALS[closestKey] + (this - closestKey).toRomanNumeral()
-    }
+fun Long.toRomanNumeral(): String = when (val closestKey = ROMAN_NUMERALS.floorKey(this)) {
+    // If the closest key is the same value as this long, then just return the value that's stored under this key.
+    this -> ROMAN_NUMERALS[this] ?: throw NoSuchElementException("'$this' does not exist in roman numeral tree.")
+    // If not, just return the value of the closest key, and then recursively append the rest of the values.
+    else -> ROMAN_NUMERALS[closestKey] + (this - closestKey).toRomanNumeral()
 }
 
 // from
@@ -93,7 +89,7 @@ private fun isInvalidRomanNumeral(input: String): Boolean = !Pattern.compile(
  *
  * @since 0.6.0
  */
-public fun String.fromRomanNumeral(): Long {
+fun String.fromRomanNumeral(): Long {
     val input = this.trim().toUpperCase()
     val length = input.length
 

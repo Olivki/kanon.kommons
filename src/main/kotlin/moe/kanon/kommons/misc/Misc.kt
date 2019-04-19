@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-@file:JvmMultifileClass
-@file:JvmName("KIterables")
+@file:JvmName("KMisc")
 
-package moe.kanon.kommons.collections.iterables
+package moe.kanon.kommons.misc
 
-import moe.kanon.kommons.lang.occurrencesOf
+/*
+ * This file contains different functions / structures that have no proper place to put them for now.
+ */
 
 /**
- * Returns a [List] that's sorted after the occurrences of the specific characters in the given [String].
+ * Calls the [action] `n` amount of times.
+ *
+ * Examples:
+ * ```kotlin
+ *  3 * { println(it) } // 1\n2\n3
+ *
+ *  4 times { println(it) } // 1\n2\n3\n4
+ * ```
+ *
+ * @receiver the [Int] that determines the value of `n`
  */
-fun Iterable<Char>.sortByOccurrences(string: String): List<Char> = this.sortedBy { string.occurrencesOf(it) }
+inline infix operator fun Int.times(action: (Int) -> Unit) {
+    for (i in 0 until this) action(i)
+}
