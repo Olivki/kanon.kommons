@@ -12,36 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * -------------------------------------------------------------------------
- *
- * Scala
- * Copyright (c) 2002-2019 EPFL
- * Copyright (c) 2011-2019 Lightbend, Inc.
- *
- * Scala includes software developed at
- * LAMP/EPFL (https://lamp.epfl.ch/) and
- * Lightbend, Inc. (https://www.lightbend.com/).
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 @file:JvmName("KTry")
 @file:Suppress("UNCHECKED_CAST")
 
-package moe.kanon.kommons.func.result
+package moe.kanon.kommons.func
 
 import moe.kanon.kommons.collections.iterators.EmptyIterator
 import moe.kanon.kommons.collections.iterators.SingletonIterator
-import moe.kanon.kommons.func.Supplier
-import moe.kanon.kommons.func.optional.None
-import moe.kanon.kommons.func.optional.Optional
-import moe.kanon.kommons.func.optional.Some
 import moe.kanon.kommons.precond.requireNonFatal
 
 typealias Result<T> = Try<T>
@@ -61,6 +40,14 @@ typealias Result<T> = Try<T>
 sealed class Try<out T> : Iterable<T> {
     abstract fun isFailure(): Boolean
     abstract fun isSuccess(): Boolean
+
+    inline fun ifSuccess(action: (T) -> Unit) {
+        if (isSuccess()) action(get())
+    }
+
+    inline fun ifFailure(action: (Throwable) -> Unit) {
+        if (isFailure()) action(getCause())
+    }
 
     /**
      * Returns [value][Success.value] if `this` is a [success][Success] or throws a [NoSuchElementException] if `this`
@@ -162,14 +149,24 @@ sealed class Try<out T> : Iterable<T> {
      * [Failure].
      */
     inline fun filter(predicate: (T) -> Boolean): Try<T> =
-        flatMap { if (predicate(it)) Success(it) else Failure(PredicateException("Predicate did not match <$it>")) }
+        flatMap { if (predicate(it)) Success(it) else Failure(
+            PredicateException(
+                "Predicate did not match <$it>"
+            )
+        )
+        }
 
     /**
      * Returns [Success] if `this` has a [value][Success.value] that does *not* match the [predicate], otherwise
      * returns [Failure].
      */
     inline fun filterNot(predicate: (T) -> Boolean): Try<T> =
-        flatMap { if (!predicate(it)) Success(it) else Failure(PredicateException("Predicate did not match <$it>")) }
+        flatMap { if (!predicate(it)) Success(it) else Failure(
+            PredicateException(
+                "Predicate did not match <$it>"
+            )
+        )
+        }
 
     /**
      * Returns `false` if `this` is a [failure][Failure], otherwise returns the result of calling [predicate] with

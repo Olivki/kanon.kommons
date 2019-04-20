@@ -16,6 +16,7 @@
 
 @file:JvmMultifileClass
 @file:JvmName("KMaps")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.collections.maps
 
@@ -38,3 +39,15 @@ fun calculateMapCapacity(expectedSize: Int): Int = when {
     // any large value
     else -> Int.MAX_VALUE
 }
+
+fun <K, V> Map<K, V>.optimizeReadOnlyMap() = when (size) {
+    0 -> emptyMap()
+    1 -> toSingletonMapOrSelf()
+    else -> this
+}
+
+inline fun <K, V> Map<K, V>.toSingletonMapOrSelf(): Map<K, V> = toSingletonMap()
+
+// creates a singleton copy of map
+fun <K, V> Map<out K, V>.toSingletonMap(): Map<K, V> =
+    with(entries.iterator().next()) { java.util.Collections.singletonMap(key, value) }

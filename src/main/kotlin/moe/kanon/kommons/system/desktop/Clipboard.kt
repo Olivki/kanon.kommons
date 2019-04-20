@@ -17,10 +17,10 @@
 @file:JvmMultifileClass
 @file:JvmName("KDesktop")
 
-package moe.kanon.kommons.misc.desktop
+package moe.kanon.kommons.system.desktop
 
-import moe.kanon.kommons.func.optional.None
-import moe.kanon.kommons.func.optional.Optional
+import moe.kanon.kommons.func.None
+import moe.kanon.kommons.func.Optional
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.DataFlavor
@@ -56,5 +56,6 @@ var clipboard: Optional<String>
         return if (systemClipboard.isDataFlavorAvailable(flavor)) systemClipboard.data(flavor) else Optional.empty()
     }
     set(value) {
-        systemClipboard.setContents(StringSelection(value getOrElse ""), null)
+        val contents = StringSelection(value getOrElse "")
+        systemClipboard.setContents(contents, contents)
     }

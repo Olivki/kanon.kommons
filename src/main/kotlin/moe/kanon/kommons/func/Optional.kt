@@ -12,34 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * -------------------------------------------------------------------------
- *
- * Scala
- * Copyright (c) 2002-2019 EPFL
- * Copyright (c) 2011-2019 Lightbend, Inc.
- *
- * Scala includes software developed at
- * LAMP/EPFL (https://lamp.epfl.ch/) and
- * Lightbend, Inc. (https://www.lightbend.com/).
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 @file:JvmName("KOptional")
 @file:Suppress("NOTHING_TO_INLINE", "MemberVisibilityCanBePrivate")
 
-package moe.kanon.kommons.func.optional
+package moe.kanon.kommons.func
 
 import moe.kanon.kommons.collections.iterators.EmptyIterator
 import moe.kanon.kommons.collections.iterators.SingletonIterator
-import moe.kanon.kommons.func.Supplier
-import moe.kanon.kommons.func.result.Try
 import moe.kanon.kommons.precond.requireNonFatal
 
 /*
@@ -66,6 +47,8 @@ typealias JOptional<T> = java.util.Optional<T>
  * value.
  */
 typealias Option<T> = Optional<T>
+
+typealias Maybe<T> = Optional<T>
 
 /**
  * A container object which may or may not contain a non-null value.
@@ -266,7 +249,8 @@ sealed class Optional<out T> {
          */
         // enables the syntax of 'Optional(67)'
         @JvmSynthetic
-        operator fun <T> invoke(value: T?): Optional<T> = ofNullable(value)
+        operator fun <T> invoke(value: T?): Optional<T> =
+            ofNullable(value)
 
         /**
          * Returns a [Some] containing the result of invoking the specified [value], or [None] if `value` is `null`.
@@ -375,4 +359,6 @@ val <T> JOptional<T>.kotlin: Optional<T>
  * If `this` boolean is `true`, returns the specified [item] wrapped in a [Some], otherwise returns [None].
  */
 @JvmName("fromBoolean")
-infix fun <T> Boolean.maybe(item: T): Optional<T> = if (this) Optional.of(item) else Optional.empty()
+infix fun <T> Boolean.maybe(item: T): Optional<T> = if (this) Optional.of(
+    item
+) else Optional.empty()
