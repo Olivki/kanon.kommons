@@ -22,26 +22,5 @@ import moe.kanon.kommons.func.tuples.Tuple2
 // can't use data class and inherit by Duad because of a stupid declaration clash.
 // and reimplementing the things a data class provides is easier than reimplementing the stuff duad provides.
 class State<out T>(val before: T, val after: T) : Tuple2<T, T> by Duad(before, after) {
-    override fun equals(other: Any?): Boolean {
-        return when {
-            this === other -> true
-            javaClass != other?.javaClass -> false
-            else -> {
-                other as State<*>
-
-                if (before != other.before) return false
-                if (after != other.after) return false
-
-                true
-            }
-        }
-    }
-
-    override fun hashCode(): Int {
-        var result = before?.hashCode() ?: 0
-        result = 31 * result + (after?.hashCode() ?: 0)
-        return result
-    }
-
     override fun toString(): String = "($before -> $after)"
 }

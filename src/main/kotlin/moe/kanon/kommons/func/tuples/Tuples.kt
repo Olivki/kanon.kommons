@@ -96,6 +96,12 @@ interface Tuple1<out A> : Serializable, Tuple0 {
     infix fun <A1> zip(that: Tuple1<A1>): Tuple2<Tuple1<A>, Tuple1<A1>>
 
     operator fun component1(): A
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -166,6 +172,12 @@ interface Tuple2<out A, out B> : Serializable, Tuple0 {
     operator fun component1(): A
 
     operator fun component2(): B
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -240,6 +252,12 @@ interface Tuple3<out A, out B, out C> : Serializable, Tuple0 {
     operator fun component2(): B
 
     operator fun component3(): C
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -304,6 +322,12 @@ interface Tuple4<out A, out B, out C, out D> : Serializable, Tuple0 {
     operator fun component3(): C
 
     operator fun component4(): D
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -372,6 +396,12 @@ interface Tuple5<out A, out B, out C, out D, out E> : Serializable, Tuple0 {
     operator fun component4(): D
 
     operator fun component5(): E
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -444,6 +474,12 @@ interface Tuple6<out A, out B, out C, out D, out E, out F> : Serializable, Tuple
     operator fun component5(): E
 
     operator fun component6(): F
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -520,6 +556,12 @@ interface Tuple7<out A, out B, out C, out D, out E, out F, out G> : Serializable
     operator fun component6(): F
 
     operator fun component7(): G
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -600,6 +642,12 @@ interface Tuple8<out A, out B, out C, out D, out E, out F, out G, out H> : Seria
     operator fun component7(): G
 
     operator fun component8(): H
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -684,6 +732,12 @@ interface Tuple9<out A, out B, out C, out D, out E, out F, out G, out H, out I> 
     operator fun component8(): H
 
     operator fun component9(): I
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -772,6 +826,12 @@ interface Tuple10<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component9(): I
 
     operator fun component10(): J
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -864,6 +924,12 @@ interface Tuple11<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component10(): J
 
     operator fun component11(): K
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -960,6 +1026,12 @@ interface Tuple12<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component11(): K
 
     operator fun component12(): L
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1060,6 +1132,12 @@ interface Tuple13<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component12(): L
 
     operator fun component13(): M
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1164,6 +1242,12 @@ interface Tuple14<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component13(): M
 
     operator fun component14(): N
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1272,6 +1356,12 @@ interface Tuple15<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component14(): N
 
     operator fun component15(): O
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1384,6 +1474,12 @@ interface Tuple16<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component15(): O
 
     operator fun component16(): P
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1500,6 +1596,12 @@ interface Tuple17<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component16(): P
 
     operator fun component17(): Q
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1620,6 +1722,12 @@ interface Tuple18<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component17(): Q
 
     operator fun component18(): R
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1744,6 +1852,12 @@ interface Tuple19<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component18(): R
 
     operator fun component19(): S
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -1872,6 +1986,12 @@ interface Tuple20<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component19(): S
 
     operator fun component20(): T
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -2004,6 +2124,12 @@ interface Tuple21<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component20(): T
 
     operator fun component21(): U
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -2140,6 +2266,12 @@ interface Tuple22<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component21(): U
 
     operator fun component22(): W
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -2280,6 +2412,12 @@ interface Tuple23<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component22(): W
 
     operator fun component23(): X
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -2427,4 +2565,10 @@ interface Tuple24<out A, out B, out C, out D, out E, out F, out G, out H, out I,
     operator fun component23(): X
 
     operator fun component24(): Y
+
+    override fun toString(): String
+
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
 }
