@@ -23,7 +23,6 @@ import moe.kanon.kommons.exceptions.ValueOutsideOfRangeException
 import moe.kanon.kommons.func.Supplier
 import moe.kanon.kommons.lang.ranges.getString
 import java.lang.Error
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 inline infix fun <T : Comparable<T>> T.needsToBeIn(range: ClosedRange<T>) = requireValueInsideOfRange(this, range)
@@ -62,9 +61,9 @@ inline fun <T : Any> requireNoNull(value: T?, lazyMsg: () -> String): T {
     if (value == null) throw UnsupportedOperationException(lazyMsg()) else return value
 }
 
-fun <T> exists(value: T?): Boolean {
+fun <T> T?.exists(): Boolean {
     contract {
-        returns(true) implies (value != null)
+        returns(true) implies (this@exists != null)
     }
-    return value != null
+    return this != null
 }
