@@ -19,8 +19,9 @@ package moe.kanon.kommons.func
 import moe.kanon.kommons.func.tuples.Duad
 import moe.kanon.kommons.func.tuples.Tuple2
 
-// can't use data class and inherit by Duad because of a stupid declaration clash.
-// and reimplementing the things a data class provides is easier than reimplementing the stuff duad provides.
+/**
+ * Represents a state of changing from [one value][before] to [another value][after].
+ */
 class State<out T>(val before: T, val after: T) : Tuple2<T, T> by Duad(before, after) {
     override fun toString(): String = "($before -> $after)"
 }

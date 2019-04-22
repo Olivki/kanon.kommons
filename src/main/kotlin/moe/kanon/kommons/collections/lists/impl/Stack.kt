@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-@file:JvmMultifileClass
-@file:JvmName("KMaps")
+package moe.kanon.kommons.collections.lists.impl
 
-package moe.kanon.kommons.collections.maps
+interface Stack<out T>
 
-import moe.kanon.kommons.func.tuples.Duad
-import moe.kanon.kommons.func.tuples.Tuple2
-
-operator fun <K, V> MutableMap<K, V>.plusAssign(pair: Tuple2<K, V>) {
-    put(pair.a, pair.b)
-}
+interface MutableStack<T> : Stack<T>

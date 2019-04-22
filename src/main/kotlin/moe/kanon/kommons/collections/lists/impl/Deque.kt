@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-@file:JvmMultifileClass
-@file:JvmName("KCollections")
+package moe.kanon.kommons.collections.lists.impl
 
-package moe.kanon.kommons.collections
+interface Deque<out T>
 
+interface MutableDeque<T> : Deque<T>

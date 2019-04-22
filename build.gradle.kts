@@ -41,6 +41,7 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
     kotlinOptions.freeCompilerArgs += "-XXLanguage:+InlineClasses"
     kotlinOptions.freeCompilerArgs += "-Xjvm-default=enable"
+    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
 }
 
 // Dokka Tasks

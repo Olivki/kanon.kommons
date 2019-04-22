@@ -22,8 +22,11 @@ package moe.kanon.kommons.func.tuples
 import moe.kanon.kommons.collections.iterables.collectionSizeOrDefault
 import moe.kanon.kommons.collections.maps.calculateMapCapacity
 import moe.kanon.kommons.collections.maps.optimizeReadOnlyMap
-import moe.kanon.kommons.collections.maps.plusAssign
 import moe.kanon.kommons.collections.maps.toUnmodifiableMap
+
+operator fun <K, V> MutableMap<K, V>.plusAssign(pair: Tuple2<K, V>) {
+    put(pair.a, pair.b)
+}
 
 // map creation
 /**

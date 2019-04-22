@@ -25,6 +25,7 @@ import moe.kanon.kommons.func.tuples.Tuple2
 import moe.kanon.kommons.func.tuples.toT
 
 private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
+private const val SINGLETON_ITERATOR = "Can not add or remove from a singleton iterator"
 
 // TODO: Spliterators
 
@@ -58,7 +59,8 @@ object EmptyIterator : Iterator<Nothing> {
     inline operator fun <T> invoke(): Iterator<T> = EmptyIterator
 }
 
-object EmptyListIterator : ListIterator<Nothing> {
+@Suppress("UNCHECKED_CAST")
+object EmptyListIterator : MutableListIterator<Nothing> {
     override fun hasNext(): Boolean = false
 
     override fun hasPrevious(): Boolean = false
@@ -71,6 +73,14 @@ object EmptyListIterator : ListIterator<Nothing> {
 
     override fun previousIndex(): Int = -1
 
+    // mutable operations
+    override fun add(element: Nothing) = throw UnsupportedOperationException(EMPTY_ITERATOR)
+
+    override fun remove() = throw UnsupportedOperationException(EMPTY_ITERATOR)
+
+    override fun set(element: Nothing) = throw UnsupportedOperationException(EMPTY_ITERATOR)
+
+    // custom
     /**
      * Returns `this` empty-list-iterator as a [Iterator] cast to [T].
      *
@@ -80,10 +90,10 @@ object EmptyListIterator : ListIterator<Nothing> {
      */
     @JvmStatic
     @Suppress("UNUSED_PARAMETER")
-    fun <T> of(clz: Class<T>): ListIterator<T> = EmptyListIterator
+    fun <T> of(clz: Class<T>): MutableListIterator<T> = EmptyListIterator as MutableListIterator<T>
 
-    @JvmSynthetic
-    inline operator fun <T> invoke(): ListIterator<T> = EmptyListIterator
+    @JvmName("of")
+    operator fun <T> invoke(): MutableListIterator<T> = EmptyListIterator as MutableListIterator<T>
 }
 
 // singleton iterators
@@ -102,7 +112,14 @@ class SingletonIterator<T>(private val item: T) : Iterator<T> {
     override fun next(): T = if (hasNext) item.also { hasNext = false } else throw NoSuchElementException()
 }
 
-class SingletonListIterator<T>(private val item: T) : ListIterator<T> {
+/**
+ * Represents a [list-iterator][ListIterator] that iterates over a single object.
+ *
+ * While this class *is* marked as a [MutableListIterator], this is solely for the purpose of allowing it to be used
+ * with mutable-list implementations, any attempts to actually invoke the mutable operation finctions will result in a
+ * [UnsupportedOperationException] being thrown.
+ */
+class SingletonListIterator<T>(private val item: T) : MutableListIterator<T> {
     private var hasNext = true
 
     override fun hasNext(): Boolean = hasNext
@@ -116,6 +133,13 @@ class SingletonListIterator<T>(private val item: T) : ListIterator<T> {
     override fun previous(): T = if (!hasNext) item.also { hasNext = true } else throw NoSuchElementException()
 
     override fun previousIndex(): Int = 0
+
+    // mutable operations
+    override fun add(element: T) = throw UnsupportedOperationException(SINGLETON_ITERATOR)
+
+    override fun remove() = throw UnsupportedOperationException(SINGLETON_ITERATOR)
+
+    override fun set(element: T) = throw UnsupportedOperationException(SINGLETON_ITERATOR)
 }
 
 // zip

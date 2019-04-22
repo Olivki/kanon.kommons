@@ -1,0 +1,1 @@
+This package contains implementations of common data structures, done solely for the purpose of education and learning. A lot of these implementations are naïve and most likely not very good implementations as they are made solely for educational purposes. This means that these structures are *not* made to replace any of the implementations available in the standard library.

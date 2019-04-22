@@ -19,6 +19,9 @@
 
 package moe.kanon.kommons.func
 
+import moe.kanon.kommons.collections.iterators.EmptyIterator
+import moe.kanon.kommons.collections.iterators.SingletonIterator
+
 /*
  * This is based/ported on the Either[1] class from the Scala standard library.
  *
@@ -76,6 +79,9 @@ sealed class Either<out L, out R> {
             is Right -> value
         }
 
+    /**
+     * Returns the result of executing [ifLeft] if `this` is a [left][Left] or [ifRight] if `this` is a [right][Right].
+     */
     inline fun <U> fold(ifLeft: (L) -> U, ifRight: (R) -> U): U = when (this) {
         is Left -> ifLeft(value)
         is Right -> ifRight(value)
@@ -116,7 +122,7 @@ sealed class Either<out L, out R> {
     inline operator fun not(): Either<R, L> = swap()
 
     /**
-     * Returns whether or not `this` either contains the specified [item].
+     * Returns whether or not `this` contains the specified [item].
      */
     operator fun contains(item: Any): Boolean = when (this) {
         is Left -> value == item
@@ -134,13 +140,13 @@ sealed class Either<out L, out R> {
          * Creates a [left-based][Left] [Either] wrapped around the given [value].
          */
         @JvmStatic
-        fun <L> left(value: L): Either<L, Nothing> = Left(value)
+        infix fun <L> left(value: L): Either<L, Nothing> = Left(value)
 
         /**
          * Creates a [right-based][Right] [Either] wrapped around the given [value].
          */
         @JvmStatic
-        fun <R> right(value: R): Either<Nothing, R> = Right(value)
+        infix fun <R> right(value: R): Either<Nothing, R> = Right(value)
     }
 }
 
@@ -177,7 +183,7 @@ data class Left<out T>(val value: T) : Either<T, Nothing>() {
     /**
      * Up-casts `this` `Left<T, Nothing>` to `Either<T, R>`.
      */
-    inline fun <reified R : Any> withRight(): Either<T, R> = withRight(R::class.java)
+    fun <R> withRight(): Either<T, R> = this
 
     override fun toString(): String = "Left[$value]"
 }
@@ -205,7 +211,7 @@ data class Right<out T>(val value: T) : Either<Nothing, T>() {
     /**
      * Up-casts `this` `Right<Nothing, T>` to `Either<L, T>`.
      */
-    inline fun <reified L : Any> withLeft(): Either<L, T> = withLeft(L::class.java)
+    fun <L> withLeft(): Either<L, T> = this
 
     override fun toString(): String = "Right[$value]"
 }
@@ -240,11 +246,20 @@ interface EitherProjection<out L, out R> {
  *
  * All functions in this class are left-side biased, unless explicitly stated otherwise.
  */
-data class LeftProjection<out L, out R>(
+class LeftProjection<out L, out R> internal constructor(
     @PublishedApi
     @get:JvmSynthetic
     internal val backing: Either<L, R>
 ) : EitherProjection<L, R> {
+    /**
+     * Returns a [SingletonIterator] if `this` is [left][Left], or a [EmptyIterator] if `this` is [right][Right].
+     */
+    val iterator: Iterator<L>
+        get() = when (backing) {
+            is Left -> SingletonIterator(backing.value)
+            is Right -> EmptyIterator
+        }
+
     val value: L
         get() = when (backing) {
             is Left -> backing.value
@@ -276,11 +291,65 @@ data class LeftProjection<out L, out R>(
         is Right -> true
     }
 
+    /**
+     * Executes the given [action] if `this` is [left][Right].
+     */
     inline fun forEach(action: (L) -> Unit) {
         if (backing is Left) action(backing.value)
     }
 
-    operator fun contains(item: @UnsafeVariance L): Boolean = item == value
+    /**
+     * Returns whether or not the specified [item] is equal to the [value][Left.value] if `this` is [left][Left], or
+     * returns `false` if `this` is [right][Right].
+     */
+    operator fun contains(item: @UnsafeVariance L): Boolean = when (backing) {
+        is Left -> item == backing.value
+        is Right -> false
+    }
+
+    /**
+     * Returns [Some] if `this` is `left`, or [None] if `this` is `right`.
+     */
+    fun toOptional(): Optional<L> = when (backing) {
+        is Left -> Some(backing.value)
+        is Right -> None
+    }
+
+    /**
+     * Returns [Success] if `this` is `left`, or [Failure] if `this` is `right`.
+     */
+    fun toTry(): Try<L> = when (backing) {
+        is Left -> Success(backing.value)
+        is Right -> Failure(WrongJunctionException("Expected left-side, got right-side"))
+    }
+
+    /**
+     * Returns a [Iterable] that's based on the [iterator] of `this`.
+     */
+    fun asIterable(): Iterable<L> = Iterable { iterator }
+
+    /**
+     * Returns a [Sequence] that's based on the [iterator] of `this`.
+     */
+    fun asSequence(): Sequence<L> = Sequence { iterator }
+
+    override fun hashCode(): Int = backing.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            javaClass != other?.javaClass -> false
+            else -> {
+                other as LeftProjection<*, *>
+
+                if (backing != other.backing) return false
+
+                true
+            }
+        }
+    }
+
+    override fun toString(): String = "LeftProjection[$backing]"
 }
 
 /**
@@ -288,11 +357,20 @@ data class LeftProjection<out L, out R>(
  *
  * All functions in this class are right-side biased, unless explicitly stated otherwise.
  */
-data class RightProjection<out L, out R>(
+class RightProjection<out L, out R> internal constructor(
     @PublishedApi
     @get:JvmSynthetic
     internal val backing: Either<L, R>
 ) : EitherProjection<L, R> {
+    /**
+     * Returns a [SingletonIterator] if `this` is [right][Right], or a [EmptyIterator] if `this` is [left][Left].
+     */
+    val iterator: Iterator<R>
+        get() = when (backing) {
+            is Left -> EmptyIterator
+            is Right -> SingletonIterator(backing.value)
+        }
+
     val value: R
         get() = when (backing) {
             is Left -> throw NoSuchElementException("Retrieving right-side value from left-side")
@@ -324,9 +402,66 @@ data class RightProjection<out L, out R>(
         is Right -> predicate(backing.value)
     }
 
+    /**
+     * Executes the given [action] if `this` is [right][Right].
+     */
     inline fun forEach(action: (R) -> Unit) {
         if (backing is Right) action(backing.value)
     }
 
-    operator fun contains(item: @UnsafeVariance R): Boolean = item == value
+    /**
+     * Returns whether or not the specified [item] is equal to the [value][Right.value] if `this` is [right][Right], or
+     * returns `false` if `this` is [left][Left].
+     */
+    operator fun contains(item: @UnsafeVariance R): Boolean = when (backing) {
+        is Left -> false
+        is Right -> item == backing.value
+    }
+
+    /**
+     * Returns [Some] if `this` is `right`, or [None] if `this` is `left`.
+     */
+    fun toOptional(): Optional<R> = when (backing) {
+        is Left -> None
+        is Right -> Some(backing.value)
+    }
+
+    /**
+     * Returns [Success] if `this` is `right`, or [Failure] if `this` is `left`.
+     */
+    fun toTry(): Try<R> = when (backing) {
+        is Left -> Failure(WrongJunctionException("Expected right-side, got left-side"))
+        is Right -> Success(backing.value)
+    }
+
+    /**
+     * Returns a [Iterable] that's based on the [iterator] of `this`.
+     */
+    fun asIterable(): Iterable<R> = Iterable { iterator }
+
+    /**
+     * Returns a [Sequence] that's based on the [iterator] of `this`.
+     */
+    fun asSequence(): Sequence<R> = Sequence { iterator }
+
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            javaClass != other?.javaClass -> false
+            else -> {
+                other as RightProjection<*, *>
+
+                if (backing != other.backing) return false
+
+                true
+            }
+        }
+
+    }
+
+    override fun hashCode(): Int = backing.hashCode()
+
+    override fun toString(): String = "RightProjection[$backing]"
 }
+
+private class WrongJunctionException(message: String) : RuntimeException(message)

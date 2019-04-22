@@ -22,6 +22,9 @@ package moe.kanon.kommons.precond
 import moe.kanon.kommons.exceptions.ValueOutsideOfRangeException
 import moe.kanon.kommons.func.Supplier
 import moe.kanon.kommons.lang.ranges.getString
+import java.lang.Error
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 inline infix fun <T : Comparable<T>> T.needsToBeIn(range: ClosedRange<T>) = requireValueInsideOfRange(this, range)
 
@@ -39,6 +42,29 @@ inline fun <T : Comparable<T>> requireValueInsideOfRange(value: T, range: Closed
  */
 inline fun <T : Throwable> T.requireNonFatal() {
     when (this) {
-        is StackOverflowError -> throw this
+        is Error -> throw this
     }
+}
+
+inline fun <T : Any> requireNoNull(value: T?): T {
+    contract {
+        returns() implies (value != null)
+    }
+
+    return requireNoNull(value) { "Value is not allowed to be null" }
+}
+
+inline fun <T : Any> requireNoNull(value: T?, lazyMsg: () -> String): T {
+    contract {
+        returns() implies (value != null)
+    }
+
+    if (value == null) throw UnsupportedOperationException(lazyMsg()) else return value
+}
+
+fun <T> exists(value: T?): Boolean {
+    contract {
+        returns(true) implies (value != null)
+    }
+    return value != null
 }

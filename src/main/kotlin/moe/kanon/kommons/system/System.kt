@@ -23,9 +23,9 @@ import moe.kanon.kommons.LINE_SEPARATOR
 import moe.kanon.kommons.func.Optional
 import moe.kanon.kommons.func.Try
 
-inline fun <T> T.print() = print(this)
+inline val <T> T.print get() = print(this)
 
-inline fun <T> T.println() = println(this)
+inline val <T> T.println get() = System.out.println(this)
 
 fun getProperty(key: String): Optional<String> =
     Optional { System.getProperty(key) }

@@ -37,16 +37,23 @@ typealias Result<T> = Try<T>
  * A result can either be a [success][Success] or a [failure][Failure]. A `success` always carries some value with it,
  * while a `failure` only carries a exception with it.
  */
-sealed class Try<out T> : Iterable<T> {
-    abstract fun isFailure(): Boolean
-    abstract fun isSuccess(): Boolean
+sealed class Try<out T> {
+    abstract val isFailure: Boolean
+    abstract val isSuccess: Boolean
+    abstract val iterator: Iterator<T>
 
+    /**
+     * Executes the given [action] if `this` is a [success][Success].
+     */
     inline fun ifSuccess(action: (T) -> Unit) {
-        if (isSuccess()) action(get())
+        if (isSuccess) action(get())
     }
 
+    /**
+     * Executes the given [action] if `this` is a [failure][Failure].
+     */
     inline fun ifFailure(action: (Throwable) -> Unit) {
-        if (isFailure()) action(getCause())
+        if (isFailure) action(getCause())
     }
 
     /**
@@ -149,24 +156,14 @@ sealed class Try<out T> : Iterable<T> {
      * [Failure].
      */
     inline fun filter(predicate: (T) -> Boolean): Try<T> =
-        flatMap { if (predicate(it)) Success(it) else Failure(
-            PredicateException(
-                "Predicate did not match <$it>"
-            )
-        )
-        }
+        flatMap { if (predicate(it)) Success(it) else Failure(PredicateException("Predicate did not match <$it>")) }
 
     /**
      * Returns [Success] if `this` has a [value][Success.value] that does *not* match the [predicate], otherwise
      * returns [Failure].
      */
     inline fun filterNot(predicate: (T) -> Boolean): Try<T> =
-        flatMap { if (!predicate(it)) Success(it) else Failure(
-            PredicateException(
-                "Predicate did not match <$it>"
-            )
-        )
-        }
+        flatMap { if (!predicate(it)) Success(it) else Failure(PredicateException("Predicate did not match <$it>")) }
 
     /**
      * Returns `false` if `this` is a [failure][Failure], otherwise returns the result of calling [predicate] with
@@ -219,6 +216,18 @@ sealed class Try<out T> : Iterable<T> {
         is Success -> Some(value)
     }
 
+    // TODO: toEither
+
+    /**
+     * Returns a [Iterable] that's based on the [iterator] of `this`.
+     */
+    fun asIterable(): Iterable<T> = Iterable { iterator }
+
+    /**
+     * Returns a [Sequence] that's based on the [iterator] of `this`.
+     */
+    fun asSequence(): Sequence<T> = Sequence { iterator }
+
     // to enforce the contract
     abstract override fun toString(): String
 
@@ -233,16 +242,30 @@ sealed class Try<out T> : Iterable<T> {
         @JvmStatic
         fun <T> success(value: T): Try<T> = Success(value)
 
+        /**
+         * Wraps [value] in a `try catch` block, and returns the result of invoking it; [Success] if no exceptions
+         * were thrown, or [Failure] if any exceptions were thrown.
+         *
+         * Note that any exceptions that are considered **fatal** are simply passed up the trace and are ***not***
+         * caught by this function. A exception is generally considered to be fatal if it a child of [Error].
+         */
         @JvmStatic
-        inline fun <T> tryInvoke(value: Supplier<T>): Try<T> = try {
+        inline fun <T> tryInvoke(value: () -> T): Try<T> = try {
             Success(value())
         } catch (e: Exception) {
             e.requireNonFatal()
             Failure(e)
         }
 
+        /**
+         * Wraps [value] in a `try catch` block, and returns the result of invoking it; [Success] if no exceptions
+         * were thrown, or [Failure] if any exceptions were thrown.
+         *
+         * Note that any exceptions that are considered **fatal** are simply passed up the trace and are ***not***
+         * caught by this function. A exception is generally considered to be fatal if it a child of [Error].
+         */
         @JvmSynthetic
-        inline operator fun <T> invoke(value: Supplier<T>): Try<T> = try {
+        inline operator fun <T> invoke(value: () -> T): Try<T> = try {
             Success(value())
         } catch (e: Exception) {
             e.requireNonFatal()
@@ -258,10 +281,13 @@ sealed class Try<out T> : Iterable<T> {
  */
 @Suppress("DataClassPrivateConstructor")
 data class Failure(@get:JvmName("getUnderlyingCause") val cause: Throwable) : Try<Nothing>() {
-    override fun isFailure(): Boolean = true
-    override fun isSuccess(): Boolean = false
-    override fun iterator(): Iterator<Nothing> = EmptyIterator
-    override fun toString(): String = "Failure[${cause.message}]"
+    override val isFailure: Boolean = true
+    override val isSuccess: Boolean = false
+    override val iterator: Iterator<Nothing> = EmptyIterator
+    override fun toString(): String = when (val name = cause::class.simpleName) {
+        null -> "Failure[\"${cause.message}\"]"
+        else -> "Failure { $name(\"${cause.message}\") }"
+    }
 }
 
 /**
@@ -270,9 +296,9 @@ data class Failure(@get:JvmName("getUnderlyingCause") val cause: Throwable) : Tr
  * @property [value] The underlying value that `this` result is wrapped around.
  */
 data class Success<out T>(val value: T) : Try<T>() {
-    override fun isFailure(): Boolean = false
-    override fun isSuccess(): Boolean = true
-    override fun iterator(): Iterator<T> = SingletonIterator(value)
+    override val isFailure: Boolean = false
+    override val isSuccess: Boolean = true
+    override val iterator: Iterator<T> = SingletonIterator(value)
     override fun toString(): String = "Success[$value]"
 }
 

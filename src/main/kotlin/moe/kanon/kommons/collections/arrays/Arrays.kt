@@ -22,6 +22,9 @@ package moe.kanon.kommons.collections.arrays
 import moe.kanon.kommons.lang.occurrencesOf
 
 // Generic Array
+@Suppress("UNCHECKED_CAST")
+inline fun <T> createArray(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
+
 /**
  * Returns an array inherited from this [array][Array] that's been spliced from [start] until the size of the array.
  *
