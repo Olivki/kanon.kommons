@@ -17,7 +17,7 @@
 @file:JvmName("KBigInteger")
 @file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kommons.math
+package moe.kanon.kommons.lang
 
 import java.math.BigInteger
 

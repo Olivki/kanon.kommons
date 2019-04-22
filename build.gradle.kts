@@ -37,11 +37,14 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    // Enables the use of the @Experimental annotation.
-    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
-    kotlinOptions.freeCompilerArgs += "-XXLanguage:+InlineClasses"
-    kotlinOptions.freeCompilerArgs += "-Xjvm-default=enable"
-    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+    with(kotlinOptions) {
+        freeCompilerArgs = listOf(
+            "-Xuse-experimental=kotlin.Experimental",
+            "-XXLanguage:+InlineClasses",
+            "-Xjvm-default=enable",
+            "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+        )
+    }
 }
 
 // Dokka Tasks
@@ -49,6 +52,7 @@ val dokkaJavaDoc by tasks.creating(DokkaTask::class) {
     outputFormat = "javadoc"
     outputDirectory = "$buildDir/javadoc"
     inputs.dir("src/main/kotlin")
+    includes = listOf("src/Module.md")
     includeNonPublic = false
     skipEmptyPackages = true
     jdkVersion = 8

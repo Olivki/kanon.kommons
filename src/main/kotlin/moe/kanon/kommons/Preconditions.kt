@@ -17,7 +17,7 @@
 @file:JvmName("KPreconditions")
 @file:Suppress("NOTHING_TO_INLINE")
 
-package moe.kanon.kommons.precond
+package moe.kanon.kommons
 
 import moe.kanon.kommons.exceptions.ValueOutsideOfRangeException
 import moe.kanon.kommons.func.Supplier
@@ -25,11 +25,15 @@ import moe.kanon.kommons.lang.ranges.getString
 import java.lang.Error
 import kotlin.contracts.contract
 
-inline infix fun <T : Comparable<T>> T.needsToBeIn(range: ClosedRange<T>) = requireValueInsideOfRange(this, range)
+inline infix fun <T : Comparable<T>> T.needsToBeIn(range: ClosedRange<T>) =
+    requireValueInsideOfRange(this, range)
 
 @JvmName("checkValueInsideOfRange")
 inline fun <T : Comparable<T>> requireValueInsideOfRange(value: T, range: ClosedRange<T>) =
-    requireValueInsideOfRange(value, range) { "Value <$value> needs to be inside of the range <${range.getString()}>" }
+    requireValueInsideOfRange(
+        value,
+        range
+    ) { "Value <$value> needs to be inside of the range <${range.getString()}>" }
 
 @JvmName("checkValueInsideOfRange")
 inline fun <T : Comparable<T>> requireValueInsideOfRange(value: T, range: ClosedRange<T>, lazyMsg: Supplier<String>) {
@@ -67,3 +71,9 @@ fun <T> T?.exists(): Boolean {
     }
     return this != null
 }
+
+@Suppress("FunctionName")
+inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException()
+
+@Suppress("FunctionName")
+inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)

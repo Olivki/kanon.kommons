@@ -19,3 +19,13 @@
 
 package moe.kanon.kommons.collections.iterators
 
+import moe.kanon.kommons.func.tuples.Tuple2
+import moe.kanon.kommons.func.tuples.toT
+
+class ZippedIterator<F, S>(private val first: Iterator<F>, private val second: Iterator<S>) : Iterator<Tuple2<F, S>> {
+    override fun hasNext(): Boolean = first.hasNext() && second.hasNext()
+
+    override fun next(): Tuple2<F, S> = first.next() toT second.next()
+}
+
+infix fun <F, S> Iterator<F>.zipWith(other: Iterator<S>): Iterator<Tuple2<F, S>> = ZippedIterator(this, other)

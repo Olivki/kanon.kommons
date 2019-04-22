@@ -17,8 +17,7 @@
 package moe.kanon.kommons.collections.lists.impl
 
 import moe.kanon.kommons.collections.iterators.EmptyListIterator
-import moe.kanon.kommons.precond.exists
-import moe.kanon.kommons.precond.requireNoNull
+import moe.kanon.kommons.requireNoNull
 
 /*
  * This file contains very simple and probably naïve implementations of a linked-list. This is done solely for the sake

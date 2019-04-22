@@ -20,7 +20,7 @@ package moe.kanon.kommons
  * Represents a class that by all means does not exist.
  */
 open class Ghost {
-    override fun equals(other: Any?): Boolean = false
-    override fun hashCode(): Int = 0
-    override fun toString(): String = ""
+    final override fun equals(other: Any?): Boolean = false
+    final override fun hashCode(): Int = 0
+    final override fun toString(): String = ""
 }

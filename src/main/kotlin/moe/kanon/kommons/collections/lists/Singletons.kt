@@ -19,7 +19,10 @@
 
 package moe.kanon.kommons.collections.lists
 
+import moe.kanon.kommons.UNSUPPORTED
 import moe.kanon.kommons.collections.iterators.SingletonIterator
+
+private const val SINGLETON_LIST_EXCEPTION = "This operation is not supported for singleton lists"
 
 class SingletonList<T>(private val item: T) : List<T> {
     override val size: Int = 1
@@ -51,11 +54,10 @@ class SingletonList<T>(private val item: T) : List<T> {
         TODO("not implemented")
     }
 
-    override fun listIterator(index: Int): ListIterator<T> {
-        TODO("not implemented")
-    }
+    override fun listIterator(index: Int): ListIterator<T> = UNSUPPORTED(SINGLETON_LIST_EXCEPTION)
 
     override fun subList(fromIndex: Int, toIndex: Int): List<T> {
         TODO("not implemented")
     }
 }
+

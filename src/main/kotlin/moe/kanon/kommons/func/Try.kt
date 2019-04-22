@@ -21,7 +21,7 @@ package moe.kanon.kommons.func
 
 import moe.kanon.kommons.collections.iterators.EmptyIterator
 import moe.kanon.kommons.collections.iterators.SingletonIterator
-import moe.kanon.kommons.precond.requireNonFatal
+import moe.kanon.kommons.requireNonFatal
 
 typealias Result<T> = Try<T>
 

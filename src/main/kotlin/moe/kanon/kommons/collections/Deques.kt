@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons.collections.lists.impl
+package moe.kanon.kommons.collections
 
-interface Deque<out T>
+interface Deque<out T> : ImmutableCollection<T>
 
 interface MutableDeque<T> : Deque<T>

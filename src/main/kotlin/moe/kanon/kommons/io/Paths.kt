@@ -21,7 +21,7 @@ package moe.kanon.kommons.io
 
 import moe.kanon.kommons.collections.addAll
 import moe.kanon.kommons.collections.removeAll
-import moe.kanon.kommons.math.plus
+import moe.kanon.kommons.lang.plus
 import java.awt.Desktop
 import java.io.BufferedReader
 import java.io.BufferedWriter

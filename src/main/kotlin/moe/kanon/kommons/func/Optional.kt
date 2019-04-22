@@ -21,7 +21,7 @@ package moe.kanon.kommons.func
 
 import moe.kanon.kommons.collections.iterators.EmptyIterator
 import moe.kanon.kommons.collections.iterators.SingletonIterator
-import moe.kanon.kommons.precond.requireNonFatal
+import moe.kanon.kommons.requireNonFatal
 
 /*
  * This is based on the Optional[1] class from the Java standard library, and the Option[2] class from the scala
@@ -43,25 +43,33 @@ typealias JOptional<T> = java.util.Optional<T>
 /**
  * A container object which may or may not contain a non-null value.
  *
- * If a value is present, [isPresent][Optional.isPresent] will return `true` and [get][Optional.get] will return the
+ * If a value is present, [isPresent][Optional.isPresent] will return `true` and [get][Optional.value] will return the
  * value.
  */
 typealias Option<T> = Optional<T>
 
+/**
+ * A container object which may or may not contain a non-null value.
+ *
+ * If a value is present, [isPresent][Optional.isPresent] will return `true` and [get][Optional.value] will return the
+ * value.
+ */
 typealias Maybe<T> = Optional<T>
 
 /**
  * A container object which may or may not contain a non-null value.
  *
- * If a value is present, [isPresent] will return `true` and [get] will return the value.
+ * If a value is present, [isPresent] will return `true` and [value] will return the value.
  */
 sealed class Optional<out T> {
     /**
-     * The underlying value of `this` optional.
-     *
-     * What this property actually returns is implementation specific.
+     * Returns the [item][Some.item] if `this` is [Some], or throws a [NoSuchElementException] if `this` is [None].
      */
-    protected abstract val value: T
+    val value: T
+        @JvmName("get") get() = when (this) {
+            is None -> throw NoSuchElementException("No value is present in this optional")
+            is Some -> item
+        }
 
     /**
      * Returns a [SingletonIterator] if a value is present, otherwise returns a [SingletonIterator].
@@ -69,7 +77,7 @@ sealed class Optional<out T> {
     val iterator: Iterator<T>
         get() = when (this) {
             is None -> EmptyIterator
-            is Some -> SingletonIterator(value)
+            is Some -> SingletonIterator(item)
         }
 
     abstract val isPresent: Boolean
@@ -87,18 +95,12 @@ sealed class Optional<out T> {
         JOptional.ofNullable(getOrNull())
     }
 
-    // functions
-    /**
-     * Returns the [value] of `this` optional if it is present, otherwise throws a [NoSuchElementException].
-     */
-    fun get(): T = getOrThrow { NoSuchElementException("No value is present in this optional") }
-
     /**
      * Returns the [value] of `this` optional if it is present, otherwise returns `null`.
      */
     fun getOrNull(): T? = when (this) {
         is None -> null
-        is Some -> value
+        is Some -> item
     }
 
     /**
@@ -106,7 +108,7 @@ sealed class Optional<out T> {
      */
     inline fun getOrElse(default: () -> @UnsafeVariance T): T = when (this) {
         is None -> default()
-        is Some -> value
+        is Some -> item
     }
 
     /**
@@ -122,14 +124,14 @@ sealed class Optional<out T> {
      */
     inline fun <X : Exception> getOrThrow(exception: () -> X): T = when (this) {
         is None -> throw exception()
-        is Some -> value
+        is Some -> item
     }
 
     /**
      * Executes the specified [action] if a value [is present][isPresent].
      */
     inline fun ifPresent(action: (T) -> Unit) {
-        if (isPresent) action(get())
+        if (isPresent) action(value)
     }
 
     /**
@@ -142,7 +144,7 @@ sealed class Optional<out T> {
      */
     inline fun <R> fold(ifEmpty: () -> R, ifPresent: (T) -> R): R = when (this) {
         is None -> ifEmpty()
-        is Some -> ifPresent(value)
+        is Some -> ifPresent(item)
     }
 
     /**
@@ -152,7 +154,7 @@ sealed class Optional<out T> {
      */
     inline fun <R> map(transformer: (T) -> R?): Optional<R> = when (this) {
         is None -> this
-        is Some -> transformer(value).wrap()
+        is Some -> transformer(item).wrap()
     }
 
     /**
@@ -163,7 +165,7 @@ sealed class Optional<out T> {
      */
     inline fun <R> flatMap(transformer: (T) -> Optional<R>): Optional<R> = when (this) {
         is None -> this
-        is Some -> transformer(value)
+        is Some -> transformer(item)
     }
 
     /**
@@ -183,7 +185,7 @@ sealed class Optional<out T> {
      */
     inline fun any(predicate: (T) -> Boolean): Boolean = when (this) {
         is None -> false
-        is Some -> predicate(value)
+        is Some -> predicate(item)
     }
 
     /**
@@ -191,7 +193,7 @@ sealed class Optional<out T> {
      */
     inline fun all(predicate: (T) -> Boolean): Boolean = when (this) {
         is None -> true
-        is Some -> predicate(value)
+        is Some -> predicate(item)
     }
 
     /**
@@ -199,7 +201,7 @@ sealed class Optional<out T> {
      */
     inline fun none(predicate: (T) -> Boolean): Boolean = when (this) {
         is None -> true
-        is Some -> !predicate(value)
+        is Some -> !predicate(item)
     }
 
     /**
@@ -218,7 +220,7 @@ sealed class Optional<out T> {
      */
     operator fun contains(value: @UnsafeVariance T): Boolean = when (this) {
         is None -> false
-        is Some -> value == this.value
+        is Some -> value == this.item
     }
 
     /**
@@ -248,16 +250,15 @@ sealed class Optional<out T> {
          * Returns a [Some] containing the specified [value], or [None] if `value` is `null`.
          */
         // enables the syntax of 'Optional(67)'
-        @JvmSynthetic
-        operator fun <T> invoke(value: T?): Optional<T> =
-            ofNullable(value)
+        @JvmName("from")
+        operator fun <T> invoke(value: T?): Optional<T> = ofNullable(value)
 
         /**
          * Returns a [Some] containing the result of invoking the specified [value], or [None] if `value` is `null`.
          */
         // enables the syntax of 'Optional { 67 }'
-        @JvmSynthetic
-        inline operator fun <reified T : Any> invoke(value: () -> T?): Optional<T> = value().wrap()
+        @JvmName("calculate")
+        inline operator fun <T : Any> invoke(value: () -> T?): Optional<T> = value().wrap()
 
         // jvm & kotlin
         /**
@@ -302,8 +303,6 @@ sealed class Optional<out T> {
  * Represents an empty [Optional] value.
  */
 object None : Optional<Nothing>() {
-    override val value: Nothing get() = throw UnsupportedOperationException("Can not retrieve value of 'None'")
-
     override val isPresent: Boolean = false
 
     override fun hashCode(): Int = 0
@@ -321,22 +320,21 @@ object None : Optional<Nothing>() {
 /**
  * Represents a present [Optional] value.
  */
-@Suppress("EqualsOrHashCode", "DataClassPrivateConstructor")
-data class Some<out T>(public override val value: T) : Optional<T>() {
+data class Some<out T>(val item: T) : Optional<T>() {
     override val isPresent: Boolean = true
 
-    override fun hashCode(): Int = value.hashCode()
+    override fun hashCode(): Int = item.hashCode()
 
-    override fun equals(other: Any?): Boolean = value?.equals(other) ?: false
+    override fun equals(other: Any?): Boolean = item?.equals(other) ?: false
 
-    override fun toString(): String = "Some[$value]"
+    override fun toString(): String = "Some[$item]"
 }
 
 /**
  * Returns a [Some] containing `this`, or [None] if `this` is `null`.
  */
 @JvmName("fromNullable")
-fun <T> T?.wrap(): Optional<T> = Optional.ofNullable(this)
+fun <T> T?.wrap(): Optional<T> = Optional(this)
 
 /**
  * Returns the [value][Optional.value] of `this` optional if it is present, otherwise returns `null`.
@@ -351,14 +349,12 @@ fun <T> Optional<T>.unwrap(): T? = getOrNull()
  */
 val <T> JOptional<T>.kotlin: Optional<T>
     @JvmName("fromJava") get() = when {
-        this.isPresent -> Optional.of(this.get())
-        else -> Optional.empty()
+        this.isPresent -> Some(this.get())
+        else -> None
     }
 
 /**
  * If `this` boolean is `true`, returns the specified [item] wrapped in a [Some], otherwise returns [None].
  */
 @JvmName("fromBoolean")
-infix fun <T> Boolean.maybe(item: T): Optional<T> = if (this) Optional.of(
-    item
-) else Optional.empty()
+infix fun <T> Boolean.maybe(item: T): Optional<T> = if (this) Some(item) else None
