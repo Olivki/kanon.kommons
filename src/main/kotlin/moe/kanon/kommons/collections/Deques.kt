@@ -16,6 +16,37 @@
 
 package moe.kanon.kommons.collections
 
-interface Deque<out T> : ImmutableCollection<T>
+/**
+ * An abstract read-only implementation of a double-ended queue.
+ */
+interface Deque<out T> : Kollection<T> {
+    /**
+     * The element at the front of the queue, or `null` if the queue is empty.
+     */
+    val front: T?
+    /**
+     * The element at the back of the queue, or `null` if the queue is empty.
+     */
+    val back: T?
 
-interface MutableDeque<T> : Deque<T>
+    /**
+     * Returns the element at the front of the queue *without* removing it, or throws a [NoSuchElementException] if
+     * the queue is empty.
+     */
+    @JvmDefault
+    fun peek(): T = front ?: throw NoSuchElementException("Deque is empty")
+}
+
+interface MutableDeque<T> : Deque<T> {
+    // push
+    fun addToFront(element: T)
+
+    // enqueue / offer
+    fun addToBack(element: T)
+
+    // pop
+    fun removeFromFront(): T?
+
+    // dequeue / accept
+    fun removeFromBack(): T?
+}

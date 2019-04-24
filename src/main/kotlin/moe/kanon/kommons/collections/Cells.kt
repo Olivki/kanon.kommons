@@ -24,7 +24,6 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.UNSUPPORTED
 import moe.kanon.kommons.collections.iterators.UnmodifiableIterator
 import moe.kanon.kommons.func.Maybe
 import moe.kanon.kommons.func.Some

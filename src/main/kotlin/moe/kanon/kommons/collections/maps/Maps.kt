@@ -23,6 +23,25 @@ package moe.kanon.kommons.collections.maps
 import java.util.*
 
 /**
+ * Executes the specified [action] every time an `entry` matches the specified [predicate].
+ */
+inline fun <K, V> Map<K, V>.onMatch(
+    predicate: (Map.Entry<K, V>) -> Boolean,
+    action: (Map.Entry<K, V>) -> Unit
+): Map<K, V> {
+    for (entry in this) if (predicate(entry)) action(entry)
+    return this
+}
+
+/**
+ * Throws the specified [exception] every time an `entry` matches the specified [predicate].
+ */
+inline fun <K, V, X : Throwable> Map<K, V>.throwOnMatch(
+    predicate: (Map.Entry<K, V>) -> Boolean,
+    exception: (Map.Entry<K, V>) -> X
+): Map<K, V> = this.onMatch(predicate) { throw exception(it) }
+
+/**
  * Creates a new map based on this [map][Map] that's structurally the same, but the `key:value` positions have been
  * switched to `value:key`.
  *

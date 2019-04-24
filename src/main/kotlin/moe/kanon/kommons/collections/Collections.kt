@@ -15,7 +15,7 @@
  */
 
 @file:JvmMultifileClass
-@file:JvmName("KCollections")
+@file:JvmName("Kollections")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.collections

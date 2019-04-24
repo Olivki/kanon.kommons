@@ -24,13 +24,14 @@
 
 package moe.kanon.kommons.collections
 
+import moe.kanon.kommons.collections.iterables.toTypedArray
+import moe.kanon.kommons.collections.iterators.UnmodifiableIterator
+
 /*
  * This implementation is ported from the Queue[1] class from the Ceylon SKD.
  *
  * [1]: https://github.com/eclipse/ceylon-sdk/blob/master/source/ceylon/collection/Queue.ceylon
  */
-
-// we do not extend normal 'Collection' here as queue's have special semantics, and we want to preserve those.
 
 /**
  * An abstract read-only implementation of a [FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)) data
@@ -38,11 +39,7 @@ package moe.kanon.kommons.collections
  *
  * A `Queue` has a well-defined [front] and [back].
  */
-interface Queue<out T> : ImmutableCollection<T> {
-    /**
-     * The element that is currently at the front of `this` queue, or `null` if the queue is empty.
-     */
-    val front: T?
+interface Queue<out T> : Kollection<T> {
     /**
      * The element that is currently at the back of `this` queue, or `null` if the queue is empty.
      */
@@ -59,10 +56,39 @@ interface MutableQueue<T> : Queue<T> {
     /**
      * Adds a new element to the back of `this` queue.
      */
-    fun offer(element: T)
+    fun enqueue(element: T)
 
     /**
      * Removes and returns the element that is at the front of `this` queue.
      */
-    fun accept(): T?
+    fun dequeue(): T?
+}
+
+class ArrayQueue<T>(elements: Iterable<T>) : MutableQueue<T> {
+    private var backing: Array<T> = elements.toTypedArray()
+
+    override val back: T? get() = backing.getOrNull(0)
+
+    override fun enqueue(element: T) {
+        TODO("not implemented")
+    }
+
+    override fun dequeue(): T? {
+        TODO("not implemented")
+    }
+
+    override val size: Int
+        get() = TODO("not implemented")
+
+    override fun isEmpty(): Boolean {
+        TODO("not implemented")
+    }
+
+    override fun contains(element: T): Boolean {
+        TODO("not implemented")
+    }
+
+    override fun iterator(): UnmodifiableIterator<T> {
+        TODO("not implemented")
+    }
 }

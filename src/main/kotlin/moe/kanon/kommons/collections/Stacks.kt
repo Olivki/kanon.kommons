@@ -23,31 +23,35 @@
  */
 
 @file:JvmMultifileClass
-@file:JvmName("KCollections")
+@file:JvmName("Kollections")
 
 package moe.kanon.kommons.collections
 
+import moe.kanon.kommons.collections.iterables.EmptyIterable
+import moe.kanon.kommons.collections.iterables.emptyIterable
+import moe.kanon.kommons.collections.iterables.toTypedArray
 import moe.kanon.kommons.collections.iterators.EmptyIterator
 import moe.kanon.kommons.collections.iterators.SingletonIterator
 import moe.kanon.kommons.collections.iterators.UnmodifiableIterator
 import moe.kanon.kommons.func.Maybe
 import moe.kanon.kommons.func.None
-import moe.kanon.kommons.func.Optional
 import moe.kanon.kommons.func.Some
-import moe.kanon.kommons.system.println
 
 /*
- * The 'Stack' implementation in this file is ported from the Stack[1] class from the Ceylon SKD.
+ * The 'Stack' & 'MutableStack' abstract implementations in this file is ported from the Stack[1] class from the Ceylon
+ *  SKD.
  *
  * [1]: https://github.com/eclipse/ceylon-sdk/blob/master/source/ceylon/collection/Stack.ceylon
  */
+
+// -- ABSTRACT IMPLEMENTATIONS -- \\
 
 /**
  * An abstract read-only implementation of a [LIFO](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) data type.
  *
  * A `Stack` has a well-defined [top].
  */
-interface Stack<out T> : ImmutableCollection<T> {
+interface Stack<out T> : KList<T> {
     /**
      * The element that is currently at the top of `this` stack, or `null` if the stack is empty.
      */
@@ -91,6 +95,8 @@ interface MutableStack<T> : Stack<T> {
     operator fun plusAssign(element: T) = push(element)
 }
 
+// -- CONCRETE IMPLEMENTATIONS -- \\
+
 /**
  * An implementation of a [Stack] that is *always* empty.
  */
@@ -101,6 +107,8 @@ object EmptyStack : Stack<Nothing> {
     override fun isEmpty(): Boolean = true
 
     override fun contains(element: Nothing): Boolean = false
+
+    override fun get(index: Int): Nothing = throw NoSuchElementException()
 
     override fun iterator(): UnmodifiableIterator<Nothing> = EmptyIterator
 
@@ -139,9 +147,9 @@ class UnmodifiableStack<T>
  *
  * @param [elements] the elements to populate the stack with
  */
-class LinkedStack<T>(elements: List<T>) : MutableStack<T> {
+class LinkedStack<T>(elements: Iterable<T>) : MutableStack<T> {
     constructor(vararg elements: T) : this(elements.toList())
-    constructor() : this(emptyList())
+    constructor() : this(emptyIterable())
 
     private var head: Maybe<Cell<T>> = None
     override val top: T? get() = head.fold({ null }, { it.element })
@@ -207,6 +215,53 @@ class LinkedStack<T>(elements: List<T>) : MutableStack<T> {
 
     override fun toString(): String = "[${joinToString()}]"
 }
+
+class ArrayStack<T>(
+    private val initialCapacity: Int,
+    private val growthFactor: Float,
+    elements: Iterable<T>
+) : MutableStack<T> {
+    private var backing: Array<T> = TODO()
+
+    init {
+        backing = elements.toTypedArray()
+    }
+
+    @JvmOverloads
+    constructor(growthFactor: Float = 1.5F, elements: Iterable<T>) : this(elements.count(), growthFactor, elements)
+
+    override val top: T?
+        get() = TODO("not implemented")
+
+    override val size: Int
+        get() = TODO("not implemented")
+
+    override fun push(element: T) {
+        TODO("not implemented")
+    }
+
+    override fun pop(): T? {
+        TODO("not implemented")
+    }
+
+    override fun clear() {
+        TODO("not implemented")
+    }
+
+    override fun isEmpty(): Boolean {
+        TODO("not implemented")
+    }
+
+    override fun contains(element: T): Boolean {
+        TODO("not implemented")
+    }
+
+    override fun iterator(): UnmodifiableIterator<T> {
+        TODO("not implemented")
+    }
+}
+
+// -- FUNCTIONS - \\
 
 /**
  * Returns a [Stack] populated with the given [elements].
