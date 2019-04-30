@@ -39,7 +39,7 @@ import moe.kanon.kommons.collections.iterators.UnmodifiableIterator
  *
  * A `Queue` has a well-defined [front] and [back].
  */
-interface Queue<out T> : Kollection<T> {
+interface Queue<out T> : Container<T> {
     /**
      * The element that is currently at the back of `this` queue, or `null` if the queue is empty.
      */
@@ -62,33 +62,4 @@ interface MutableQueue<T> : Queue<T> {
      * Removes and returns the element that is at the front of `this` queue.
      */
     fun dequeue(): T?
-}
-
-class ArrayQueue<T>(elements: Iterable<T>) : MutableQueue<T> {
-    private var backing: Array<T> = elements.toTypedArray()
-
-    override val back: T? get() = backing.getOrNull(0)
-
-    override fun enqueue(element: T) {
-        TODO("not implemented")
-    }
-
-    override fun dequeue(): T? {
-        TODO("not implemented")
-    }
-
-    override val size: Int
-        get() = TODO("not implemented")
-
-    override fun isEmpty(): Boolean {
-        TODO("not implemented")
-    }
-
-    override fun contains(element: T): Boolean {
-        TODO("not implemented")
-    }
-
-    override fun iterator(): UnmodifiableIterator<T> {
-        TODO("not implemented")
-    }
 }

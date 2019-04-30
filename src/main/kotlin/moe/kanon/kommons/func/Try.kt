@@ -40,6 +40,7 @@ typealias Result<T> = Try<T>
 sealed class Try<out T> {
     abstract val isFailure: Boolean
     abstract val isSuccess: Boolean
+    // TODO: Change to function
     abstract val iterator: Iterator<T>
 
     /**

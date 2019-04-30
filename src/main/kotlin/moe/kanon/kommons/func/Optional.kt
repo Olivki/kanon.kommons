@@ -19,9 +19,11 @@
 
 package moe.kanon.kommons.func
 
+import moe.kanon.kommons.ScopedFunction
 import moe.kanon.kommons.collections.iterators.EmptyIterator
 import moe.kanon.kommons.collections.iterators.SingletonIterator
 import moe.kanon.kommons.requireNonFatal
+import kotlin.contracts.contract
 
 /*
  * This is based on the Optional[1] class from the Java standard library, and the Option[2] class from the scala
@@ -74,6 +76,7 @@ sealed class Optional<out T> {
     /**
      * Returns a [SingletonIterator] if a value is present, otherwise returns a [SingletonIterator].
      */
+    // TODO: Change this to a function
     val iterator: Iterator<T>
         get() = when (this) {
             is None -> EmptyIterator
@@ -317,6 +320,8 @@ object None : Optional<Nothing>() {
     override fun toString(): String = "None"
 }
 
+typealias Just<T> = Some<T>
+
 /**
  * Represents a present [Optional] value.
  */
@@ -353,8 +358,29 @@ val <T> JOptional<T>.kotlin: Optional<T>
         else -> None
     }
 
+@JvmName("isSome")
+inline fun <T> Optional<T>.isPresent(): Boolean {
+    contract {
+        returns(true) implies (this@isPresent is Some<T>)
+        returns(false) implies (this@isPresent is None)
+    }
+    return this.isPresent
+}
+
+@JvmName("isNone")
+inline fun <T> Optional<T>.isEmpty(): Boolean {
+    contract {
+        returns(false) implies (this@isEmpty is Some<T>)
+        returns(true) implies (this@isEmpty is None)
+    }
+    return this.isEmpty
+}
+
 /**
  * If `this` boolean is `true`, returns the specified [item] wrapped in a [Some], otherwise returns [None].
  */
 @JvmName("fromBoolean")
 infix fun <T> Boolean.maybe(item: T): Optional<T> = if (this) Some(item) else None
+
+@ScopedFunction
+inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()

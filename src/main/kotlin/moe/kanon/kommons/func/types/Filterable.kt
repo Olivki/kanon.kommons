@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons
+package moe.kanon.kommons.func.types
 
-// TODO: Actual proper documentation
-/**
- * Marks a global top-level function with a scope.
- */
-@DslMarker
-@MustBeDocumented
-@Retention(AnnotationRetention.BINARY)
-annotation class ScopedFunction
+interface Filterable<Self, out T> {
+    infix fun filter(predicate: (T) -> Boolean): Filterable<Self, T>
+
+    infix fun filterNot(predicate: (T) -> Boolean): Filterable<Self, T>
+}

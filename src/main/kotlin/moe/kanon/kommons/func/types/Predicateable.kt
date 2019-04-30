@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons
+package moe.kanon.kommons.func.types
 
-// TODO: Actual proper documentation
-/**
- * Marks a global top-level function with a scope.
- */
-@DslMarker
-@MustBeDocumented
-@Retention(AnnotationRetention.BINARY)
-annotation class ScopedFunction
+interface Predicateable<out T> {
+    infix fun any(predicate: (T) -> Boolean): Boolean
+
+    infix fun all(predicate: (T) -> Boolean): Boolean
+
+    infix fun none(predicate: (T) -> Boolean): Boolean
+}

@@ -37,8 +37,6 @@ typealias NullTuple = Tuple0
 
 typealias Serializable = java.io.Serializable
 
-typealias Monad<T> = Tuple1<T>
-
 typealias Couple<A, B> = Duad<A, B>
 
 typealias Triplet<A, B, C> = Triad<A, B, C>

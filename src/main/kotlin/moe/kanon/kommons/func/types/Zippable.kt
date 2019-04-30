@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons
+package moe.kanon.kommons.func.types
 
-// TODO: Actual proper documentation
-/**
- * Marks a global top-level function with a scope.
- */
-@DslMarker
-@MustBeDocumented
-@Retention(AnnotationRetention.BINARY)
-annotation class ScopedFunction
+import moe.kanon.kommons.func.tuples.Tuple2
+
+interface Zippable<Self, out T> {
+    infix fun <U> zip(other: Zippable<Self, U>): Tuple2<Zippable<Self, T>, Zippable<Self, U>>
+
+    fun <U> zip(value: U, transformer: (U) -> Zippable<Self, U>): Tuple2<Zippable<Self, T>, Zippable<Self, U>>
+}

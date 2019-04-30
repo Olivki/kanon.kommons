@@ -19,7 +19,7 @@ package moe.kanon.kommons.collections
 /**
  * An abstract read-only implementation of a double-ended queue.
  */
-interface Deque<out T> : Kollection<T> {
+interface Deque<out T> : Container<T> {
     /**
      * The element at the front of the queue, or `null` if the queue is empty.
      */

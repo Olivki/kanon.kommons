@@ -22,11 +22,17 @@ import moe.kanon.kommons.func.Maybe
 import moe.kanon.kommons.func.Some
 import moe.kanon.kommons.func.None
 
-interface Kollection<out T> : UnmodifiableIterable<T> {
+interface Container<out T> : UnmodifiableIterable<T> {
     /**
      * The size of `this` collection.
      */
     val size: Int
+
+    /**
+     * Returns the size of `this` container.
+     */
+    @JvmDefault
+    fun size(): Int = size
 
     /**
      * Returns whether or not `this` collection is empty.
@@ -42,7 +48,7 @@ interface Kollection<out T> : UnmodifiableIterable<T> {
     /**
      * Returns a iterator specific to `this` collection.
      *
-     * Any [Iterator] instances returned by a [Kollection] inheritor *needs* to be a child of the
+     * Any [Iterator] instances returned by a [Container] inheritor *needs* to be a child of the
      * [UnmodifiableIterator] class, this is to make sure that we're communicating the fact that any mutable operations
      * are *not* supported on it.
      */
@@ -50,9 +56,9 @@ interface Kollection<out T> : UnmodifiableIterable<T> {
 }
 
 /**
- * An abstract implementation of a [Kollection] which allows its elements to be accessed via a `index`.
+ * An abstract implementation of a [Container] which allows its elements to be accessed via a `index`.
  */
-interface KList<out T> : Kollection<T> {
+interface KList<out T> : Container<T> {
     /**
      * Returns the element stored under the specified [index].
      *
@@ -86,7 +92,7 @@ interface KList<out T> : Kollection<T> {
 /**
  * An abstract implementation of a collection that can not be modified.
  *
- * This differs from the [Kollection] interface in that a class that inherits from `this` should never have any
+ * This differs from the [Container] interface in that a class that inherits from `this` should never have any
  * sub-classes that provide any sort of mutable operations, while something that inherits from `Kollection` may.
  *
  * An immutable collection is different from the *read-only* views provided by the Kotlin standard library *([listOf],
@@ -94,4 +100,4 @@ interface KList<out T> : Kollection<T> {
  * means that the immutability view is also preserved when using it from the Java side, as the [List] interface is
  * just seen as a normal [java.util.List] when used from the Java side.
  */
-interface ImmutableCollection<out T> : Kollection<T>
+interface ImmutableContainer<out T> : Container<T>

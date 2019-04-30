@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons
+package moe.kanon.kommons.func.types
 
-// TODO: Actual proper documentation
-/**
- * Marks a global top-level function with a scope.
- */
-@DslMarker
-@MustBeDocumented
-@Retention(AnnotationRetention.BINARY)
-annotation class ScopedFunction
+interface Functor<Self, out T> {
+    infix fun <U> map(transformer: (T) -> U): Functor<Self, U>
+}
