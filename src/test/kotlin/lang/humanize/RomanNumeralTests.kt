@@ -20,8 +20,8 @@ import io.kotlintest.forAll
 import io.kotlintest.inspectors.forAll
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.BehaviorSpec
-import moe.kanon.kommons.humanize.fromRomanNumeral
-import moe.kanon.kommons.humanize.toRomanNumeral
+import moe.kanon.kommons.lang.humanize.fromRomanNumeral
+import moe.kanon.kommons.lang.humanize.toRomanNumeral
 
 class RomanNumeralTests : BehaviorSpec({
     val data = listOf(

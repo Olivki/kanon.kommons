@@ -2,7 +2,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm").version("1.3.21")
+    kotlin("jvm").version("1.3.30")
 
     id("com.adarshr.test-logger").version("1.6.0") // For pretty-printing for tests.
     id("com.jfrog.bintray").version("1.8.4") // For publishing to BinTray.
@@ -37,8 +37,14 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    // Enables the use of the @Experimental annotation.
-    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    with(kotlinOptions) {
+        freeCompilerArgs = listOf(
+            "-Xuse-experimental=kotlin.Experimental",
+            "-XXLanguage:+InlineClasses",
+            "-Xjvm-default=enable",
+            "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
+        )
+    }
 }
 
 // Dokka Tasks
@@ -46,6 +52,7 @@ val dokkaJavaDoc by tasks.creating(DokkaTask::class) {
     outputFormat = "javadoc"
     outputDirectory = "$buildDir/javadoc"
     inputs.dir("src/main/kotlin")
+    includes = listOf("src/Module.md")
     includeNonPublic = false
     skipEmptyPackages = true
     jdkVersion = 8
@@ -78,7 +85,8 @@ val javaDocJar by tasks.creating(Jar::class) {
 
 artifacts {
     add("archives", sourcesJar)
-    add("archives", javaDocJar)
+    // TODO: Re-enable this
+    //add("archives", javaDocJar)
 }
 
 // Publishing Tasks
@@ -161,4 +169,4 @@ publishing {
 }
 
 // Misc Functions & Properties
-fun getVariable(name: String) = System.getenv(name)!!
+fun getVariable(name: String) = System.getenv(name)

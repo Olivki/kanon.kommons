@@ -73,7 +73,7 @@ public fun NodeList.getOrNull(name: String, ignoreCase: Boolean = false): Node? 
     this.find { it.nodeName.equals(name, ignoreCase) }
 
 /**
- * Provides a iterator for this node list.
+ * Provides a iterators for this node list.
  *
  * @since 0.5.1
  */

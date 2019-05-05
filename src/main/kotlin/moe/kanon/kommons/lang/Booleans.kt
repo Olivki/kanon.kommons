@@ -33,7 +33,7 @@
 
 package moe.kanon.kommons.lang
 
-import moe.kanon.kommons.func.result.Try
+import moe.kanon.kommons.func.Try
 
 /**
  * Converts the given [value] to a [Boolean].
@@ -146,7 +146,8 @@ fun Boolean.Companion.parse(value: String) = when (value.length) {
     else -> throw BooleanParseException("<$value> is not a boolean value")
 }
 
-fun Boolean.Companion.tryParse(value: String): Try<Boolean> = Try { this.parse(value) }
+fun Boolean.Companion.tryParse(value: String): Try<Boolean> =
+    Try { this.parse(value) }
 
 /**
  * Thrown if any problems were encountered when parsing a value into a boolean.

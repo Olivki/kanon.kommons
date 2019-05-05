@@ -43,7 +43,7 @@ inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean =
  *
  * @since 0.6.0
  */
-inline fun <reified A : Annotation> KAnnotatedElement.ifHasAnnotation(action: (A) -> Unit): A? =
+inline fun <reified A : Annotation> KAnnotatedElement.anyAnnotation(action: (A) -> Unit): A? =
     this.findAnnotation<A>()?.apply(action)
 
 /**

@@ -1,12 +1,15 @@
 ## kanon.kommons
-Various extension methods and extension properties and utilities for the Kotlin programming language.
+`kanon.kommons` is a “utility” library for Kotlin. It mainly consists of extension functions, utility functions, and a lot of random things that I made for personal use, because I thought other people might have some use for it, for a learning experience, or just because I felt like making something like it. 
 
-## Word of Caution
-**Please note that this library is still very experimental, and still in the development phase, and thus, MINOR versions can contain breaking changes.**
+While this project *did* start off aiming to be something “”professional“” it has since become more of a general dumping ground, if you find something in here that you find it interesting and want to use, you can either use the dependency as shown down below, or just take the function into your own code base, just make sure that credits are given where credits are due, this is not just because I “want” any credits, but as some of the features in this project are ports from other languages / projects, and as such they deserve the appropriate credit *(morally, and legally speaking)*.
 
-Currently, the only thing that's unlikely to be changed (except for additions of features) is the `Paths.kt` file.
+As mentioned above, certain parts of this “library” contains things made entirely for the sake of education / learning experience, and those are not necessarily intended to be used beyond the scope of education.
 
-If you are unsure if something you're using may have changed when updating, or you just want to get a better understanding of *what* has changed, and *how* it's changed, please read the [changelog](./CHANGELOG.md).
+To find out what this project offers, just take a look inside of the source, as creating a list of everything would be a bother, and would generally end up being out-of-date anyways, as features are added on a “i-feel-like-it” basis.
+
+Generally most things in this library are documented, but there is no guarantee that *everything* will be documented. The quality of the documentation may also wary wildly, as some of it is documentation ported from the original sources *(if a feature is ported from say, Java, then the documentation will also be directly ported from the same place)* or it may be written fully by myself, and if so, I can not guarantee that the quality of my documentation is very good.
+
+The general “motto” for this project is, and will always be “because I can”.
 
 ## Credits
 
@@ -21,10 +24,6 @@ If you are unsure if something you're using may have changed when updating, or y
   - Various functions and classes from the `/lang/humanize` package. 
 
   `Humanizer.jvm` is under the Apache 2.0 License.
-
-## What this library adds
-- Extension methods & properties for the `Path.java` class to make it less clunky to use. The available extensions are *all* of the methods available in `Files.java` and some additional ones. *(These extensions may be given their own library at a later point.)*
-- Extension methods & properties for classes that reside in `org.w3c.dom` to make them work better with the Kotlin syntatic sugar.
 
 ## Installation
 
