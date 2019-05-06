@@ -14,5 +14,17 @@
  * limitations under the License.
  */
 
+@file:JvmName("Utilities")
+@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
+
 package moe.kanon.kommons
 
+/**
+ * Throws a [UnsupportedOperationException] with the specified [message].
+ */
+@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
+
+/**
+ * Throws a [UnsupportedOperationException] with a default message.
+ */
+@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)

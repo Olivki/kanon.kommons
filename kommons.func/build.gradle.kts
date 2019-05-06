@@ -1,3 +1,7 @@
 plugins {
-    kotlin("jvm").apply(true)
+    kotlin("jvm")
+}
+
+dependencies {
+    compile(rootProject)
 }

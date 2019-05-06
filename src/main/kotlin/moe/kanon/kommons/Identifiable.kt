@@ -17,15 +17,24 @@
 package moe.kanon.kommons
 
 /**
- * Represents a class that does not "exist".
+ * Represents a class that has *explicit* custom implementations of the `equals`, `hashCode`, and `toString` functions.
  *
- * Any class that inherits from this will not be identifiable by most systems. Therefore only classes that are used for
- * very specific circumstances *(i.e; `object`s used for DSL syntax)* should be the only ones to ever inherit from it.
+ * ### Port-Of Links
+ * 1. [ceylon.language.Identifiable](https://github.com/eclipse/ceylon/blob/master/language/src/ceylon/language/Identifiable.ceylon)
  */
-abstract class Ghost {
-    final override fun equals(other: Any?): Boolean = false
+// TODO: Function documentation
+@MarkerType
+@PortOf("ceylon.language.Identifiable")
+interface Identifiable {
+    override fun equals(other: Any?): Boolean
 
-    final override fun hashCode(): Int = 0
+    override fun hashCode(): Int
 
-    final override fun toString(): String = ""
+    @JvmDefault
+    val hash: Int @JvmSynthetic get() = hashCode()
+
+    override fun toString(): String
+
+    @JvmDefault
+    val string: String @JvmSynthetic get() = toString()
 }
