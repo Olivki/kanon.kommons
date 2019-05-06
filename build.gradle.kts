@@ -2,7 +2,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm").version("1.3.30")
+    kotlin("jvm").version("1.3.31")
 
     id("com.adarshr.test-logger").version("1.6.0") // For pretty-printing for tests.
     id("com.jfrog.bintray").version("1.8.4") // For publishing to BinTray.
