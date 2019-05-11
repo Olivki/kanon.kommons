@@ -19,6 +19,8 @@
 
 package moe.kanon.kommons
 
+const val UNSUPPORTED_OPERATION = "Operation is not supported"
+
 /**
  * Throws a [UnsupportedOperationException] with the specified [message].
  */

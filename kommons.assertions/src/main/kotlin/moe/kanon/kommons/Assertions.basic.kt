@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:JvmMultifileClass
 @file:JvmName("Assertions")
 @file:Suppress("NOTHING_TO_INLINE", "FunctionName")
 
@@ -21,7 +22,6 @@ package moe.kanon.kommons
 
 import kotlin.contracts.contract
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
 const val FAILED_CHECK = "State did not satisfy the given condition"
 const val FAILED_REQUIRE = "Argument did not satisfy the given condition"
 const val FAILED_ASSERTION = "Assertion failed"
@@ -33,19 +33,6 @@ const val FAILED_ASSERTION = "Assertion failed"
  */
 inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
     if (!condition(this)) throw IllegalStateException("<$this> does not satisfy the given condition") else this
-
-// -- RANGES -- \\
-/**
- * Returns `this` or throws a [IllegalStateException] if `this` is outside of the given [range].
- */
-inline infix fun <C : Comparable<C>> C.checkInRange(range: ClosedRange<C>): C =
-    if (this !in range) throw IllegalStateException("<$this> is outside of range <$range>") else this
-
-/**
- * Returns `this` or throws a [IllegalArgumentException] if `this` is outside of the given [range].
- */
-inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C =
-    if (this !in range) throw IllegalArgumentException("<$this> is outside of range <$range>") else this
 
 // -- AFFIRM -- \\
 /**
@@ -59,7 +46,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [UnsupportedOperationException] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun affirmThat(condition: () -> Boolean) = affirmThat(condition) { UNSUPPORTED_OPERATION }
+@FakeKeyword inline fun affirmThat(condition: () -> Boolean) =
+    affirmThat(condition) { UNSUPPORTED_OPERATION }
 
 /**
  * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
@@ -74,7 +62,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [UnsupportedOperationException] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun affirmThat(condition: Boolean) = affirmThat(condition) { UNSUPPORTED_OPERATION }
+@FakeKeyword inline fun affirmThat(condition: Boolean) =
+    affirmThat(condition) { UNSUPPORTED_OPERATION }
 
 // -- CHECK -- \\
 /**
@@ -87,7 +76,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [IllegalStateException] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun checkThat(condition: () -> Boolean) = checkThat(condition) { FAILED_CHECK }
+@FakeKeyword inline fun checkThat(condition: () -> Boolean) =
+    checkThat(condition) { FAILED_CHECK }
 
 /**
  * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
@@ -102,7 +92,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [IllegalStateException] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun checkThat(condition: Boolean) = checkThat(condition) { FAILED_CHECK }
+@FakeKeyword inline fun checkThat(condition: Boolean) =
+    checkThat(condition) { FAILED_CHECK }
 
 // -- REQUIRE -- \\
 /**
@@ -115,7 +106,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [IllegalArgumentException] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun requireThat(condition: () -> Boolean) = requireThat(condition) { FAILED_REQUIRE }
+@FakeKeyword inline fun requireThat(condition: () -> Boolean) =
+    requireThat(condition) { FAILED_REQUIRE }
 
 /**
  * Throws a [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
@@ -130,7 +122,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [IllegalArgumentException] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun requireThat(condition: Boolean) = requireThat(condition) { FAILED_REQUIRE }
+@FakeKeyword inline fun requireThat(condition: Boolean) =
+    requireThat(condition) { FAILED_REQUIRE }
 
 // -- ASSERTIONS -- \\
 /**
@@ -143,7 +136,8 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [AssertionError] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun assertThat(condition: () -> Boolean) = assertThat(condition) { FAILED_ASSERTION }
+@FakeKeyword inline fun assertThat(condition: () -> Boolean) =
+    assertThat(condition) { FAILED_ASSERTION }
 
 /**
  * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] is `false`.
@@ -158,4 +152,5 @@ inline infix fun <C : Comparable<C>> C.requireInRange(range: ClosedRange<C>): C 
 /**
  * Throws a [AssertionError] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun assertThat(condition: Boolean) = assertThat(condition) { FAILED_ASSERTION }
+@FakeKeyword inline fun assertThat(condition: Boolean) =
+    assertThat(condition) { FAILED_ASSERTION }

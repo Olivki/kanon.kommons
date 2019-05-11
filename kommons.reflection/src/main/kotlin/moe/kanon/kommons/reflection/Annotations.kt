@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("Annotations")
+@file:JvmName("KAnnotations")
 
 package moe.kanon.kommons.reflection
 
@@ -30,10 +30,8 @@ inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean =
  * Returns the instance of specified the [annotation][A] that `this` element is annotated with or throws a
  * [NoSuchElementException] if `this` is not annotated with the specified `annotation`.
  */
-inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A =
-    this.annotations.filterIsInstance<A>().firstOrNull() ?: throw NoSuchElementException(
-        "<$this> is not annotated with <${A::class}>"
-    )
+inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A = this.annotations.filterIsInstance<A>()
+    .firstOrNull() ?: throw NoSuchElementException("<$this> is not annotated with <${A::class}>")
 
 /**
  * Calls [notExists] if `this` element does *not* contain the specified [annotation][A] otherwise calls [exists] if
