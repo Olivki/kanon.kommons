@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
-
 package moe.kanon.kommons
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
-
 /**
- * Throws a [UnsupportedOperationException] with the specified [message].
+ * Thrown to indicate that something overflowed.
  */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
-
-/**
- * Throws a [UnsupportedOperationException] with a default message.
- */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+open class OverflowException @JvmOverloads constructor(message: String? = null) : IndexOutOfBoundsException(message)

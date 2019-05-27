@@ -17,7 +17,7 @@
 package moe.kanon.kommons
 
 /**
- * Represents a class that does not "exist".
+ * Represents a class that does not "exist".◘
  *
  * Any class that inherits from this will not be identifiable by most systems. Therefore only classes that are used for
  * very specific circumstances *(i.e; `object`s used for DSL syntax)* should be the only ones to ever inherit from it.

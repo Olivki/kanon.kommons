@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
+@file:JvmName("Anys")
 
-package moe.kanon.kommons
+package moe.kanon.kommons.lang
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
+import java.util.*
 
-/**
- * Throws a [UnsupportedOperationException] with the specified [message].
- */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
+val <T> T.hash: Int @JvmName("hashOf") get() = this.hashCode()
 
 /**
- * Throws a [UnsupportedOperationException] with a default message.
+ * Attempts to always return a human-readable `String` representation of `this` string.
  */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+val <T> T.string: String @JvmName("stringOf") get() = when (this) {
+    null -> "null"
+    is Array<*> -> this.contentDeepToString()
+    is Iterable<*> -> "[${this.joinToString()}]"
+    else -> this.toString()
+}

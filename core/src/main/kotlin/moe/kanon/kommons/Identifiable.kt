@@ -12,6 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * ========================= CEYLON LICENSE =========================
+ * Copyright (c) 2011-2017 Red Hat Inc. and/or its affiliates and others
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 
 package moe.kanon.kommons
@@ -25,16 +31,8 @@ package moe.kanon.kommons
 // TODO: Function documentation
 @MarkerType
 @PortOf("ceylon.language.Identifiable")
-interface Identifiable {
+interface Identifiable : Representable {
     override fun equals(other: Any?): Boolean
 
     override fun hashCode(): Int
-
-    @JvmDefault
-    val hash: Int @JvmSynthetic get() = hashCode()
-
-    override fun toString(): String
-
-    @JvmDefault
-    val string: String @JvmSynthetic get() = toString()
 }

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
+@file:JvmName("KTypes")
 
-package moe.kanon.kommons
+package moe.kanon.kommons.reflection
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
-/**
- * Throws a [UnsupportedOperationException] with the specified [message].
+/*
+ * With Kotlin 1.3.40 the "typeOf" function has been implemented into the Kotlin std-lib for the JVM, which means that
+ * we do not need to port the entire "TypeToken" system from Guava to Kotlin, and instead we can just provide utility
+ * extension functions that operate on KType instances, making for a nicer experience for the user, avoiding having
+ * to wrap the types in more layers.
  */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
 
-/**
- * Throws a [UnsupportedOperationException] with a default message.
- */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+// TODO: Extension functions for the KType class.

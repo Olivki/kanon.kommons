@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
-
 package moe.kanon.kommons
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
-
 /**
- * Throws a [UnsupportedOperationException] with the specified [message].
+ * A category is a light-weight [enum][Enum] with a very loose contract.
+ *
+ * TODO: Better doc
  */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
+interface Category<T> : Comparable<Category<T>> {
+    val name: String
 
-/**
- * Throws a [UnsupportedOperationException] with a default message.
- */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+    override fun compareTo(other: Category<T>): Int
+
+    interface Companion<C : Category<C>> {
+        val categories: List<C>
+
+        operator fun get(name: String): C
+
+        fun getOrNull(name: String): C
+    }
+}

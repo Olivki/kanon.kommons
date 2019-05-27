@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
+@file:JvmName("KClasses")
 
-package moe.kanon.kommons
+package moe.kanon.kommons.reflection
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
-
-/**
- * Throws a [UnsupportedOperationException] with the specified [message].
- */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberProperties
 
 /**
- * Throws a [UnsupportedOperationException] with a default message.
+ * Returns whether or nor `this` [class][Class] is a [kotlin class][KClass].
  */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+val Class<*>.isKotlinClass: Boolean get() = this.annotations.any { it.javaClass.name == "kotlin.Metadata" }
+
+val KClass<*>.isKotlinClass: Boolean get() = this.java.isKotlinClass

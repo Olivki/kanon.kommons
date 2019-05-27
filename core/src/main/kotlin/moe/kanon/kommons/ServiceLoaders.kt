@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "FunctionName")
-
 package moe.kanon.kommons
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
+import java.util.*
 
-/**
- * Throws a [UnsupportedOperationException] with the specified [message].
- */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
+inline fun <reified S> serviceLoaderFor(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
 
-/**
- * Throws a [UnsupportedOperationException] with a default message.
- */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+inline fun <reified S> serviceLoaderFor(loader: ClassLoader): ServiceLoader<S> =
+    ServiceLoader.load(S::class.java, loader)

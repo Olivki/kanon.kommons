@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm").version("1.3.31")
+    kotlin("jvm").version("1.3.40-eap-21")
 
     `maven-publish`
 }
@@ -32,6 +32,7 @@ subprojects {
     apply(plugin = "name.remal.maven-publish-bintray")
 
     repositories {
+        maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
         mavenCentral()
         jcenter()
     }
