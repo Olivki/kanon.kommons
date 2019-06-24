@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm").version("1.3.40-eap-21")
+    kotlin("jvm").version("1.3.40")
 
     `maven-publish`
 }
@@ -23,8 +23,11 @@ apply(plugin = "name.remal.maven-publish-bintray")
 // Project Specific Variables
 project.group = "moe.kanon.kommons"
 project.description = "Various extensions and utilities for the Kotlin programming language."
-project.version = "0.6.0"
 val gitUrl = "https://gitlab.com/Olivki/kanon-kommons/"
+
+repositories {
+    jcenter()
+}
 
 subprojects {
     apply(plugin = "kotlin")
@@ -32,7 +35,6 @@ subprojects {
     apply(plugin = "name.remal.maven-publish-bintray")
 
     repositories {
-        maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
         mavenCentral()
         jcenter()
     }
@@ -91,7 +93,7 @@ subprojects {
 }
 
 // make sure that the correct sub-projects inherit from the core project
-configure(subprojects.filterNot { it.name == "generator" || it.name == "core" }) {
+configure(subprojects.filterNot { it.name == "core" }) {
     dependencies {
         implementation(project(":core"))
     }

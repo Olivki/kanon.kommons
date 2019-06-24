@@ -18,14 +18,26 @@
 
 package moe.kanon.kommons
 
-const val UNSUPPORTED_OPERATION = "Operation is not supported"
+import java.util.*
+
+@PublishedApi internal const val UNSUPPORTED_OPERATION = "Operation is not supported"
 
 /**
  * Throws a [UnsupportedOperationException] with the specified [message].
  */
-@FakeKeyword inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
+inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationException(message)
 
 /**
  * Throws a [UnsupportedOperationException] with a default message.
  */
-@FakeKeyword inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
+
+// TODO: Move over to kommons.system
+@JvmOverloads inline fun writeOut(out: Any? = "") = println(out)
+
+@JvmOverloads inline fun writeError(out: Any? = "") = System.err.println(out)
+
+@JvmOverloads inline fun readIn(out: Any? = ""): String {
+    writeOut(out)
+    return Scanner(System.`in`).nextLine()
+}

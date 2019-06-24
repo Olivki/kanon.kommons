@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-@file:JvmName("Anys")
+@file:JvmName("KAnys")
 
 package moe.kanon.kommons.lang
 
-import java.util.*
-
-val <T> T.hash: Int @JvmName("hashOf") get() = this.hashCode()
+/**
+ * Returns the [hash][Any.hashCode] of `this` value, or `0` if `this` is `null`.
+ */
+val <T> T?.hash: Int @JvmName("hashOf") get() = this?.hashCode() ?: 0
 
 /**
  * Attempts to always return a human-readable `String` representation of `this` string.
  */
-val <T> T.string: String @JvmName("stringOf") get() = when (this) {
-    null -> "null"
-    is Array<*> -> this.contentDeepToString()
-    is Iterable<*> -> "[${this.joinToString()}]"
-    else -> this.toString()
-}
+val <T> T?.string: String
+    @JvmName("stringOf") get() = when (this) {
+        null -> "null"
+        is Array<*> -> this.contentDeepToString()
+        is Iterable<*> -> "[${this.joinToString()}]"
+        else -> this.toString()
+    }

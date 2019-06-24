@@ -14,6 +14,17 @@
  * limitations under the License.
  */
 
-@file:JvmName("Strings")
+package moe.kanon;
 
-package moe.kanon.kommons.lang
+import com.squareup.kotlinpoet.FileSpec;
+import net.bytebuddy.implementation.bind.annotation.This;
+
+import java.io.IOError;
+import java.io.IOException;
+
+public class ReroutedFileSpecWriteTo {
+
+    public static void writeTo(Appendable out) throws IOException {
+        System.out.println("dad");
+    }
+}

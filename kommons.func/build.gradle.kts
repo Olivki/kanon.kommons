@@ -1,3 +1,7 @@
 group = "moe.kanon.kommons.func"
-description = ""
+description = "Provides some basic functional constructs for Kotlin"
 version = "0.0.1"
+
+dependencies {
+    compile(kotlin("reflect"))
+}

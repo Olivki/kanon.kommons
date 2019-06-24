@@ -16,7 +16,9 @@
 
 package moe.kanon.kommons.func.internal
 
+import moe.kanon.kommons.INDEX_NOT_FOUND
 import moe.kanon.kommons.UNSUPPORTED
+import java.lang.Exception
 
 /*
  *  Internal implementations of some of the iterator classes that can be found in the kommons.collections library.
@@ -30,10 +32,31 @@ internal object EmptyIterator : Iterator<Nothing> {
     override fun next(): Nothing = UNSUPPORTED("Can not iterate over a empty iterator")
 }
 
-internal class SingletonIterator<E>(private val item: E) : Iterator<E> {
+internal class SingletonIterator<out E>(private val item: E) : Iterator<E> {
     private var hasNext: Boolean = true
 
     override fun hasNext(): Boolean = hasNext
 
     override fun next(): E = if (hasNext) item.also { hasNext = false } else throw NoSuchElementException()
+}
+
+internal abstract class IndexingIterator<out E> : Iterator<E> {
+    // new
+    var index: Int = INDEX_NOT_FOUND
+        protected set
+
+    protected abstract val hasNext: Boolean
+
+    protected abstract val next: E
+
+    // old
+    final override fun hasNext(): Boolean = hasNext
+
+    final override fun next(): E = if (hasNext) {
+        index++
+        next
+    } else {
+        index--
+        throw NoSuchElementException()
+    }
 }

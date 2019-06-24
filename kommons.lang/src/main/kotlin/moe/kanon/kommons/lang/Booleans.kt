@@ -94,7 +94,7 @@ private inline fun String.raiseParseException(): Nothing = throw ParseException(
  * ```
  *
  * ### Port Details
- * [BooleanUtils#toBooleanObject](https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/BooleanUtils.java#L546)
+ * [org.apache.commons.lang.BooleanUtils#toBooleanObject](https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/BooleanUtils.java#L546)
  *
  * @param [value] the [String] to check; **UPPER** and **lower** case are treated as the same
  *

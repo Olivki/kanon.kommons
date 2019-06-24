@@ -12,28 +12,68 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * ========================= SCALA LICENSE =========================
+ * Scala
+ * Copyright (c) 2002-2019 EPFL
+ * Copyright (c) 2011-2019 Lightbend, Inc.
+ *
+ * Scala includes software developed at
+ * LAMP/EPFL (https://lamp.epfl.ch/) and
+ * Lightbend, Inc. (https://www.lightbend.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
 @file:Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "NOTHING_TO_INLINE")
-@file:JvmName("Eithers")
 
 package moe.kanon.kommons.func
 
 import moe.kanon.kommons.Identifiable
+import moe.kanon.kommons.PortOf
 import moe.kanon.kommons.func.internal.EmptyIterator
 import moe.kanon.kommons.func.internal.SingletonIterator
+import moe.kanon.kommons.requireNonFatal
 
+typealias Disjoint<L, R> = Either<L, R>
+typealias DisjointUnion<L, R> = Either<L, R>
+
+/**
+ * Represents a disjoint union where a value can either be of type [L] or type [R].
+ *
+ * ### Port-Of Links
+ * 1. [scala.util.Either](https://github.com/scala/scala/blob/2.13.x/src/library/scala/util/Either.scala)
+ *
+ * ### Port Details
+ * To more closely adhere to the Kotlin design of avoiding implicit behaviour when possible the right-bias found in the
+ * original Scala implementation has been removed. That means that this class on its own does *not* provide any real
+ * utility functions *(`map`, `flatMap`, `any`, etc...)*, instead to access those functions one needs to explicitly
+ * define the [projection][EitherProjection] that they want to use. *`(Either.left or Either.right)`*
+ *
+ * Some of the functions have also been renamed to follow the general Kotlin naming style more closely, i.e;
+ * `exists(predicate)` -> `any(predicate)`, `forall(predicate)` -> `all(predicate)`, etc..
+ */
+@PortOf("scala.util.Either")
 sealed class Either<out L, out R> : Identifiable {
     /*
      * I've opted to *not* include properties for "isLeft" and "isRight", as it's better practice to just do
      * ```kotlin
      *  val joint: Either<String, Int> = ...
-     *  if (joint is Left) ... else ...
+     *  val value = if (joint is Left) {
+     *      joint.value // is smart-cast to 'Left' with the value being a 'String'
+     *  } else {
+     *      ... // joint will not be smart-cast here
+     *  }
      * ```
-     * as the Kotlin compiler will then also smart cast the `joint` value.
-     *
-     * This is also because from the data I've seen, a 'is' (instanceof on the java side) check is no slower than a
-     * boolean check, so there is no real performance to gain, if there is any it's beyond minimal.
+     * the above code can be accomplished by just using the provided `fold` function too (which will accomplish it in
+     * a slightly "cleaner" fashion)
+     * ```kotlin
+     *  val joint: Either<String, Int> = ...
+     * val value = joint.fold({ it }, { it.toString() }) // will return the string value if joint is left, or the
+     * // string value of the int value if joint is a right side
+     * ```
      */
 
     /**
@@ -105,20 +145,37 @@ sealed class Either<out L, out R> : Identifiable {
      * @return if `this` is [left][Left] then it will return [right][Right] or if `this` is `right` then it will return
      * `left`.
      */
-    @JvmSynthetic
-    inline operator fun not(): Either<R, L> = swap()
+    @JvmSynthetic inline operator fun not(): Either<R, L> = swap()
 
     companion object {
-        @JvmStatic infix fun <L> left(value: L): Either<L, Nothing> = Left(value)
-
-        @JvmStatic infix fun <R> right(value: R): Either<Nothing, R> = Right(value)
+        /**
+         * Returns a [left-side][Left] of a [disjoint union][Either], containing the specified [value].
+         */
+        @JvmStatic fun <L> left(value: L): Either<L, Nothing> = Left(value)
 
         /**
-         * Returns a [left-side][Left] containing the given [value] if it is *not* `null`, or a [right-side][Right]
+         * Returns a [right-side][Right] of a [disjoint union][Either], containing the specified [value].
+         */
+        @JvmStatic fun <R> right(value: R): Either<Nothing, R> = Right(value)
+
+        /**
+         * Returns a [right-side][Right] containing the given [value] if it is *not* `null`, or a [left-side][Left]
          * containing nothing if it *is* `null`.
          */
-        @JvmStatic fun <T> fromNullable(value: T?): Either<T, Nothing?> =
-            if (value != null) Left(value) else Right(value)
+        @JvmStatic fun <T> fromNullable(value: T?): Either<Nothing?, T> =
+            if (value == null) Left(value) else Right(value)
+
+        /**
+         * Wraps the invocation of the specified [closure] in a `try-catch` block and returns a [right-side][Right]
+         * containing the result if it succeeded, otherwise returns a [left-side][Left] containing the
+         * [cause][Throwable.cause] of the failure.
+         */
+        @JvmStatic inline fun <T> tryCatch(closure: () -> T): Either<Throwable, T> = try {
+            Right(closure())
+        } catch (t: Throwable) {
+            requireNonFatal(t)
+            Left(t)
+        }
     }
 }
 
@@ -186,11 +243,8 @@ sealed class EitherProjection<out L, out R> : Identifiable {
 
 }
 
-class LeftProjection<out L, out R> internal constructor(
-    @PublishedApi
-    @get:JvmSynthetic
-    internal val either: Either<L, R>
-) : EitherProjection<L, R>(), Identifiable by either {
+class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
+    Identifiable by either {
     val iterator: Iterator<L>
         get() = when (either) {
             is Left -> SingletonIterator(either.value)
@@ -243,6 +297,23 @@ class LeftProjection<out L, out R> internal constructor(
     }
 
     /**
+     * Returns [Some] if `this` is `left`, or [None] if `this` is `right`.
+     */
+    fun toOptional(): Optional<L> = when (either) {
+        is Left -> Some(either.value)
+        is Right -> None
+    }
+
+    /**
+     * Returns [Success] if `this` is `left`, or [Failure] if `this` is `right`.
+     */
+    fun toTry(): Try<L> = when (either) {
+        is Left -> Success(either.value)
+        is Right -> Failure(WrongJunctionException("Expected left-side, got right-side"))
+    }
+
+
+    /**
      * Returns a [Iterable] that's based on the [iterator] of `this`.
      */
     fun asIterable(): Iterable<L> = Iterable { iterator }
@@ -255,11 +326,8 @@ class LeftProjection<out L, out R> internal constructor(
     override fun toString(): String = "LeftProjection[$either]"
 }
 
-class RightProjection<out L, out R> internal constructor(
-    @PublishedApi
-    @get:JvmSynthetic
-    internal val either: Either<L, R>
-) : EitherProjection<L, R>(), Identifiable by either {
+class RightProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
+    Identifiable by either {
     /**
      * Returns a [SingletonIterator] if `this` is [right][Right], or a [EmptyIterator] if `this` is [left][Left].
      */
@@ -301,7 +369,7 @@ class RightProjection<out L, out R> internal constructor(
     }
 
     /**
-     * Executes the given [action] if `this` is [right][Right].
+     * Executes the given [action] if `this` is the [right-side][Right].
      */
     inline fun forEach(action: (R) -> Unit) {
         if (either is Right) action(either.value)
@@ -317,6 +385,22 @@ class RightProjection<out L, out R> internal constructor(
     }
 
     /**
+     * Returns [Some] if `this` is `right`, or [None] if `this` is `left`.
+     */
+    fun toOptional(): Optional<R> = when (either) {
+        is Left -> None
+        is Right -> Some(either.value)
+    }
+
+    /**
+     * Returns [Success] if `this` is `right`, or [Failure] if `this` is `left`.
+     */
+    fun toTry(): Try<R> = when (either) {
+        is Left -> Failure(WrongJunctionException("Expected right-side, got left-side"))
+        is Right -> Success(either.value)
+    }
+
+    /**
      * Returns a [Iterable] that's based on the [iterator] of `this`.
      */
     fun asIterable(): Iterable<R> = Iterable { iterator }
@@ -325,6 +409,7 @@ class RightProjection<out L, out R> internal constructor(
      * Returns a [Sequence] that's based on the [iterator] of `this`.
      */
     fun asSequence(): Sequence<R> = Sequence { iterator }
+
 
     override fun toString(): String = "RightProjection[$either]"
 }

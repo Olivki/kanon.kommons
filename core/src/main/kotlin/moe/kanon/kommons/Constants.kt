@@ -20,6 +20,8 @@
 package moe.kanon.kommons
 
 // -- CONSTANTS -- \\
+const val INDEX_NOT_FOUND: Int = -1
+
 /*
  * As we can't *actually* make these into 'const val' constructs, we'll just make them inlined, which essentially
  * accomplishes the same thing in the end.

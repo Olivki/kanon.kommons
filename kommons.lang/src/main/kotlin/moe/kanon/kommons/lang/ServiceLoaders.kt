@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-@file:JvmName("Strings")
-
 package moe.kanon.kommons.lang
+
+import java.util.*
+
+inline fun <reified S> serviceLoaderFor(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
+
+inline fun <reified S> serviceLoaderFor(loader: ClassLoader): ServiceLoader<S> =
+    ServiceLoader.load(S::class.java, loader)
+
+inline fun <reified S> ServiceLoader(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
+
+inline fun <reified S> ServiceLoader(loader: ClassLoader): ServiceLoader<S> =
+    ServiceLoader.load(S::class.java, loader)

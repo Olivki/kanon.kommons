@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons
+@file:JvmName("KArrays")
 
-import java.util.*
+package moe.kanon.kommons.collections
 
-inline fun <reified S> serviceLoaderFor(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
+/**
+ * Creates a new generic [Array] of the specified [size] filled with `null` values.
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> createArray(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
-inline fun <reified S> serviceLoaderFor(loader: ClassLoader): ServiceLoader<S> =
-    ServiceLoader.load(S::class.java, loader)
+/**
+ * Creates a new generic [Array] of the specified [size] filled with the specified [default] value.
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> createArray(size: Int, default: T): Array<T> = Array<Any>(size) { default } as Array<T>
