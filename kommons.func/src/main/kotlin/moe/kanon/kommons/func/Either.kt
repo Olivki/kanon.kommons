@@ -28,6 +28,7 @@
  */
 
 @file:Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "NOTHING_TO_INLINE")
+@file:JvmName("KEither")
 
 package moe.kanon.kommons.func
 
@@ -299,7 +300,7 @@ class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>
     /**
      * Returns [Some] if `this` is `left`, or [None] if `this` is `right`.
      */
-    fun toOptional(): Optional<L> = when (either) {
+    fun toOptional(): Option<L> = when (either) {
         is Left -> Some(either.value)
         is Right -> None
     }
@@ -387,7 +388,7 @@ class RightProjection<out L, out R> internal constructor(val either: Either<L, R
     /**
      * Returns [Some] if `this` is `right`, or [None] if `this` is `left`.
      */
-    fun toOptional(): Optional<R> = when (either) {
+    fun toOptional(): Option<R> = when (either) {
         is Left -> None
         is Right -> Some(either.value)
     }

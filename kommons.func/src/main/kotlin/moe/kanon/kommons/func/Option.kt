@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("Option")
+@file:JvmName("KOption")
 @file:Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER", "NOTHING_TO_INLINE")
 
 package moe.kanon.kommons.func
@@ -48,18 +48,18 @@ import java.util.Optional as JOptional
 /**
  * A container object which may or may not contain a non-null value.
  *
- * If a value is present, [isPresent][Optional.isPresent] will return `true` and [get][Optional.value] will return the
+ * If a value is present, [isPresent][Option.isPresent] will return `true` and [get][Option.value] will return the
  * value.
  */
-typealias Option<T> = Optional<T>
+typealias Optional<T> = Option<T>
 
 /**
  * A container object which may or may not contain a non-null value.
  *
- * If a value is present, [isPresent][Optional.isPresent] will return `true` and [get][Optional.value] will return the
+ * If a value is present, [isPresent][Option.isPresent] will return `true` and [get][Option.value] will return the
  * value.
  */
-typealias Maybe<T> = Optional<T>
+typealias Maybe<T> = Option<T>
 
 /**
  * A container object which may or may not contain a non-null value.
@@ -71,7 +71,7 @@ typealias Maybe<T> = Optional<T>
  * 1. [scala.Option](https://github.com/scala/scala/blob/2.13.x/src/library/scala/Option.scala)
  */
 @PortOf("java.util.Optional", "scala.util.Option")
-sealed class Optional<out T> : Identifiable {
+sealed class Option<out T> : Identifiable {
     /**
      * Returns the [item][Some.item] if `this` is [Some], or throws a [NoSuchElementException] if `this` is [None].
      */
@@ -166,9 +166,9 @@ sealed class Optional<out T> : Identifiable {
      *
      * Note that if the result of applying `value` to the `transformer` results in `null` then [None] is returned.
      */
-    inline fun <R> map(transformer: (T) -> R?): Optional<R> = when (this) {
+    inline fun <R> map(transformer: (T) -> R?): Option<R> = when (this) {
         is None -> this
-        is Some -> Optional(transformer(item))
+        is Some -> Option(transformer(item))
     }
 
     /**
@@ -177,7 +177,7 @@ sealed class Optional<out T> : Identifiable {
      * This function is similar to [map], but the `transformer` is one whose result is already an `Optional`,
      * and if invoked, `flatMap` does not wrap it with an additional `Optional`.
      */
-    inline fun <R> flatMap(transformer: (T) -> Optional<R>): Optional<R> = when (this) {
+    inline fun <R> flatMap(transformer: (T) -> Option<R>): Option<R> = when (this) {
         is None -> this
         is Some -> transformer(item)
     }
@@ -185,13 +185,13 @@ sealed class Optional<out T> : Identifiable {
     /**
      * Returns [Some] if a value that matches the [predicate] is present, otherwise returns [None].
      */
-    inline fun filter(predicate: (T) -> Boolean): Optional<T> =
+    inline fun filter(predicate: (T) -> Boolean): Option<T> =
         flatMap { if (predicate(it)) Some(it) else None }
 
     /**
      * Returns [Some] if a value that does *not* match the [predicate] is present, otherwise returns [None].
      */
-    inline fun filterNot(predicate: (T) -> Boolean): Optional<T> =
+    inline fun filterNot(predicate: (T) -> Boolean): Option<T> =
         flatMap { if (!predicate(it)) Some(it) else None }
 
     /**
@@ -221,15 +221,15 @@ sealed class Optional<out T> : Identifiable {
     /**
      * If no value is present returns [None], otherwise returns [other].
      */
-    infix fun <U> and(other: Optional<U>): Optional<U> = if (isEmpty) None else other
+    infix fun <U> and(other: Option<U>): Option<U> = if (isEmpty) None else other
 
     /**
      * Returns `this` if a value is present, otherwise returns [other].
      */
-    infix fun or(other: Optional<@UnsafeVariance T>): Optional<T> = if (isPresent) this else other
+    infix fun or(other: Option<@UnsafeVariance T>): Option<T> = if (isPresent) this else other
 
     /**
-     * If a value is present, returns whether or not [value][Optional.value] is equal to the specified [value],
+     * If a value is present, returns whether or not [value][Option.value] is equal to the specified [value],
      * otherwise returns `false`.
      */
     operator fun contains(value: @UnsafeVariance T): Boolean = when (this) {
@@ -256,7 +256,7 @@ sealed class Optional<out T> : Identifiable {
          */
         // enables the syntax of 'Optional(67)'
         @JvmName("of")
-        @JvmStatic operator fun <T> invoke(value: T?): Optional<T> = when (value) {
+        @JvmStatic operator fun <T> invoke(value: T?): Option<T> = when (value) {
             null -> None
             else -> Some(value)
         }
@@ -266,17 +266,17 @@ sealed class Optional<out T> : Identifiable {
          */
         // enables the syntax of 'Optional { 67 }'
         @JvmName("calculate")
-        inline operator fun <T : Any> invoke(value: () -> T?): Optional<T> = value().toOptional()
+        inline operator fun <T : Any> invoke(value: () -> T?): Option<T> = value().toOptional()
 
         /**
          * Invokes the specified [value] wrapped in a `try catch` block, returns [Some] if no errors are thrown,
          * otherwise returns [None].
          *
-         * This function enables one to use the [Optional] class as a type of [Try]. Do note that unlike `Result`,
+         * This function enables one to use the [Option] class as a type of [Try]. Do note that unlike `Result`,
          * no information regarding the thrown exception is saved in the `Optional` form, as `None` does not
          * contain any data.
          */
-        inline fun <T> tryCatch(value: () -> T): Optional<T> = try {
+        inline fun <T> tryCatch(value: () -> T): Option<T> = try {
             Some(value())
         } catch (t: Throwable) {
             requireNonFatal(t)
@@ -286,14 +286,14 @@ sealed class Optional<out T> : Identifiable {
         /**
          * Returns [None] cast to [T].
          */
-        @JvmStatic fun <T> empty(): Optional<T> = None
+        @JvmStatic fun <T> empty(): Option<T> = None
     }
 }
 
 /**
- * Represents an empty [Optional] value.
+ * Represents an empty [Option] value.
  */
-object None : Optional<Nothing>() {
+object None : Option<Nothing>() {
     override fun hashCode(): Int = 0
 
     override fun equals(other: Any?): Boolean = when (other) {
@@ -309,9 +309,9 @@ object None : Optional<Nothing>() {
 typealias Just<T> = Some<T>
 
 /**
- * Represents a present [Optional] value.
+ * Represents a present [Option] value.
  */
-data class Some<out T>(val item: T) : Optional<T>() {
+data class Some<out T>(val item: T) : Option<T>() {
     override fun hashCode(): Int = item.hashCode()
 
     override fun equals(other: Any?): Boolean = item?.equals(other) ?: false
@@ -323,21 +323,21 @@ data class Some<out T>(val item: T) : Optional<T>() {
  * Returns a [Some] containing `this`, or [None] if `this` is `null`.
  */
 @JvmName("fromNullable")
-fun <T> T?.toOptional(): Optional<T> = Optional(this)
+fun <T> T?.toOptional(): Option<T> = Option(this)
 
 /**
- * Converts `this` [java.util.Optional] to a [Optional] instance.
+ * Converts `this` [java.util.Optional] to a [Option] instance.
  *
  * If a value is not present in `this` then the resulting `Optional` will be [None].
  */
-val <T> JOptional<T>.kotlin: Optional<T>
+val <T> JOptional<T>.kotlin: Option<T>
     @JvmName("fromJava") get() = when {
         this.isPresent -> Some(this.get())
         else -> None
     }
 
 @JvmName("isSome")
-fun <T> Optional<T>.isPresent(): Boolean {
+fun <T> Option<T>.isPresent(): Boolean {
     contract {
         returns(true) implies (this@isPresent is Some<T>)
         returns(false) implies (this@isPresent is None)
@@ -346,7 +346,7 @@ fun <T> Optional<T>.isPresent(): Boolean {
 }
 
 @JvmName("isNone")
-fun <T> Optional<T>.isEmpty(): Boolean {
+fun <T> Option<T>.isEmpty(): Boolean {
     contract {
         returns(false) implies (this@isEmpty is Some<T>)
         returns(true) implies (this@isEmpty is None)
@@ -358,7 +358,7 @@ fun <T> Optional<T>.isEmpty(): Boolean {
  * If `this` boolean is `true`, returns the specified [item] wrapped in a [Some], otherwise returns [None].
  */
 @JvmName("fromBoolean")
-infix fun <T> Boolean.maybe(item: T): Optional<T> = if (this) Some(item) else None
+infix fun <T> Boolean.maybe(item: T): Option<T> = if (this) Some(item) else None
 
 inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
 
@@ -366,56 +366,56 @@ inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
 /**
  * Returns the first element, or [None] if `this` collection is empty.
  */
-fun <T> Iterable<T>.firstOrNone(): Optional<T> = Optional(firstOrNull())
+fun <T> Iterable<T>.firstOrNone(): Option<T> = Option(firstOrNull())
 
 /**
  * Returns the first element matching the specified [predicate], or [None] if none is found.
  */
-inline fun <T> Iterable<T>.firstOrNone(predicate: (T) -> Boolean) = Optional(firstOrNull(predicate))
+inline fun <T> Iterable<T>.firstOrNone(predicate: (T) -> Boolean) = Option(firstOrNull(predicate))
 
 /**
  * Returns the last element, or [None] if `this` collection is empty.
  */
-fun <T> Iterable<T>.lastOrNone(): Optional<T> = Optional(lastOrNull())
+fun <T> Iterable<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 
 /**
  * Returns the last element matching the specified [predicate], or [None] if none is found.
  */
-inline fun <T> Iterable<T>.lastOrNone(predicate: (T) -> Boolean): Optional<T> = Optional(lastOrNull(predicate))
+inline fun <T> Iterable<T>.lastOrNone(predicate: (T) -> Boolean): Option<T> = Option(lastOrNull(predicate))
 
 /**
  * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` collection.
  */
-fun <T> Iterable<T>.elementAtOrNone(index: Int): Optional<T> = Optional(elementAtOrNull(index))
+fun <T> Iterable<T>.elementAtOrNone(index: Int): Option<T> = Option(elementAtOrNull(index))
 
 // -- LIST -- \\
 /**
  * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` list.
  */
-fun <T> List<T>.getOrNone(index: Int): Optional<T> = Optional(getOrNull(index))
+fun <T> List<T>.getOrNone(index: Int): Option<T> = Option(getOrNull(index))
 
 /**
  * Returns the first element, or [None] if `this` list is empty.
  */
-fun <T> List<T>.firstOrNone(): Optional<T> = Optional(firstOrNull())
+fun <T> List<T>.firstOrNone(): Option<T> = Option(firstOrNull())
 
 /**
  * Returns the last element, or [None] if `this` list is empty.
  */
-fun <T> List<T>.lastOrNone(): Optional<T> = Optional(lastOrNull())
+fun <T> List<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 
 // -- MAP -- \\
 /**
  * Returns the value stored under the given [key] in `this` map, or [None] if no value is stored under the given `key`.
  */
-fun <K, V> Map<K, V>.getValueOrNone(key: K): Optional<V> = Optional(this[key])
+fun <K, V> Map<K, V>.getValueOrNone(key: K): Option<V> = Option(this[key])
 
 // -- TO... FUNCTIONS -- \\
 /**
  * Parses `this` string as a signed [Byte] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toByteOrNone(): Optional<Byte> = Optional(this.toByteOrNull())
+fun String.toByteOrNone(): Option<Byte> = Option(this.toByteOrNull())
 
 /**
  * Parses `this` string as a signed [Byte] number and returns the result or [None] if `this` string is not a valid
@@ -423,13 +423,13 @@ fun String.toByteOrNone(): Optional<Byte> = Optional(this.toByteOrNull())
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
-fun String.toByteOrNone(radix: Int): Optional<Byte> = Optional(this.toByteOrNull(radix))
+fun String.toByteOrNone(radix: Int): Option<Byte> = Option(this.toByteOrNull(radix))
 
 /**
  * Parses `this` string as a signed [Short] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toShortOrNone(): Optional<Short> = Optional(this.toShortOrNull())
+fun String.toShortOrNone(): Option<Short> = Option(this.toShortOrNull())
 
 /**
  * Parses `this` string as a signed [Short] number and returns the result or [None] if `this` string is not a valid
@@ -437,13 +437,13 @@ fun String.toShortOrNone(): Optional<Short> = Optional(this.toShortOrNull())
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
-fun String.toShortOrNone(radix: Int): Optional<Short> = Optional(this.toShortOrNull(radix))
+fun String.toShortOrNone(radix: Int): Option<Short> = Option(this.toShortOrNull(radix))
 
 /**
  * Parses `this` string as a signed [Int] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toIntOrNone(): Optional<Int> = Optional(this.toIntOrNull())
+fun String.toIntOrNone(): Option<Int> = Option(this.toIntOrNull())
 
 /**
  * Parses `this` string as a signed [Int] number and returns the result or [None] if `this` string is not a valid
@@ -451,13 +451,13 @@ fun String.toIntOrNone(): Optional<Int> = Optional(this.toIntOrNull())
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
-fun String.toIntOrNone(radix: Int): Optional<Int> = Optional(this.toIntOrNull(radix))
+fun String.toIntOrNone(radix: Int): Option<Int> = Option(this.toIntOrNull(radix))
 
 /**
  * Parses `this` string as a signed [Long] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toLongOrNone(): Optional<Long> = Optional(this.toLongOrNull())
+fun String.toLongOrNone(): Option<Long> = Option(this.toLongOrNull())
 
 /**
  * Parses `this` string as a signed [Long] number and returns the result or [None] if `this` string is not a valid
@@ -465,13 +465,13 @@ fun String.toLongOrNone(): Optional<Long> = Optional(this.toLongOrNull())
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
-fun String.toLongOrNone(radix: Int): Optional<Long> = Optional(this.toLongOrNull(radix))
+fun String.toLongOrNone(radix: Int): Option<Long> = Option(this.toLongOrNull(radix))
 
 /**
  * Parses `this` string as a signed [BigInteger] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toBigIntegerOrNone(): Optional<BigInteger> = Optional(this.toBigIntegerOrNull())
+fun String.toBigIntegerOrNone(): Option<BigInteger> = Option(this.toBigIntegerOrNull())
 
 /**
  * Parses `this` string as a signed [BigInteger] number and returns the result or [None] if `this` string is not a valid
@@ -479,25 +479,25 @@ fun String.toBigIntegerOrNone(): Optional<BigInteger> = Optional(this.toBigInteg
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
-fun String.toBigIntegerOrNone(radix: Int): Optional<BigInteger> = Optional(this.toBigIntegerOrNull(radix))
+fun String.toBigIntegerOrNone(radix: Int): Option<BigInteger> = Option(this.toBigIntegerOrNull(radix))
 
 /**
  * Parses `this` string as a signed [Float] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toFloatOrNone(): Optional<Float> = Optional(this.toFloatOrNull())
+fun String.toFloatOrNone(): Option<Float> = Option(this.toFloatOrNull())
 
 /**
  * Parses `this` string as a signed [Double] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toDoubleOrNone(): Optional<Double> = Optional(this.toDoubleOrNull())
+fun String.toDoubleOrNone(): Option<Double> = Option(this.toDoubleOrNull())
 
 /**
  * Parses `this` string as a signed [BigDecimal] number and returns the result or [None] if `this` string is not a valid
  * representation of a number.
  */
-fun String.toBigDecimal(): Optional<BigDecimal> = Optional(this.toBigDecimalOrNull())
+fun String.toBigDecimal(): Option<BigDecimal> = Option(this.toBigDecimalOrNull())
 
 /**
  * Parses `this` string as a signed [BigDecimal] number and returns the result or [None] if `this` string is not a valid
@@ -507,4 +507,4 @@ fun String.toBigDecimal(): Optional<BigDecimal> = Optional(this.toBigDecimalOrNu
  * @throws [ArithmeticException] if the rounding is needed, but the rounding mode is
  * [java.math.RoundingMode.UNNECESSARY]
  */
-fun String.toBigDecimal(context: MathContext): Optional<BigDecimal> = Optional(this.toBigDecimalOrNull(context))
+fun String.toBigDecimal(context: MathContext): Option<BigDecimal> = Option(this.toBigDecimalOrNull(context))

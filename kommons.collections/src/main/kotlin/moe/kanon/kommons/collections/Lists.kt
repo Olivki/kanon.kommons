@@ -21,45 +21,12 @@ package moe.kanon.kommons.collections
 
 import moe.kanon.kommons.INDEX_NOT_FOUND
 import moe.kanon.kommons.requireThat
+import java.util.*
 import kotlin.NoSuchElementException
 
 typealias TwoDimList<T> = List<List<T>>
 
 // -- CLASSES -- \\
-/**
- * Represents a [List] which can *not* be modified.
- *
- * Please note that when used from the Java side, any attempts to invoke any of the functions that modify the data
- * of the list in any way will result in a [UnsupportedOperationException] being thrown.
- *
- * @property [delegate] The backing instance that `this` list calls back to.
- */
-open class ImmutableList<out E>(private val delegate: List<E>) : List<E> by delegate {
-    companion object {
-        /**
-         * Creates a new [immutable list][ImmutableList] where each element is calculated by calling the specified
-         * [init] function.
-         *
-         * @param [size] the size of the list
-         * @param [init] the function that calculates each element, this should return a list element based on the
-         * given `index`.
-         */
-        @JvmName("create")
-        @JvmStatic inline operator fun <E> invoke(size: Int, init: (index: Int) -> E): ImmutableList<E> =
-            ImmutableList(List(size, init))
-    }
-
-    override fun iterator(): ImmutableIterator<E> = ImmutableIterator(delegate.iterator())
-
-    override fun listIterator(): ImmutableListIterator<E> = ImmutableListIterator(delegate.listIterator())
-
-    override fun listIterator(index: Int): ImmutableListIterator<E> =
-        ImmutableListIterator(delegate.listIterator(index))
-
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> =
-        ImmutableList(delegate.subList(fromIndex, toIndex))
-}
-
 /**
  * Represents a [List] that only contains one [element].
  *
@@ -93,35 +60,15 @@ class SingletonList<out E>(private val element: E) : List<E> {
 
 // -- FACTORY FUNCTIONS -- \\
 /**
+ * Returns an [unmodifiable view][Collections.unmodifiableList] of `this` list.
+ */
+fun <T> List<T>.toUnmodifiableList(): List<T> = Collections.unmodifiableList(this)
+
+/**
  * Returns a new [List] that *only* contains the specified [element].
  */
 @JvmName("singletonOf")
 fun <T> singletonList(element: T): List<T> = SingletonList(element)
-
-// Immutable
-/**
- * Returns a new [immutable list][ImmutableList] containing the given [elements].
- */
-@JvmName("immutableOf")
-fun <T> immutableListOf(vararg elements: T): ImmutableList<T> = when (elements.size) {
-    0 -> ImmutableList(emptyList())
-    1 -> ImmutableList(singletonList(elements[0]))
-    else -> ImmutableList(elements.toCollection(ArrayList()))
-}
-
-/**
- * Returns a new [immutable list][ImmutableList] containing the given [elements].
- *
- * The [delegate][ImmutableList.delegate] property will be set to the specified [backing] parameter.
- */
-fun <T> immutableListOf(backing: MutableList<T>, vararg elements: T): ImmutableList<T> =
-    ImmutableList(backing.fillWith(elements))
-
-/**
- * Returns a [immutable list][ImmutableList] that is wrapped around `this` list.
- */
-@JvmName("toImmutable")
-fun <T> List<T>.toImmutableList(): ImmutableList<T> = ImmutableList(this)
 
 /**
  * Creates a new two-dimensional list from the specified [width] and [height], with all values set to the specified

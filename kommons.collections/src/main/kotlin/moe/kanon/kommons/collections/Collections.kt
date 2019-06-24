@@ -18,19 +18,9 @@
 
 package moe.kanon.kommons.collections
 
-// -- CLASSES -- \\
-/**
- * A [collection][Collection] which can *not* be modified.
- *
- * Any attempts to modify the contents of `this` collection will result in a [UnsupportedOperationException] being
- * thrown.
- *
- * @property [delegate] The backing instance that `this` collection calls back to.
- */
-open class ImmutableCollection<out E>(private val delegate: Collection<E>) : Collection<E> by delegate {
-    override fun iterator(): ImmutableIterator<E> = ImmutableIterator(delegate.iterator())
-}
+import java.util.*
 
+// -- CLASSES -- \\
 /**
  * A [collection][Collection] that only contains one element.
  *
@@ -65,6 +55,11 @@ object EmptyCollection : Collection<Nothing> {
 
 // -- FACTORY FUNCTIONS -- \\
 /**
+ * Returns an [unmodifiable view][Collections.unmodifiableCollection] of `this` collection.
+ */
+fun <T> Collection<T>.toUnmodifiableCollection(): Collection<T> = Collections.unmodifiableCollection(this)
+
+/**
  * Returns an empty [Collection].
  */
 @JvmName("empty")
@@ -75,25 +70,6 @@ fun <T> emptyCollection(): Collection<T> = EmptyCollection
  */
 @JvmName("singletonOf")
 fun <T> singletonCollection(element: T): Collection<T> = SingletonCollection(element)
-
-/**
- * Returns a new [ImmutableCollection] containing the specified [elements].
- */
-@JvmName("immutableOf")
-fun <T> immutableCollectionOf(vararg elements: T): ImmutableCollection<T> = when (elements.size) {
-    0 -> ImmutableCollection(EmptyCollection)
-    1 -> ImmutableCollection(SingletonCollection(elements[0]))
-    else -> ImmutableCollection(elements.toCollection(ArrayList()))
-}
-
-/**
- * Returns a new [ImmutableCollection] containing the specified [elements].
- *
- * The [delegate][ImmutableCollection.delegate] property will be set to the specified [backing] parameter.
- */
-@JvmName("immutableOf")
-fun <T> immutableCollectionOf(backing: MutableCollection<T>, vararg elements: T): ImmutableCollection<T> =
-    ImmutableCollection(backing.fillWith(elements))
 
 // -- UTILITY FUNCTIONS -- \\
 // fill with

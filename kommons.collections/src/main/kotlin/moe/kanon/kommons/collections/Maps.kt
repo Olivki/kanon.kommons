@@ -24,8 +24,6 @@ import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 // -- CLASSES -- \\
-open class ImmutableMap<K, V>(private val delegate: Map<K, V>) : Map<K, V> by delegate
-
 class SingletonMap<K, out V>(key: K, value: V) : Map<K, V> {
     private val entry: Entry<K, V> = Entry(key, value)
 
@@ -59,36 +57,12 @@ fun <K, V> singletonMap(key: K, value: V): Map<K, V> = SingletonMap(key, value)
 @JvmName("singletonOf")
 fun <K, V> singletonMap(pair: Pair<K, V>): Map<K, V> = SingletonMap(pair.first, pair.second)
 
-/**
- * Returns a new [ImmutableMap] which contains the specified [pairs].
- */
-@JvmName("immutableOf")
-fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = when (pairs.size) {
-    0 -> ImmutableMap(emptyMap())
-    1 -> ImmutableMap(singletonMap(pairs[0]))
-    else -> ImmutableMap(pairs.toMap(LinkedHashMap()))
-}
-
-/**
- * Returns a new [ImmutableMap] which contains the specified [pairs].
- */
-@JvmName("immutableHashOf")
-fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = when (pairs.size) {
-    0 -> ImmutableMap(emptyMap())
-    1 -> ImmutableMap(singletonMap(pairs[0]))
-    else -> ImmutableMap(pairs.toMap(HashMap()))
-}
-
-/**
- * Returns a new [ImmutableMap] which contains the specified [pairs].
- *
- * The [delegate][ImmutableMap.delegate] property will be set to the specified [backing] parameter.
- */
-@JvmName("immutableOf")
-fun <K, V> immutableMapOf(backing: MutableMap<K, V>, vararg pairs: Pair<K, V>): ImmutableMap<K, V> =
-    ImmutableMap(backing.fillWith(pairs))
-
 // java
+/**
+ * Returns an [unmodifiable view][Collections.unmodifiableMap] of `this` map.
+ */
+fun <K, V> Map<K, V>.toUnmodifiableMap(): Map<K, V> = Collections.unmodifiableMap(this)
+
 /**
  * Returns a new [TreeMap] that contains the specified [pairs].
  */

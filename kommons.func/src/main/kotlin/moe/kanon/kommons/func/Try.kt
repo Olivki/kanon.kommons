@@ -208,14 +208,14 @@ sealed class Try<out T> : Identifiable {
     @JvmSynthetic inline operator fun not(): Try<Throwable> = invert()
 
     /**
-     * Returns a [Optional] based on `this`, if it is a [failure][Failure] then [None] is returned, otherwise
+     * Returns a [Option] based on `this`, if it is a [failure][Failure] then [None] is returned, otherwise
      * [Some] is returned.
      *
      * Note that when converting a `result` to an `optional` if the `result` is a `failure` then the
      * [cause][Failure.underlyingCause] information will be erased as it will turned into a `None`, which stores no
      * data, if this is the behaviour that is wanted from the start, consider using `Optional.tryCatch { ... }`.
      */
-    fun toOptional(): Optional<T> = when (this) {
+    fun toOptional(): Option<T> = when (this) {
         is Failure -> None
         is Success -> Some(item)
     }

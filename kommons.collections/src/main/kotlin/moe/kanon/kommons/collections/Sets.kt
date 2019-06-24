@@ -18,6 +18,8 @@
 
 package moe.kanon.kommons.collections
 
+import java.util.*
+
 // -- CLASSES -- \\
 /**
  * Represents a [set][Set] that only contains one element.
@@ -34,52 +36,17 @@ class SingletonSet<out E>(private val element: E) : Set<E> {
     override fun iterator(): Iterator<E> = SingletonIterator(element)
 }
 
-/**
- * Represents a [set][Set] that can't be modified.
- *
- * Any attempts to modify the `set` will result in a [UnsupportedOperationException] being thrown.
- *
- * @property [delegate] The underlying [Set] instance that `this` class delegates all operations to.
- */
-class ImmutableSet<out E>(private val delegate: Set<E>) : Set<E> by delegate {
-    override fun iterator(): ImmutableIterator<E> = ImmutableIterator(delegate.iterator())
-}
-
 // -- FACTORY FUNCTIONS -- \\
+/**
+ * Returns an [unmodifiable view][Collections.unmodifiableSet] of `this` set.
+ */
+fun <T> Set<T>.toUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
+
 /**
  * Returns a new [singleton set][SingletonSet] wrapped around the specified [item].
  */
 @JvmName("singletonOf")
 fun <E> singletonSet(item: E): Set<E> = SingletonSet(item)
-
-/**
- * Returns a new [immutable set][ImmutableSet] that contains the specified [elements].
- */
-@JvmName("immutableOf")
-fun <E> immutableSetOf(vararg elements: E): ImmutableSet<E> = when (elements.size) {
-    0 -> ImmutableSet(emptySet())
-    1 -> ImmutableSet(singletonSet(elements[0]))
-    else -> ImmutableSet(elements.toCollection(LinkedHashSet()))
-}
-
-/**
- * Returns a new [immutable set][ImmutableSet] that contains the specified [elements].
- */
-@JvmName("immutableHashOf")
-fun <E> immutableHashSetOf(vararg elements: E): ImmutableSet<E> = when (elements.size) {
-    0 -> ImmutableSet(emptySet())
-    1 -> ImmutableSet(singletonSet(elements[0]))
-    else -> ImmutableSet(elements.toCollection(HashSet()))
-}
-
-/**
- * Returns a new [immutable set][ImmutableSet] that contains the specified [elements].
- *
- * The [delegate][ImmutableSet.delegate] property will be set to the specified [backing] parameter.
- */
-@JvmName("immutableOf")
-fun <E> immutableSetOf(backing: MutableSet<E>, vararg elements: E): ImmutableSet<E> =
-    ImmutableSet(backing.fillWith(elements))
 
 // -- UTIL FUNCTIONS -- \\
 

@@ -27,8 +27,10 @@ import kotlin.properties.ReadWriteProperty
 object Delegate {
     /**
      * Returns a property delegate for a read/write property that can only be set *once*, any subsequent set attempts
-     * will result in a [UnsupportedOperationException] being thrown. If an attempt is made to retrieve the string of a
-     * unset `write-once` property, then a [UnsupportedOperationException] will also be thrown.
+     * will result in a [UnsupportedOperationException] being thrown.
+     *
+     * If an attempt is made to retrieve the value of a unset `write-once` property, then a
+     * [UnsupportedOperationException] will also be thrown.
      */
     fun <T> writeOnce(): ReadWriteProperty<Any?, T> = WriteOnceProperty()
 }

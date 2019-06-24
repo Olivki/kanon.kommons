@@ -18,7 +18,6 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.collections.persistent.PersistentCollection
 import moe.kanon.kommons.requireThat
 
 // -- UTILITY PROPERTIES -- \\
@@ -28,7 +27,6 @@ import moe.kanon.kommons.requireThat
 val <T> Iterable<T>.size: Int
     @JvmName("sizeOf") get() = when (this) {
         is Collection -> size
-        is PersistentCollection -> size
         else -> count()
     }
 
@@ -50,7 +48,6 @@ val <T> Iterable<T>.tail: List<T> @JvmName("tailOf") get() = drop(1)
 val Iterable<*>.isEmpty: Boolean
     get() = when (this) {
         is Collection -> isEmpty()
-        is PersistentCollection -> isEmpty
         else -> none()
     }
 

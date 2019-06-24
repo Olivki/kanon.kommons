@@ -465,7 +465,7 @@ private fun generateImplementations(dir: Path) {
                 }
             }
 
-            func("fold") {
+            /*func("fold") {
                 addKdoc("Returns the result of applying the values of `this` tuple to the [transformer].")
                 addModifiers(KModifier.INLINE)
                 receiver(curTupleInterfaceClass)
@@ -511,7 +511,7 @@ private fun generateImplementations(dir: Path) {
                 param("predicate", predicate)
                 returns<Boolean>()
                 addStatement("return !predicate($params)")
-            }
+            }*/
 
             func("zipWith") {
                 addModifiers(KModifier.INFIX)

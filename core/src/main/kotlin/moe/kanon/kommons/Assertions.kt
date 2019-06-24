@@ -36,6 +36,7 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
     if (!condition(this)) throw IllegalStateException("<$this> does not satisfy the given condition") else this
 
 // -- EXCEPTIONS -- \\
+// TODO: Better clarify what errors are *actually* fatal, as not all errors are *actually* fatal (which breaks the contract set forth by Error, but oh well)
 @FakeKeyword inline fun requireNonFatal(throwable: Throwable) {
     contract {
         returns() implies (throwable !is Error)
