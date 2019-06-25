@@ -20,13 +20,12 @@
 package moe.kanon.kommons.io.paths
 
 import moe.kanon.kommons.io.pathMatcherOf
+import moe.kanon.kommons.io.readNBytes
 import moe.kanon.kommons.io.requireDirectory
 import moe.kanon.kommons.io.requireExistence
 import moe.kanon.kommons.io.requireRegularFile
-import java.io.BufferedWriter
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.OutputStreamWriter
 import java.io.Reader
 import java.io.UncheckedIOException
 import java.math.BigInteger
@@ -52,12 +51,15 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileAttribute
+import java.nio.file.attribute.FileTime
 import java.nio.file.spi.FileSystemProvider
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
-import java.util.stream.Stream
+
+private const val BUFFER_SIZE = 8192
 
 // -- FACTORY FUNCTIONS -- \\
 /**
@@ -210,14 +212,10 @@ var Path.simpleName: String
         this.isDirectory -> name
         else -> name.substringBeforeLast('.')
     }
-    set(simpleName) = when {
-        this.name.substringBeforeLast('.') == name || isDirectory -> name = simpleName
-        simpleName.contains('.') -> throw IOException(
-            "\"Path.simpleName\" does not support the usage of '.' " +
-                "inside of the setter ($simpleName), use \"Path.name\" " +
-                "or \"Path.extension\" for such actions."
-        )
-        else -> this.name = "$simpleName.${this.extension}"
+    set(value) = when {
+        this.name.substringBeforeLast('.') == name /* ??? */ || isDirectory -> name = value
+        value.contains('.') -> throw IOException("Illegal character <'.'> used for 'simpleName'")
+        else -> this.name = "$value.${this.extension}"
     }
 
 /**
@@ -235,16 +233,15 @@ var Path.extension: String
         this.isDirectory -> throw IOException("Path <$this> is a directory, and directories do not have extensions")
         else -> throw IOException("Path <$this> does not have an extension.")
     }
-    set(extension) {
+    set(value) {
         requireRegularFile(this) { "Path <$this> is a directory, and directories do not have extensions" }
 
-        this.name = "$simpleName.$extension"
+        this.name = "$simpleName.$value"
     }
 
-private class AttributeMap internal constructor(
-    private val path: Path,
-    private val original: Map<out String, Any>
-) : MutableMap<String, Any> by original.toMutableMap() {
+// TODO: Rework this?
+/*private class AttributeMap(private val path: Path, private val original: Map<out String, Any>) :
+    MutableMap<String, Any> by original.toMutableMap() {
 
     override fun put(key: String, value: Any): Any? = path.setAttribute(key, value)
 
@@ -267,12 +264,7 @@ private class AttributeMap internal constructor(
 
     // This is a really nasty way of checking whether or not the attribute actually exists, and using exception
     // catching for this should generally be avoided when possible.
-    override fun containsKey(key: String): Boolean = try {
-        path.getAttribute(key)
-        true
-    } catch (e: IllegalArgumentException) {
-        false
-    }
+    override fun containsKey(key: String): Boolean = original.containsKey(key)
 }
 
 /**
@@ -282,10 +274,14 @@ private class AttributeMap internal constructor(
  *
  * @see readAttributes
  */
-val Path.attributes: Map<String, Any> get() = AttributeMap(this, this.readAttributes("*"))
+val Path.attributes: Map<String, Any> get() = AttributeMap(this, this.readAttributes("*"))*/
 
 /**
- * Writes the given [line] to `this` [file][Path].
+ * Writes the given [string] to `this` [file][Path].
+ *
+ * Characters are encoded into bytes using the given [charset].
+ *
+ * All characters are written to the file *as is*, including any line separators. No extra characters are added.
  *
  * **Example Usage:**
  *
@@ -302,62 +298,114 @@ val Path.attributes: Map<String, Any> get() = AttributeMap(this, this.readAttrib
  *      """.trimMargin()
  * )
  * ```
+ *
+ * @param [options] Specifies how the file is created or opened.
+ *
+ * If this parameter is empty, then this function works as if the [CREATE][StandardOpenOption.CREATE],
+ * [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING] and [WRITE][StandardOpenOption.WRITE] options had been
+ * passed. In other words, it opens the file for writing, creating the file if it doesn't exist, or initially
+ * truncating an existing [regular-file][Path.isRegularFile] to a size of `0`.
+ *
+ * @throws [IllegalArgumentException] if [options] contains an invalid combination of options
+ * @throws [IOException] if an I/O error occurs writing to or creating the file, or the text cannot be encoded using
+ * the specified charset
+ * @throws [UnsupportedOperationException] if an unsupported option is specified
+ * @throws [SecurityException] In the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] function is invoked to check write access to the file. The
+ * [checkDelete(String)][SecurityManager.checkDelete] function is invoked to check delete access if the file is opened
+ * with the [DELETE_ON_CLOSE][StandardOpenOption.DELETE_ON_CLOSE] option.
  */
-fun Path.writeLine(line: String, charset: Charset, vararg options: OpenOption): Path = apply {
-    val encoder = charset.newEncoder()
-    val out = this.newOutputStream(*options)
-    BufferedWriter(OutputStreamWriter(out, encoder)).use { writer ->
-        writer.append(line)
-        writer.newLine()
-    }
+fun Path.writeString(string: CharSequence, charset: Charset, vararg options: OpenOption): Path =
+    this.writeBytes(string.toString().toByteArray(charset), *options)
+
+/**
+ * Writes the given [string] to `this` [file][Path].
+ *
+ * Characters are encoded into bytes using the given [charset].
+ *
+ * All characters are written to the file *as is*, including any line separators. No extra characters are added.
+ *
+ * **Example Usage:**
+ *
+ * Say we want to create a text file containing a list, using the multi-line strings feature in Kotlin, we can do this:
+ *
+ * ```kotlin
+ * val path: Path = ...
+ * path.writeLine(
+ *      """
+ *      | 1. ..
+ *      | 2. ...
+ *      | 3. ...
+ *      | 4. ...
+ *      """.trimMargin()
+ * )
+ * ```
+ *
+ * @param [options] Specifies how the file is created or opened.
+ *
+ * If this parameter is empty, then this function works as if the [CREATE][StandardOpenOption.CREATE],
+ * [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING] and [WRITE][StandardOpenOption.WRITE] options had been
+ * passed. In other words, it opens the file for writing, creating the file if it doesn't exist, or initially
+ * truncating an existing [regular-file][Path.isRegularFile] to a size of `0`.
+ *
+ * @throws [IllegalArgumentException] if [options] contains an invalid combination of options
+ * @throws [IOException] if an I/O error occurs writing to or creating the file, or the text cannot be encoded using
+ * the specified charset
+ * @throws [UnsupportedOperationException] if an unsupported option is specified
+ * @throws [SecurityException] In the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite] function is invoked to check write access to the file. The
+ * [checkDelete(String)][SecurityManager.checkDelete] function is invoked to check delete access if the file is opened
+ * with the [DELETE_ON_CLOSE][StandardOpenOption.DELETE_ON_CLOSE] option.
+ */
+fun Path.writeString(string: String, vararg options: OpenOption): Path =
+    this.writeString(string, StandardCharsets.UTF_8, *options)
+
+/**
+ * Reads all characters from `this` [file][Path] into a [string][String], decoding from bytes to characters using the
+ * given [charset].
+ *
+ * This function ensures that the file is closed when all content have been read or an I/O error, or other runtime
+ * exception, is thrown.
+ *
+ * This function reads all content including the line separators in the middle and/or at the end. The resulting string
+ * will contain line separators as they appear in `this` file.
+ *
+ * **NOTE:** This function is intended for simple cases where it is appropriate and convenient to read the content of a
+ * file into a `String`. It is not intended for reading very large files.
+ *
+ * @return a [String] containing the content read from `this` file
+ *
+ * @throws [IOException] if an I/O error occurs reading from `this` file or a malformed or unmappable byte sequence is
+ * read
+ * @throws [OutOfMemoryError] if `this` file is extremely large, for example larger than `2GB`
+ * @throws [SecurityException] In the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] function is invoked to check read access to `this` file.
+ *
+ * @see readLines
+ */
+@JvmOverloads fun Path.readString(charset: Charset = StandardCharsets.UTF_8): String {
+    requireExistence(this)
+    return this.readBytes().toString(charset)
 }
 
 /**
- * Writes the given [line] to `this` [file][Path].
- *
- * **Example Usage:**
- *
- * Say we want to create a text file containing a list, using the multi-line strings feature in Kotlin, we can do this:
- *
- * ```kotlin
- * val path: Path = ...
- * path.writeLine(
- *      """
- *      | 1. ..
- *      | 2. ...
- *      | 3. ...
- *      | 4. ...
- *      """.trimMargin()
- * )
- * ```
- */
-fun Path.writeLine(line: String, vararg options: OpenOption): Path =
-    this.writeLine(line, StandardCharsets.UTF_8, *options)
-
-/**
- * Return a lazily populated [Sequence], the elements of which are the entries in this [directory][Path]
+ * Return a lazily populated [Sequence], the elements of which are the entries of `this` [directory][Path]
  *
  * The listing is not recursive.
  *
- * The elements of the stream are [Path] objects that are obtained as if by [resolving(Path)][Path.resolve] the name of
- * the directory entry against this [Path]. Some file systems maintain special links to the directory itself and the
- * directory's parent directory. Entries representing these links are not included.
+ * The elements of the sequence are [Path] objects that are obtained as if by [resolving(Path)][Path.resolve] the name
+ * of the directory entry against `this` [Path]. Some file systems maintain special links to the directory itself and
+ * the directory's parent directory. Entries representing these links are not included.
  *
- * The stream is *weakly consistent*. It is thread safe but does not freeze the directory while iterating, so it may
- * *(or may not)* reflect updates to the directory that occur after returning from this method.
+ * The sequence is *weakly consistent*. It is thread safe but does not freeze the directory while iterating, so it may
+ * *(or may not)* reflect updates to the directory that occur after returning from this function.
  *
- * The returned stream encapsulates a [DirectoryStream].
+ * The returned sequence encapsulates a [DirectoryStream].
  *
- * If timely disposal of file system resources is required, the `try-with-resources` construct should be used to ensure
- * that the stream's [close][Stream.close] method is invoked after the stream operations are completed.
+ * If an [IOException] is thrown when accessing the directory after this function has returned, it is wrapped in an
+ * [UncheckedIOException] which will be thrown from the function that caused the access to take place.
  *
- * Operating on a closed stream behaves as if the end of stream has been reached. Due to read-ahead, one or more
- * elements may be returned after the stream has been closed.
- *
- * If an [IOException] is thrown when accessing the directory after this method has returned, it is wrapped in an
- * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
- *
- * @return the [Sequence] describing the contents of the directory
+ * @return the [Sequence] describing the contents of `this` directory
  *
  * @throws NotDirectoryException if the file could not otherwise be opened because it is not a directory.
  * *(optional specific exception)*.
@@ -394,7 +442,7 @@ val Path.entries: Sequence<Path>
                 }
             }
 
-            return iterator.asSequence()
+            return Sequence { iterator }
         } catch (e: Error) {
             try {
                 directoryStream.close()
@@ -433,8 +481,6 @@ val Path.entries: Sequence<Path>
  * [UncheckedIOException] which will be thrown from the method that caused the access to take place.
  *
  * @param maxDepth the maximum number of directory levels to search
- *
- * ([Int.MAX_VALUE] by default)
  * @param predicate the function used to decide whether this [file][Path] should be included in the returned stream
  * @param options options to configure the traversal
  *
@@ -447,9 +493,9 @@ val Path.entries: Sequence<Path>
  */
 @JvmName("filterChildren")
 inline fun Path.filter(
-    crossinline predicate: (Path) -> Boolean,
-    maxDepth: Int = Int.MAX_VALUE,
-    vararg options: FileVisitOption
+    maxDepth: Int,
+    vararg options: FileVisitOption,
+    crossinline predicate: (Path) -> Boolean
 ): List<Path> {
     val tempMatches: MutableList<Path> = ArrayList()
 
@@ -487,7 +533,8 @@ inline fun Path.filter(
  * @see walk
  */
 @JvmName("filterChildren")
-inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> = this.filter(predicate, Int.MAX_VALUE)
+inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> =
+    this.filter(Int.MAX_VALUE, predicate = predicate)
 
 /**
  * Read all lines from a file as a [Sequence]. Bytes from the file are decoded into characters using the
@@ -504,12 +551,12 @@ inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> = t
  * @throws SecurityException In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  *
- * @see Path.linesAsSequence
+ * @see Path.linesSequence
  * @see readLines
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-val Path.lines: Sequence<String> get() = this.linesAsSequence()
+val Path.lines: Sequence<String> get() = this.linesSequence()
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence].
@@ -541,7 +588,7 @@ val Path.lines: Sequence<String> get() = this.linesAsSequence()
  * @see java.io.BufferedReader.lines
  */
 @Throws(IOException::class)
-fun Path.linesAsSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
+@JvmOverloads fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
     val reader = this.newBufferedReader(charset)
     try {
         return reader.lineSequence()
@@ -598,7 +645,7 @@ fun Path.pathMatcherOf(syntax: String, pattern: String): PathMatcher =
  *
  * @receiver the directory of which to check through
  */
-fun Path.matchesGlobPattern(globPattern: String): Boolean = this.pathMatcherOf("glob", globPattern).matches(this)
+infix fun Path.matchesGlobPattern(globPattern: String): Boolean = this.pathMatcherOf("glob", globPattern).matches(this)
 
 /**
  * Checks whether the [other] path is a child of this [directory][Path].
@@ -758,26 +805,6 @@ fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
 }
 
 /**
- * Reads the contents of this [file][Path] into a singular [String].
- *
- * @param charset the charset to use for decoding
- *
- * ([UTF-8][StandardCharsets.UTF_8] by default)
- * @param separator the string to use for separating the lines
- *
- * ([System.lineSeparator] by default)
- *
- * @see readLines
- */
-@JvmOverloads fun Path.readToString(
-    charset: Charset = StandardCharsets.UTF_8,
-    separator: String = System.lineSeparator()
-): String {
-    requireExistence(this)
-    return this.readLines(charset).joinToString(separator)
-}
-
-/**
  * Calculates the size of this [directory][Path], returning the size as a [BigInteger].
  *
  * **Note:** This will ignore any symbolic links when calculating the size.
@@ -811,19 +838,10 @@ val Path.directorySize: BigInteger
  *
  * @throws [NoSuchFileException] if `this` file does *not* exist
  */
-inline fun Path.eachLine(charset: Charset, action: (String) -> Unit) {
+@JvmOverloads inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
     requireExistence(this)
-    for (line in linesAsSequence(charset)) action(line)
+    for (line in linesSequence(charset)) action(line)
 }
-
-/**
- * Performs the given [action] on each individual line of this `file`, using the given [charset].
- *
- * @receiver the file from which to read the lines
- *
- * @throws [NoSuchFileException] if `this` file does *not* exist
- */
-inline fun Path.eachLine(action: (String) -> Unit) = this.eachLine(StandardCharsets.UTF_8, action)
 
 /**
  * Creates a new file with the given [fileName], using `this` directory as the root, and returns the result.
@@ -993,8 +1011,8 @@ inline fun Path.ifDirectory(action: (Path) -> Unit): Path {
  *
  * @throws [NoSuchFileException] if the specified [source] file does not exist on the file-system
  */
-fun Path.overwriteBytes(source: Path): Path {
-    requireExistence(source)
+fun Path.overwriteBytesWith(source: Path): Path {
+    requireExistence(source) { "Source does not exist! <$source>" }
     return this.writeBytes(
         source.readBytes(),
         StandardOpenOption.WRITE,
@@ -1004,8 +1022,7 @@ fun Path.overwriteBytes(source: Path): Path {
 }
 
 /**
- * Creates and returns a [FileSystem] based on `this` file, with the specified [env] variables and the specified
- * [classLoader].
+ * Returns a new a [FileSystem] based on `this` file, with the specified [env] variables and the specified [classLoader].
  */
 @JvmName("createFileSystemFrom")
 @JvmOverloads fun Path.createFileSystem(
@@ -1043,3 +1060,15 @@ fun Path.getOrCreateDirectory(vararg attributes: FileAttribute<*>): Path =
  */
 fun Path.getOrCreateFile(vararg attributes: FileAttribute<*>): Path =
     if (this.exists) this else this.createFile(*attributes)
+
+/**
+ * Creates an empty file at `this` path, or updates the [lastModifiedTime][Path.getLastModifiedTime] of the file to the
+ * current computer time if a file already exists at `this` path.
+ */
+fun Path.touch(): Path = apply {
+    if (this.exists) {
+        this.lastModifiedTime = FileTime.from(Instant.now())
+    } else {
+        this.createFile()
+    }
+}

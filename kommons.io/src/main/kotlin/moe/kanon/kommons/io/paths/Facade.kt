@@ -28,7 +28,6 @@ import java.io.OutputStream
 import java.io.Reader
 import java.io.UncheckedIOException
 import java.io.Writer
-import java.net.URI
 import java.nio.channels.ByteChannel
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -41,13 +40,11 @@ import java.nio.file.FileAlreadyExistsException
 import java.nio.file.FileStore
 import java.nio.file.FileSystem
 import java.nio.file.FileSystemLoopException
-import java.nio.file.FileSystemNotFoundException
 import java.nio.file.FileSystems
 import java.nio.file.FileVisitOption
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
 import java.nio.file.Files
-import java.nio.file.InvalidPathException
 import java.nio.file.LinkOption
 import java.nio.file.LinkPermission
 import java.nio.file.NoSuchFileException
@@ -55,7 +52,6 @@ import java.nio.file.NotDirectoryException
 import java.nio.file.NotLinkException
 import java.nio.file.OpenOption
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.SecureDirectoryStream
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
@@ -71,7 +67,6 @@ import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFileAttributeView
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.UserPrincipal
-import java.nio.file.spi.FileSystemProvider
 import java.util.stream.Stream
 import kotlin.streams.asSequence
 
@@ -82,12 +77,9 @@ typealias SimplePathVisitor = SimpleFileVisitor<Path>
 
 /**
  * Generally used in conjunction with [walkFileTree] or similar functions to make the syntax clearer.
- *
- * @since 0.1.0
  */
 typealias PathVisitor = FileVisitor<Path>
 
-// Streams
 /**
  * Opens `this` [file][Path], returning an input stream to read from the file.
  *
@@ -100,6 +92,8 @@ typealias PathVisitor = FileVisitor<Path>
  * opening the file with the [READ][StandardOpenOption.READ] option. In addition to the `READ` option, an
  * implementation may also support additional implementation specific options.
  *
+ * @receiver the path to the file to open
+ *
  * @throws IllegalArgumentException if an invalid combination of options is specified.
  * @throws UnsupportedOperationException if an unsupported option is specified.
  * @throws IOException if an I/O error occurs.
@@ -109,7 +103,7 @@ typealias PathVisitor = FileVisitor<Path>
 fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInputStream(this, *options)
 
 /**
- * Opens or creates `this` [file][Path], returning an output stream that may be used to write bytes to the file.
+ * Opens *(or creates)* `this` [file][Path], returning an output stream that may be used to write bytes to the file.
  *
  * The resulting stream will not be buffered. The stream will be safe for access by multiple concurrent threads.
  * Whether the returned stream is *asynchronously closeable* and/or *interruptible* is highly file system provider
@@ -141,6 +135,8 @@ fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInpu
  *     out = path.newOutputStream(StandardOpenOption.CREATE_NEW);
  * ```
  *
+ * @receiver the path to the file to open or create
+ *
  * @throws IllegalArgumentException if an invalid combination of options is specified.
  * @throws UnsupportedOperationException if an unsupported option is specified.
  * @throws IOException if an I/O error occurs.
@@ -152,7 +148,7 @@ fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInpu
 fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOutputStream(this, *options)
 
 /**
- * Opens or creates `this` [file][Path], returning a seekable byte channel to access the file.
+ * Opens or creates `this` [file][Path], returning a seekable byte channel to access `this` file.
  *
  * The [options] parameter determines how the file is opened. The [READ][StandardOpenOption.READ] and
  * [WRITE][StandardOpenOption.WRITE] options determine if the file should be opened for reading and/or writing.
@@ -185,6 +181,8 @@ fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOu
  *  )
  * ```
  *
+ * @receiver the path to the file to open or create
+ *
  * @throws IllegalArgumentException if the [options] set contains an invalid combination of options.
  * @throws UnsupportedOperationException if an unsupported open option is specified or the array contains attributes
  * that cannot be set atomically when creating the file.
@@ -203,7 +201,7 @@ fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribu
     Files.newByteChannel(this, options.toMutableSet(), *attributes)
 
 /**
- * Opens or creates `this` [file][Path], returning a seekable byte channel to access the file.
+ * Opens *(or creates)* `this` [file][Path], returning a seekable byte channel to access the file.
  *
  * This method opens or creates `this` [file][Path] in exactly the manner specified by the
  * [newByteChannel(options, vararg attributes)][Path.newByteChannel] method.
@@ -223,15 +221,11 @@ fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribu
  */
 fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)
 
-// This is a port of the one that exists in Files.java.
-private class AcceptAllFilter : DirectoryStream.Filter<Path> {
-
-    override fun accept(entry: Path) = true
-
-    companion object {
-        @JvmField
-        val FILTER = AcceptAllFilter()
-    }
+/**
+ * A [DirectoryStream Filter][DirectoryStream.Filter] that accepts *all* path instances.
+ */
+object AcceptAllFilter : DirectoryStream.Filter<Path> {
+    override fun accept(entry: Path?): Boolean = true
 }
 
 /**
@@ -262,20 +256,23 @@ private class AcceptAllFilter : DirectoryStream.Filter<Path> {
  *      dir.newDirectoryStream(filter).use { ... }
  * ```
  *
+ * @receiver the path to the directory
+ *
  * @return a new and open [DirectoryStream] instance.
  *
- * @param dirFilter the directory stream filter.
+ * @param filter the directory stream filter.
  *
- * ([AcceptAllFilter.FILTER] by default.)
+ * ([AcceptAllFilter] by default.)
  *
- * @throws NotDirectoryException if the file could not otherwise be opened because it is not a directory. *(optional
+ * @throws NotDirectoryException if `this` file could not otherwise be opened because it is not a directory. *(optional
  * specific exception)*.
  * @throws IOException if an I/O error occurs.
  * @throws SecurityException in the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  */
-fun Path.newDirectoryStream(dirFilter: DirectoryStream.Filter<Path> = AcceptAllFilter.FILTER): DirectoryStream<Path> =
-    Files.newDirectoryStream(this, dirFilter)
+@JvmOverloads
+fun Path.newDirectoryStream(filter: DirectoryStream.Filter<Path> = AcceptAllFilter): DirectoryStream<Path> =
+    Files.newDirectoryStream(this, filter)
 
 /**
  * Opens this [directory][Path], returning a [DirectoryStream] to iterate over the entries in the directory.
@@ -296,13 +293,13 @@ fun Path.newDirectoryStream(dirFilter: DirectoryStream.Filter<Path> = AcceptAllF
  *
  * The globbing pattern is specified by the [getPathMatcher][FileSystem.getPathMatcher] function.
  *
- * When not using the try-with-resources construct, then directory stream's [close][DirectoryStream] method should be
+ * When not using the `try-with-resources` construct, then directory stream's [close][DirectoryStream] method should be
  * invoked after iteration is completed so as to free any resources held for the open directory.
  *
  * When an implementation supports operations on entries in the directory that execute in a race-free manner then the
  * returned directory stream is a [SecureDirectoryStream].
  *
- * @return A new and open [DirectoryStream] instance.
+ * @return a new and open [DirectoryStream] instance
  *
  * @throws java.util.regex.PatternSyntaxException if the pattern is invalid.
  * @throws NotDirectoryException if the file could not otherwise be opened because it is not a directory. *(optional
@@ -364,33 +361,6 @@ fun Path.createFile(vararg attributes: FileAttribute<*>): Path = Files.createFil
 fun Path.createDirectory(vararg attributes: FileAttribute<*>): Path = Files.createDirectory(this, *attributes)
 
 /**
- * Creates a new directory.
- *
- * The check for the existence of the file and the creation of the directory if it does not exist are a single
- * operation that is atomic with respect to all other filesystem activities that might affect the directory.
- *
- * The [createDirectories] method should be used where it is required to create all nonexistent parent directories
- * first.
- *
- * The [attributes] parameter is optional [file-attributes][FileAttribute] to set atomically when creating the
- * directory. Each attribute is identified by its [name][FileAttribute.name]. If more than one attribute of the same
- * name is included in the array then all but the last occurrence is ignored.
- *
- * @receiver the directory to create
- *
- * @return the newly created directory
- *
- * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically
- * when creating the directory
- * @throws FileAlreadyExistsException if a directory could not otherwise be created because `this` [file][Path] of
- * that name already exists *(optional specific exception)*
- * @throws IOException if an I/O error occurs or the parent directory does not exist
- * @throws SecurityException in the case of the default provider, and a security manager is installed, the
- * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the new directory
- */
-fun Path.mkdir(vararg attributes: FileAttribute<*>): Path = Files.createDirectory(this, *attributes)
-
-/**
  * Creates a directory by creating all nonexistent parent directories first.
  *
  * Unlike the [createDirectory][Path.createChildDirectory] method, an exception  is not thrown if the directory could not be
@@ -422,38 +392,7 @@ fun Path.mkdir(vararg attributes: FileAttribute<*>): Path = Files.createDirector
 fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path = Files.createDirectories(this, *attributes)
 
 /**
- * Creates a directory by creating all nonexistent parent directories first.
- *
- * Unlike the [createDirectory][Path.createChildDirectory] method, an exception  is not thrown if the directory could not be
- * created because it already exists.
- *
- * The [attributes] parameter is optional [file-attributes][FileAttribute] to set atomically when creating the
- * nonexistent directories. Each file attribute is identified by its [name][FileAttribute.name]. If more than one
- * attribute of the same name is included in the array then all but the last occurrence is ignored.
- *
- * If this method fails, then it may do so after creating some, but not all, of the parent directories.
- *
- * @receiver the directory to create.
- *
- * @return the newly created directory that didn't exist before this function being called.
- *
- * @throws  UnsupportedOperationException if the array contains an attribute that cannot be set atomically when
- * creating the directory.
- * @throws  FileAlreadyExistsException if `this` [file][Path] exists but is not a directory *(optional specific
- * exception)*
- * @throws  IOException if an I/O error occurs.
- * @throws  SecurityException in the case of the default provider, and a security manager is installed, the
- * [checkWrite(String)][SecurityManager.checkWrite] method is invoked prior to attempting to create a directory and
- * its [checkRead(String)][SecurityManager.checkRead] is invoked for each parent directory that is checked. If
- * `this` [file][Path] is not an absolute path then its [toAbsolutePath][Path.toAbsolutePath] may need to be invoked to
- * get its absolute path. This may invoke the security manager's
- * [checkPropertyAccess(String)][SecurityManager.checkPropertyAccess] method to check access to the system property
- * `user.dir`.
- */
-fun Path.mkdirs(vararg attributes: FileAttribute<*>): Path = Files.createDirectories(this, *attributes)
-
-/**
- * Creates a new empty file in this [directory][Path], using the given [prefix] and [suffix] strings to generate its
+ * Creates a new empty file in `this` [directory][Path], using the given [prefix] and [suffix] strings to generate its
  * name.
  *
  * The resulting [Path] is associated with the same [FileSystem] as the given directory.
@@ -496,7 +435,7 @@ fun Path.mkdirs(vararg attributes: FileAttribute<*>): Path = Files.createDirecto
  *
  * @see Files.createTempFile
  */
-fun Path.createTempFile(
+@JvmOverloads fun Path.createTempFile(
     prefix: String? = null,
     suffix: String? = null,
     vararg attributes: FileAttribute<*>
@@ -504,7 +443,7 @@ fun Path.createTempFile(
 
 /**
  * Creates an empty file in the default temporary-file directory, using the given [prefix] and [suffix] to generate
- * its name. The resulting [Path] is associated with the default [FileSystem].
+ * its name. The resulting [Path] is associated with the [default][FileSystems.getDefault] [FileSystem].
  *
  * This method works in exactly the manner specified by the
  * [createTempFile(String?, String?, vararg FileAttribute][Path.createTempFile] function for the case that the
@@ -528,39 +467,7 @@ fun Path.createTempFile(
  * @throws SecurityException in the case of the default provider, and a security manager is installed, its
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file
  */
-fun createTemporaryFile(
-    prefix: String? = null,
-    suffix: String? = null,
-    vararg attributes: FileAttribute<*>
-): Path = Files.createTempFile(prefix, suffix, *attributes)
-
-/**
- * Creates an empty file in the default temporary-file directory, using the given [prefix] and [suffix] to generate
- * its name. The resulting [Path] is associated with the default [FileSystem].
- *
- * This method works in exactly the manner specified by the
- * [createTempFile(String?, String?, vararg FileAttribute][Path.createTempFile] function for the case that the
- * `receiver` is the temporary-file directory.
- *
- * @param prefix the prefix string to be used in generating the file's name; may be `null`
- *
- * (`null` by default)
- * @param suffix the suffix string to be used in generating the file's name; may be `null`, in which case "`.tmp`"
- * is used
- *
- * (`null` by default)
- * @param attributes an optional list of file attributes to set atomically when creating the file
- *
- * @return the `path` to the newly created file that did not exist before this method was invoked
- *
- * @throws IllegalArgumentException if the prefix or suffix parameters cannot be used to generate a candidate file name
- * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically when
- * creating the directory
- * @throws IOException if an I/O error occurs
- * @throws SecurityException in the case of the default provider, and a security manager is installed, its
- * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file
- */
-fun tempFile(
+@JvmOverloads fun createTmpFile(
     prefix: String? = null,
     suffix: String? = null,
     vararg attributes: FileAttribute<*>
@@ -598,12 +505,12 @@ fun tempFile(
  *
  * @see Files.createTempDirectory
  */
-fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+@JvmOverloads fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
     Files.createTempDirectory(this, name, *attributes)
 
 /**
  * Creates a new directory in the default temporary-file directory, using the given [name] to generate its name. The
- * resulting [Path] is associated with the default [FileSystem].
+ * resulting [Path] is associated with the [default][FileSystems.getDefault] [FileSystem].
  *
  * This function works in exactly the manner specified by
  * [createTempDirectory(String, vararg FileAttribute][Path.createTempDirectory] function for the case that the `Path`
@@ -624,33 +531,7 @@ fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttrib
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access when creating the
  * directory
  */
-fun createTemporaryDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
-    Files.createTempDirectory(name, *attributes)
-
-/**
- * Creates a new directory in the default temporary-file directory, using the given [name] to generate its name. The
- * resulting [Path] is associated with the default [FileSystem].
- *
- * This function works in exactly the manner specified by
- * [createTempDirectory(String, vararg FileAttribute][Path.createTempDirectory] function for the case that the `Path`
- * `receiver` is the temporary-file directory.
- *
- * @param name the name string to be used in generating the directory's name; may be `null`.
- *
- * (`null` by default)
- * @param attributes an optional list of file attributes to set atomically when creating the directory
- *
- * @return the path to the newly created directory that did not exist before this method was invoked
- *
- * @throws IllegalArgumentException if the prefix cannot be used to generate a candidate directory name
- * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically when creating
- * the directory
- * @throws IOException if an I/O error occurs or the temporary-file directory does not exist
- * @throws SecurityException in the case of the default provider, and a security manager is installed, the
- * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access when creating the
- * directory
- */
-fun tempDir(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+@JvmOverloads fun createTmpDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
     Files.createTempDirectory(name, *attributes)
 
 /**
@@ -669,7 +550,7 @@ fun tempDir(name: String? = null, vararg attributes: FileAttribute<*>): Path =
  * started with implementation specific privileges to create symbolic links, in which case this method may throw
  * [IOException].
  *
- * @return The path to the symbolic link.
+ * @return the path to the symbolic link.
  *
  * @throws UnsupportedOperationException if the implementation does not support symbolic links or the array contains an
  * attribute that cannot be set atomically when creating the symbolic link
@@ -689,7 +570,7 @@ fun Path.createSymbolicLinkTo(target: Path, vararg attributes: FileAttribute<*>)
  * if the file is not a symbolic link. The target of the link need not exist. The returned [Path] object will be
  * associated with the same file system as this [path][Path].
  *
- * @return A [Path] object representing the target of the link.
+ * @return a [Path] object representing the target of the link
  *
  * @throws UnsupportedOperationException if the implementation does not support symbolic links.
  * @throws NotLinkException If the target could otherwise not be read because the file is not a symbolic link .
@@ -1020,7 +901,8 @@ fun Path.copyTo(target: Path, vararg options: CopyOption): Path = this.copyTo(ta
  *
  * @see Path.name
  */
-fun Path.renameTo(name: String, vararg options: CopyOption): Path = moveTo(this.resolveSibling(name), options = *options)
+fun Path.renameTo(name: String, vararg options: CopyOption): Path =
+    moveTo(this.resolveSibling(name), options = *options)
 
 /**
  * Returns the [FileStore] representing the file store where `this` [file][Path] is located.
@@ -1135,22 +1017,57 @@ val Path.contentType: String get() = Files.probeContentType(this)
  *
  * ```kotlin
  *     val path: Path = ...
- *     val view = path.getFileAttributeView(AclFileAttributeView.class);
+ *     val view = path.getFileAttributeView(AclFileAttributeView.class)
  *     if (view != null) {
- *         val acl = view.getAcl();
+ *         val acl = view.acl
  *         ...
  *     }
  * ```
  *
- * @param V The [FileAttributeView] type
- * @param type The [Class] object corresponding to the file attribute view.
+ * @param T the [FileAttributeView] type
+ * @param type the [Class] object corresponding to the file attribute view.
  * @param options options indicating how symbolic links are handled.
  *
  * @return This [file's][Path] attribute view of the specified type, or `null` if the attribute view type is not
  * available.
  */
-fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg options: LinkOption): V =
+fun <T : FileAttributeView> Path.getFileAttributeView(type: Class<T>, vararg options: LinkOption): T? =
     Files.getFileAttributeView(this, type, *options)
+
+/**
+ * Returns `this` [file][Path] attribute view of a given type.
+ *
+ * A file attribute view provides a read-only or updatable view of a set of file attributes. This method is intended to
+ * be used where the file attribute view defines type-safe methods to read or update the file attributes. The [type]
+ * parameter is the type of the attribute view required and the method returns an instance of that type if supported.
+ * The [BasicFileAttributeView] type supports access to the basic attributes of `this` [file][Path]. Invoking this method
+ * to select this [file's][Path] attribute view of that type will always return an instance of that class.
+ *
+ * The [options] array may be used to indicate how symbolic links are handled for the case that the file is a symbolic
+ * link. By default, symbolic links are followed and the file attribute of the final target  of the link is set. If the
+ * option [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want read or set `this` [file][Path]'s ACL, if supported:
+ *
+ * ```kotlin
+ *     val path: Path = ...
+ *     val view = path.getFileAttributeView<AclFileAttributeView>()
+ *     if (view != null) {
+ *         val acl = view.acl
+ *         ...
+ *     }
+ * ```
+ *
+ * @param T the [FileAttributeView] type
+ * @param options options indicating how symbolic links are handled.
+ *
+ * @return This [file's][Path] attribute view of the specified type, or `null` if the attribute view type is not
+ * available.
+ */
+inline fun <reified T : FileAttributeView> Path.getFileAttributeView(vararg options: LinkOption): T? =
+    Files.getFileAttributeView(this, T::class.java, *options)
 
 /**
  * Reads `this` [file][Path]'s attributes as a bulk operation.
@@ -1172,16 +1089,16 @@ fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg opt
  *
  * ```kotlin
  *    val path: Path = ...
- *    val attrs = path.readAttributes(BasicFileAttributes.class);
+ *    val attrs = path.readAttributes(BasicFileAttributes.class)
  * ```
  *
  * Alternatively, suppose we want to read file's POSIX attributes without following symbolic links:
  *
  * ```kotlin
- *    val attrs = path.readAttributes(PosixFileAttributes.class, NOFOLLOW_LINKS);
+ *    val attrs = path.readAttributes(PosixFileAttributes.class, NOFOLLOW_LINKS)
  * ```
  *
- * @param A the [BasicFileAttributes] type.
+ * @param T the [BasicFileAttributes] type.
  * @param type the [Class] of the file attributes required to read.
  * @param options options indicating how symbolic links are handled.
  *
@@ -1195,8 +1112,54 @@ fun <V : FileAttributeView> Path.getFileAttributeView(type: Class<V>, vararg opt
  *
  * @see attributes
  */
-fun <A : BasicFileAttributes> Path.readAttributes(type: Class<A>, vararg options: LinkOption): A =
+fun <T : BasicFileAttributes> Path.readAttributes(type: Class<T>, vararg options: LinkOption): T? =
     Files.readAttributes(this, type, *options)
+
+/**
+ * Reads `this` [file][Path]'s attributes as a bulk operation.
+ *
+ * The [type] parameter is the type of the attributes required and this method returns an instance of that type if
+ * supported. All implementations support a basic set of file attributes and so invoking this method with a [type]
+ * parameter of `BasicFileAttributes.class` will not throw [UnsupportedOperationException].
+ *
+ * The [options] array may be used to indicate how symbolic links are handled for the case that the file is a symbolic
+ * link. By default, symbolic links are followed and the file attribute of the final target  of the link is set. If the
+ * option [NOFOLLOW_LINKS][LinkOption.NOFOLLOW_LINKS] is present then symbolic links are not followed.
+ *
+ * It is implementation specific if all file attributes are read as an atomic operation with respect to other file
+ * system operations.
+ *
+ * **Usage Example:**
+ *
+ * Suppose we want to read `this` [file][Path]'s attributes in bulk:
+ *
+ * ```kotlin
+ *    val path: Path = ...
+ *    val attrs = path.readAttributes<BasicFileAttributes>()
+ * ```
+ *
+ * Alternatively, suppose we want to read file's POSIX attributes without following symbolic links:
+ *
+ * ```kotlin
+ *    val attrs = path.readAttributes<PosixFileAttributes>(NOFOLLOW_LINKS)
+ * ```
+ *
+ * @param T the [BasicFileAttributes] type.
+ * @param type the [Class] of the file attributes required to read.
+ * @param options options indicating how symbolic links are handled.
+ *
+ * @return the file attributes.
+ *
+ * @throws UnsupportedOperationException if an attributes of the given type are not supported.
+ * @throws IOException if an I/O error occurs.
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, its
+ * [checkRead(String)][SecurityManager.checkRead] method denies read access to the file. If this method is invoked to
+ * read security sensitive attributes then the security manager may be invoke to check for additional permissions.
+ *
+ * @see attributes
+ */
+inline fun <reified T : BasicFileAttributes> Path.readAttributes(vararg options: LinkOption): T? =
+    Files.readAttributes(this, T::class.java, *options)
 
 /**
  * Reads a set of file attributes from `this` [file][Path] as a bulk operation.
@@ -1315,7 +1278,7 @@ fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption
  *
  * ```kotlin
  *    val path: Path = ...
- *    val uid = path.getAttribute("unix:uid") as Int
+ *    val uid = path.getAttribute<Int>("unix:uid")
  * ```
  *
  * *or*
@@ -1328,7 +1291,7 @@ fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption
  * @param attribute the attribute to read.
  * @param options options indicating how symbolic links are handled.
  *
- * @return The attribute value.
+ * @return the attribute value.
  *
  * @throws UnsupportedOperationException if the attribute view is not available.
  * @throws IllegalArgumentException if the attribute name is not specified or is not recognized.
@@ -1339,8 +1302,9 @@ fun Path.setAttribute(attribute: String, value: Any?, vararg options: LinkOption
  *
  * @see attributes
  */
-fun Path.getAttribute(attribute: String, vararg options: LinkOption): Any =
-    Files.getAttribute(this, attribute, *options)
+@Suppress("UNCHECKED_CAST")
+fun <T> Path.getAttribute(attribute: String, vararg options: LinkOption): T =
+    Files.getAttribute(this, attribute, *options) as T
 
 /**
  * Returns this [file's][Path] POSIX file permissions.
@@ -1398,9 +1362,10 @@ var Path.permissions: Set<PosixFilePermission>
 fun Path.getOwner(vararg options: LinkOption): UserPrincipal = Files.getOwner(this, *options)
 
 /**
- * A property variant of [getOwner] and [Files.setOwner].
+ * Represents the current owner of `this` [file][Path].
  *
- * Use this one if you don't need to use any of the additional LinkOptions from [getOwner].
+ * The receiver `path` is associated with a file system that supports [FileOwnerAttributeView]. This file attribute
+ * view provides access to a file attribute that is the owner of `this` [file][Path].
  *
  * @see Files.setOwner
  */
@@ -1528,8 +1493,8 @@ fun Path.getLastModifiedTime(vararg options: LinkOption): FileTime = Files.getLa
  */
 var Path.lastModifiedTime: FileTime
     get() = this.getLastModifiedTime()
-    set(newTime) {
-        Files.setLastModifiedTime(this, newTime)!!
+    set(value) {
+        Files.setLastModifiedTime(this, value)
     }
 
 /**
@@ -1732,7 +1697,7 @@ val Path.isExecutable: Boolean get() = Files.isExecutable(this)
  *
  * @see Path.readLines
  */
-fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
+@JvmOverloads fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
     Files.newBufferedReader(this, charset)
 
 /**
@@ -1749,8 +1714,6 @@ fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedR
  * The [Writer] methods to write text throw [IOException] if the text cannot be encoded using the specified charset.
  *
  * @param charset the charset to use for encoding.
- *
- * ([UTF_8][StandardCharsets.UTF_8] by default)
  * @param options options specifying how the file is opened
  *
  * @return a new [BufferedWriter], with default buffer size, to write text to the file.
@@ -1762,10 +1725,35 @@ fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedR
  *
  * @see Path.writeBytes
  */
-fun Path.newBufferedWriter(
-    charset: Charset = StandardCharsets.UTF_8,
-    vararg options: OpenOption
-): BufferedWriter = Files.newBufferedWriter(this, charset, *options)
+fun Path.newBufferedWriter(charset: Charset, vararg options: OpenOption): BufferedWriter =
+    Files.newBufferedWriter(this, charset, *options)
+
+/**
+ * Opens *(or creates it if it does not exist yet)* `this` [file][Path] for writing, returning a [BufferedWriter] that
+ * may be used to write text to the file in an efficient manner.
+ *
+ * The [options] parameter specifies how the the file is created or opened. If no options are present then this method
+ * works as if the [TRUNCATE_EXISTING][StandardOpenOption.TRUNCATE_EXISTING], [CREATE][StandardOpenOption.CREATE], and
+ * [WRITE][StandardOpenOption.WRITE] options are present.
+ *
+ * In other words, it opens the file for writing, creating the file if it doesn't exist, or initially truncating an
+ * existing [regular-file][Path.isRegularFile] to a size of `0` if it exists.
+ *
+ * The [Writer] methods to write text throw [IOException] if the text cannot be encoded using the specified charset.
+ *
+ * @param options options specifying how the file is opened
+ *
+ * @return a new [BufferedWriter], with default buffer size, to write text to the file.
+ *
+ * @throws IOException if an I/O error occurs opening or creating the file.
+ * @throws UnsupportedOperationException if an unsupported option is specified
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkWrite(String)][SecurityManager.checkWrite]  method is invoked to check write access to the file.
+ *
+ * @see Path.writeBytes
+ */
+fun Path.newBufferedWriter(vararg options: OpenOption): BufferedWriter =
+    Files.newBufferedWriter(this, StandardCharsets.UTF_8, *options)
 
 /**
  * Copies all bytes from an input stream to `this` [file][Path].
