@@ -266,7 +266,7 @@ sealed class Option<out T> : Identifiable {
          */
         // enables the syntax of 'Optional { 67 }'
         @JvmName("calculate")
-        inline operator fun <T : Any> invoke(value: () -> T?): Option<T> = value().toOptional()
+        inline operator fun <T : Any> invoke(value: () -> T?): Option<T> = value().toOption()
 
         /**
          * Invokes the specified [value] wrapped in a `try catch` block, returns [Some] if no errors are thrown,
@@ -323,7 +323,7 @@ data class Some<out T>(val item: T) : Option<T>() {
  * Returns a [Some] containing `this`, or [None] if `this` is `null`.
  */
 @JvmName("fromNullable")
-fun <T> T?.toOptional(): Option<T> = Option(this)
+fun <T> T?.toOption(): Option<T> = Option(this)
 
 /**
  * Converts `this` [java.util.Optional] to a [Option] instance.
@@ -355,10 +355,9 @@ fun <T> Option<T>.isEmpty(): Boolean {
 }
 
 /**
- * If `this` boolean is `true`, returns the specified [item] wrapped in a [Some], otherwise returns [None].
+ * Returns [some][Some] containing the specified [item] if `this` is `true`, or [none][None] if `this` is `false`.
  */
-@JvmName("fromBoolean")
-infix fun <T> Boolean.maybe(item: T): Option<T> = if (this) Some(item) else None
+fun <T> Boolean.asSome(item: T): Option<T> = if (this) Some(item) else None
 
 inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
 

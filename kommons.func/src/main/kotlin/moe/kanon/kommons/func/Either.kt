@@ -191,6 +191,15 @@ fun <L, R> Either<L, Nothing>.withRight(): Either<L, R> = this
 fun <L, R> Either<Nothing, R>.withLeft(): Either<L, R> = this
 
 /**
+ * Returns a new [disjoint union][Either] based on the value of `this` boolean.
+ *
+ * The [left side][Left] of the union gets mapped the given [ifTrue] value, and the [right side][Right] gets mapped to
+ * the given [ifFalse] value.
+ */
+inline fun <L, R> Boolean.asEither(ifTrue: () -> L, ifFalse: () -> R): Either<L, R> =
+    if (this) Left(ifTrue()) else Right(ifFalse())
+
+/**
  * Represents the left-side of a [disjoint union][Either].
  */
 data class Left<out T>(val value: T) : Either<T, Nothing>() {

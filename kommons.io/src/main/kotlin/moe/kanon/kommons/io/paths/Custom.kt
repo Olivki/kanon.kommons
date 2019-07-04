@@ -19,8 +19,10 @@
 
 package moe.kanon.kommons.io.paths
 
+import moe.kanon.kommons.OS_NAME
+import moe.kanon.kommons.USER_HOME
+import moe.kanon.kommons.getEnv
 import moe.kanon.kommons.io.pathMatcherOf
-import moe.kanon.kommons.io.readNBytes
 import moe.kanon.kommons.io.requireDirectory
 import moe.kanon.kommons.io.requireExistence
 import moe.kanon.kommons.io.requireRegularFile
@@ -53,7 +55,6 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileAttribute
 import java.nio.file.attribute.FileTime
 import java.nio.file.spi.FileSystemProvider
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -194,7 +195,7 @@ fun URI.toPath(): Path = Paths.get(this)
 var Path.name: String
     get() = this.fileName.toString()
     set(name) {
-        renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)
+        this.renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
 /**
@@ -230,51 +231,14 @@ var Path.simpleName: String
 var Path.extension: String
     get() = when {
         this.name.substringBeforeLast('.') != name -> name.substringBeforeLast('.')
-        this.isDirectory -> throw IOException("Path <$this> is a directory, and directories do not have extensions")
+        this.isDirectory -> throw IOException("Can't retrieve extension from a directory <$this>")
         else -> throw IOException("Path <$this> does not have an extension.")
     }
     set(value) {
-        requireRegularFile(this) { "Path <$this> is a directory, and directories do not have extensions" }
+        requireRegularFile(this) { "Can't set the extension of a directory <$this>" }
 
         this.name = "$simpleName.$value"
     }
-
-// TODO: Rework this?
-/*private class AttributeMap(private val path: Path, private val original: Map<out String, Any>) :
-    MutableMap<String, Any> by original.toMutableMap() {
-
-    override fun put(key: String, value: Any): Any? = path.setAttribute(key, value)
-
-    // TODO: Figure out how to actually remove attributes.
-    override fun remove(key: String): Any? {
-        throw NotImplementedError("AttributeMap does not currently support removal operations.")
-    }
-
-    override fun get(key: String): Any? = path.getAttribute(key)
-
-    override fun putAll(from: Map<out String, Any>) {
-        for (attribute in from) this += attribute.toPair()
-    }
-
-    override fun clear() {
-        throw IOException("Invalid operation; Can't clear an attribute map.")
-    }
-
-    override fun containsValue(value: Any): Boolean = original.any { it.value == value }
-
-    // This is a really nasty way of checking whether or not the attribute actually exists, and using exception
-    // catching for this should generally be avoided when possible.
-    override fun containsKey(key: String): Boolean = original.containsKey(key)
-}
-
-/**
- * A [Map] of all the attributes of the file that this path points to.
- *
- * The order of the map is: `attribute_name:attribute`
- *
- * @see readAttributes
- */
-val Path.attributes: Map<String, Any> get() = AttributeMap(this, this.readAttributes("*"))*/
 
 /**
  * Writes the given [string] to `this` [file][Path].
@@ -556,7 +520,7 @@ inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> =
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-val Path.lines: Sequence<String> get() = this.linesSequence()
+val Path.lines: List<String> get() = this.readLines()
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence].
@@ -784,7 +748,7 @@ fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
     this.walkFileTree(options.toSet(), maxDepth, object : SimplePathVisitor() {
         override fun visitFile(file: Path, attributes: BasicFileAttributes): FileVisitResult {
             // Only delete the file if it matches the specified globPattern.
-            if (moe.kanon.kommons.io.pathMatcherOf("glob", globPattern).matches(file)) file.deleteIfExists()
+            if (pathMatcherOf("glob", globPattern).matches(file)) file.deleteIfExists()
 
             return FileVisitResult.CONTINUE
         }
@@ -814,7 +778,6 @@ fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
 val Path.directorySize: BigInteger
     get() {
         requireDirectory(this)
-
         var size = BigInteger.ZERO
 
         this.walkFileTree(visitor = object : SimplePathVisitor() {
@@ -840,7 +803,7 @@ val Path.directorySize: BigInteger
  */
 @JvmOverloads inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
     requireExistence(this)
-    for (line in linesSequence(charset)) action(line)
+    for (line in readLines(charset)) action(line)
 }
 
 /**
@@ -1028,7 +991,7 @@ fun Path.overwriteBytesWith(source: Path): Path {
 @JvmOverloads fun Path.createFileSystem(
     env: Map<String, String> = emptyMap(),
     classLoader: ClassLoader? = null
-): FileSystem = FileSystems.newFileSystem(toUri(), env, classLoader)
+): FileSystem = FileSystems.newFileSystem(this.toUri(), env, classLoader)
 
 /**
  * Returns `this` directory if it exists, otherwise creates a new directory and returns that.
@@ -1067,7 +1030,7 @@ fun Path.getOrCreateFile(vararg attributes: FileAttribute<*>): Path =
  */
 fun Path.touch(): Path = apply {
     if (this.exists) {
-        this.lastModifiedTime = FileTime.from(Instant.now())
+        this.lastModifiedTime = FileTime.fromMillis(System.currentTimeMillis())
     } else {
         this.createFile()
     }

@@ -23,80 +23,117 @@ package moe.kanon.kommons
 const val INDEX_NOT_FOUND: Int = -1
 
 /*
- * As we can't *actually* make these into 'const val' constructs, we'll just make them inlined, which essentially
- * accomplishes the same thing in the end.
- *
  * Unlike environment variables (getEnv), property variables *can* change what they return during the life-cycle of
- * the JVM instance that is running the program, and therefore it is not wise to "cache" the results.
+ * the JVM instance that is running the program, and therefore it is *generally* not wise to "cache" the results.
+ * However, as the properties we are creating here are the ones that are provided by the actual JVM itself, it should be
+ * safe to cache them, as they *shouldn't* change during the life-cycle of the JVM, and if they do, it is most likely
+ * not from a legal JVM operation. It is also important to keep in mind that we are *not* caching the values on creation
+ * but rather we cache them after the first invocation of them.
  */
+
 // separators
-val FILE_SEPARATOR @JvmName("getFileSeparator") get() = getProp("file.separator")
+@get:JvmName("getFileSeparator")
+val FILE_SEPARATOR by lazy { getProp("file.separator") }
 
-val LINE_SEPARATOR @JvmName("getLineSeparator") get() = getProp("line.separator")
+@get:JvmName("getLineSeparator")
+val LINE_SEPARATOR by lazy { getProp("line.separator") }
 
-val PATH_SEPARATOR @JvmName("getPathSeparator") get() = getProp("path.separator")
+@get:JvmName("getPathSeparator")
+val PATH_SEPARATOR by lazy { getProp("path.separator") }
 
 // operating system
-val OS_ARCH @JvmName("getOsArch") get() = getProp("os.arch")
+@get:JvmName("getOsArch")
+val OS_ARCH by lazy { getProp("os.arch") }
 
-val OS_NAME @JvmName("getOsName") get() = getProp("os.name")
+@get:JvmName("getOsName")
+val OS_NAME by lazy { getProp("os.name") }
 
-val OS_VERSION @JvmName("getOsVersion") get() = getProp("os.version")
+@get:JvmName("getOsVersion")
+val OS_VERSION by lazy { getProp("os.version") }
 
 // user
-val USER_COUNTRY @JvmName("getUserCountry") get() = getProp("user.country")
+@get:JvmName("getUserCountry")
+val USER_COUNTRY by lazy { getProp("user.country") }
 
-val USER_COUNTRY_FORMAT @JvmName("getUserCountryFormat") get() = getProp("user.country.format")
+@get:JvmName("getUserCountryFormat")
+val USER_COUNTRY_FORMAT by lazy { getProp("user.country.format") }
 
-val USER_DIR @JvmName("getUserDir") get() = getProp("user.dir")
+@get:JvmName("getUserDir")
+val USER_DIR by lazy { getProp("user.dir") }
 
-val USER_LANGUAGE @JvmName("getUserLanguage") get() = getProp("user.language")
+@get:JvmName("getUserHome")
+val USER_HOME by lazy { getProp("user.home") }
 
-val USER_LANGUAGE_FORMAT @JvmName("getUserLanguageFormat") get() = getProp("user.language.format")
+@get:JvmName("getUserLanguage")
+val USER_LANGUAGE by lazy { getProp("user.language") }
 
-val USER_NAME @JvmName("getUserName") get() = getProp("user.name")
+@get:JvmName("getUserLanguageFormat")
+val USER_LANGUAGE_FORMAT by lazy { getProp("user.language.format") }
+
+@get:JvmName("getUserName")
+val USER_NAME by lazy { getProp("user.name") }
 
 // io
-val FILE_ENCODING @JvmName("getFileEncoding") get() = getProp("file.encoding")
+@get:JvmName("getFileEncoding")
+val FILE_ENCODING by lazy { getProp("file.encoding") }
 
-val TMP_DIR @JvmName("getTmpDir") get() = getProp("java.io.tmpdir")
+@get:JvmName("getTmpDir")
+val TMP_DIR by lazy { getProp("java.io.tmpdir") }
 
 // java specific
-val JAVA_CLASS_PATH @JvmName("getJavaClassPath") get() = getProp("java.class.path")
+@get:JvmName("getJavaClassPath")
+val JAVA_CLASS_PATH by lazy { getProp("java.class.path") }
 
-val JAVA_CLASS_VERSION @JvmName("getJavaClassVersion") get() = getProp("java.class.version")
+@get:JvmName("getJavaClassVersion")
+val JAVA_CLASS_VERSION by lazy { getProp("java.class.version") }
 
-val JAVA_HOME @JvmName("getJavaHome") get() = getProp("java.home")
+@get:JvmName("getJavaHome")
+val JAVA_HOME by lazy { getProp("java.home") }
 
-val JAVA_RUNTIME_NAME @JvmName("getJavaRuntimeName") get() = getProp("java.runtime.name")
+@get:JvmName("getJavaRuntimeName")
+val JAVA_RUNTIME_NAME by lazy { getProp("java.runtime.name") }
 
-val JAVA_RUNTIME_VERSION @JvmName("getJavaRuntimeVersion") get() = getProp("java.runtime.version")
+@get:JvmName("getJavaRuntimeVersion")
+val JAVA_RUNTIME_VERSION by lazy { getProp("java.runtime.version") }
 
-val JAVA_SPECIFICATION_NAME @JvmName("getJavaSpecificationName") get() = getProp("java.specification.name")
+@get:JvmName("getJavaSpecificationName")
+val JAVA_SPECIFICATION_NAME by lazy { getProp("java.specification.name") }
 
-val JAVA_SPECIFICATION_VENDOR @JvmName("getJavaSpecificationVendor") get() = getProp("java.specification.vendor")
+@get:JvmName("getJavaSpecificationVendor")
+val JAVA_SPECIFICATION_VENDOR by lazy { getProp("java.specification.vendor") }
 
-val JAVA_SPECIFICATION_VERSION @JvmName("getJavaSpecificationVersion") get() = getProp("java.specification.version")
+@get:JvmName("getJavaSpecificationVersion")
+val JAVA_SPECIFICATION_VERSION by lazy { getProp("java.specification.version") }
 
-val JAVA_VENDOR @JvmName("getJavaVendor") get() = getProp("java.vendor")
+@get:JvmName("getJavaVendor")
+val JAVA_VENDOR by lazy { getProp("java.vendor") }
 
-val JAVA_VENDOR_URL @JvmName("getJavaVendorUrl") get() = getProp("java.vendor.url")
+@get:JvmName("getJavaVendorUrl")
+val JAVA_VENDOR_URL by lazy { getProp("java.vendor.url") }
 
-val JAVA_VENDOR_URL_BUG @JvmName("getJavaVendorUrlBug") get() = getProp("java.vendor.url.bug")
+@get:JvmName("getJavaVendorUrlBug")
+val JAVA_VENDOR_URL_BUG by lazy { getProp("java.vendor.url.bug") }
 
-val JAVA_VERSION @JvmName("getJavaVersion") get() = getProp("java.version")
+@get:JvmName("getJavaVersion")
+val JAVA_VERSION by lazy { getProp("java.version") }
 
-val JAVA_VM_INFO @JvmName("getJavaVmInfo") get() = getProp("java.vm.info")
+@get:JvmName("getJavaVmInfo")
+val JAVA_VM_INFO by lazy { getProp("java.vm.info") }
 
-val JAVA_VM_NAME @JvmName("getJavaVmName") get() = getProp("java.vm.name")
+@get:JvmName("getJavaVmName")
+val JAVA_VM_NAME by lazy { getProp("java.vm.name") }
 
-val JAVA_VM_SPECIFICATION_NAME @JvmName("getJavaVmSpecificationName") get() = getProp("java.vm.specification.name")
+@get:JvmName("getJavaVmSpecificationName")
+val JAVA_VM_SPECIFICATION_NAME by lazy { getProp("java.vm.specification.name") }
 
-val JAVA_VM_SPECIFICATION_VENDOR @JvmName("getJavaVmSpecificationVendor") get() = getProp("java.vm.specification.vendor")
+@get:JvmName("getJavaVmSpecificationVendor")
+val JAVA_VM_SPECIFICATION_VENDOR by lazy { getProp("java.vm.specification.vendor") }
 
-val JAVA_VM_SPECIFICATION_VERSION @JvmName("getJavaVmSpecificationVersion") get() = getProp("java.vm.specification.version")
+@get:JvmName("getJavaVmSpecificationVersion")
+val JAVA_VM_SPECIFICATION_VERSION by lazy { getProp("java.vm.specification.version") }
 
-val JAVA_VM_VERSION @JvmName("getJavaVmVersion") get() = getProp("java.vm.version")
+@get:JvmName("getJavaVmVersion")
+val JAVA_VM_VERSION by lazy { getProp("java.vm.version") }
 
 // -- ENVIRONMENT VARIABLES -- \\
 /**

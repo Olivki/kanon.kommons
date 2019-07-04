@@ -21,12 +21,20 @@ package moe.kanon.kommons.lang
 /**
  * Returns the [hash][Any.hashCode] of `this` value, or `0` if `this` is `null`.
  */
-val <T> T?.hash: Int @JvmName("hashOf") get() = this?.hashCode() ?: 0
+val Any?.hash: Int @JvmName("hashOf") get() = this?.hashCode() ?: 0
+
+/**
+ * Returns the same hash code for the given object as would be returned by the default [Any.hashCode] function,
+ * regardless of whether or not `this` value's class overrides `hashCode`, or `0` if `this` is `null`.
+ *
+ * @see System.identityHashCode
+ */
+val Any?.identityHash: Int @JvmName("identityHashOf") get() = System.identityHashCode(this)
 
 /**
  * Attempts to always return a human-readable `String` representation of `this` string.
  */
-val <T> T?.string: String
+val Any?.string: String
     @JvmName("stringOf") get() = when (this) {
         null -> "null"
         is Array<*> -> this.contentDeepToString()
