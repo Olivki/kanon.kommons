@@ -1,3 +1,3 @@
-plugins {
-    kotlin("jvm").apply(true)
-}
+group = "moe.kanon.kommons.io"
+description = ""
+version = "0.0.1"
