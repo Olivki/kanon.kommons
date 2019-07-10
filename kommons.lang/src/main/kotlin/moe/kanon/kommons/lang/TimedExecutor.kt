@@ -27,7 +27,8 @@ data class TimedExecutor(val threshold: Long) {
 
     private var lastPoll: Long = 0L
 
-    val canExecute: Boolean @JvmName("canExecute") get() = (Sys.nanoTimeMillis - lastPoll) >= threshold
+    val canExecute: Boolean
+        @JvmName("canExecute") get() = (Sys.nanoTimeMillis - lastPoll) >= threshold
 
     fun refreshPolling() {
         lastPoll = Sys.nanoTimeMillis

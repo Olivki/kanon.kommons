@@ -16,8 +16,15 @@
 
 package moe.kanon.kommons.lang
 
+import moe.kanon.kommons.OS_NAME
+import moe.kanon.kommons.StringMap
+import moe.kanon.kommons.USER_HOME
+import moe.kanon.kommons.USER_NAME
+import moe.kanon.kommons.static
 import java.io.InputStream
 import java.io.PrintStream
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 import kotlin.NoSuchElementException
 
@@ -29,7 +36,7 @@ object Sys {
      * The "standard" output stream.
      */
     var out: PrintStream
-        get() = System.out
+        @JvmName("out") get() = System.out
         set(value) {
             System.setOut(value)
         }
@@ -38,7 +45,7 @@ object Sys {
      * The "standard" input stream.
      */
     var `in`: InputStream
-        get() = System.`in`
+        @JvmName("in") get() = System.`in`
         set(value) {
             System.setIn(value)
         }
@@ -47,7 +54,7 @@ object Sys {
      * The "standard" error output stream.
      */
     var error: PrintStream
-        get() = System.err
+        @JvmName("error") get() = System.err
         set(value) {
             System.setErr(value)
         }
@@ -68,7 +75,7 @@ object Sys {
      * Returns an unmodifiable string map view of the current system environment variables.
      */
     // this is 'lazy' as to ensure that we won't trigger any unwanted security exceptions just from this object being created
-    val env: Map<String, String> by lazy { System.getenv() }
+    val env: StringMap<String> by lazy { System.getenv() }
 
     val timeMillis: Long get() = System.currentTimeMillis()
 
@@ -80,6 +87,10 @@ object Sys {
     val nanoTimeMillis: Long get() = nanoTime / 1000000
 
     val lineSeparator: String = System.lineSeparator()
+
+    val os: OperatingSystem = OperatingSystem
+
+    val user: User = User
 
     // -- PROPERTIES -- \\
     @JvmName("getProp")
@@ -120,4 +131,80 @@ object Sys {
      * @see System.getenv
      */
     fun getEnvOrNull(name: String): String? = System.getenv(name)
+
+    object OperatingSystem {
+        /**
+         * Returns the name of the current operating system, as specified by the `"os.name"` system property.
+         */
+        val name: String by lazy { Sys["os.name"] }
+
+        /**
+         * Returns the version of the current operating system, as specified by the `"os.version"` system property.
+         */
+        val version: String by lazy { Sys["os.version"] }
+    }
+
+    object User {
+        /**
+         * Returns the name of the current user, as specified by the `"user.name"` system property.
+         */
+        val name: String by lazy { Sys["user.name"] }
+
+        /**
+         * Returns the language of the current user, as specified by the `"user.language"` system property.
+         */
+        val language: String by lazy { Sys["user.language"] }
+
+        /**
+         * Returns the country of the current user, as specified by the `"user.country"` system property.
+         */
+        val country: String by lazy { Sys["user.country"] }
+
+        val dirs: Dirs = Dirs
+
+        object Dirs {
+            val data: Path by lazy {
+                when (os) {
+                    OperatingSystem.WINDOWS -> Paths.get()
+                    OperatingSystem.MAC_OS_X -> Paths.get(USER_HOME, "Library", "Application Support", name)
+                    OperatingSystem.UNIX -> Paths.get("")
+                }
+            }
+
+            val config: Path by lazy {
+                when (os) {
+                    OperatingSystem.WINDOWS -> Paths.get("")
+                    OperatingSystem.MAC_OS_X -> Paths.get("")
+                    OperatingSystem.UNIX -> Paths.get("")
+                }
+            }
+
+            val cache: Path by lazy {
+                when (os) {
+                    OperatingSystem.WINDOWS -> Paths.get("")
+                    OperatingSystem.MAC_OS_X -> Paths.get("")
+                    OperatingSystem.UNIX -> Paths.get("")
+                }
+            }
+
+            val logs: Path by lazy {
+                when (os) {
+                    OperatingSystem.WINDOWS -> Paths.get("")
+                    OperatingSystem.MAC_OS_X -> Paths.get("")
+                    OperatingSystem.UNIX -> Paths.get("")
+                }
+            }
+
+            private val os by lazy {
+                when {
+                    Sys.os.name.startsWith("windows", true) -> OperatingSystem.WINDOWS
+                    Sys.os.name.startsWith("mac os x", true) -> OperatingSystem.MAC_OS_X
+                    // assume it's some *nix based system
+                    else -> OperatingSystem.UNIX
+                }
+            }
+
+            private enum class OperatingSystem { WINDOWS, MAC_OS_X, UNIX }
+        }
+    }
 }
