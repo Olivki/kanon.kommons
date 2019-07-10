@@ -21,23 +21,38 @@ package moe.kanon.kommons.lang
 import moe.kanon.kommons.writeOut
 import java.time.Duration
 
-// TODO: Class documentation
+/**
+ * A structure for implementing operations that will only execute when a certain amount of time has passed.
+ *
+ * @property [threshold] The threshold that needs to be passed for this to execute anything.
+ */
 data class TimedExecutor(val threshold: Long) {
     constructor(duration: Duration) : this(duration.toMillis())
 
     private var lastPoll: Long = 0L
 
+    /**
+     * Returns whether or not the specified [threshold] has been passed in time.
+     */
     val canExecute: Boolean
         @JvmName("canExecute") get() = (Sys.nanoTimeMillis - lastPoll) >= threshold
 
+    /**
+     * Refreshes the [lastPoll] property to be set to the current nano-time.
+     */
     fun refreshPolling() {
         lastPoll = Sys.nanoTimeMillis
     }
 
+    /**
+     * Executes the specified [action] only if [can be executed][canExecute] and then refreshes the [lastPoll] property.
+     */
     inline fun execute(action: () -> Unit) {
         if (canExecute) {
             action()
             refreshPolling()
         }
     }
+
+    override fun toString(): String = "TimedExecutor(threshold=$threshold, lastPoll=$lastPoll)"
 }

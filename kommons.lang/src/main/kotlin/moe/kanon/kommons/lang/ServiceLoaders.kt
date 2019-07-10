@@ -18,12 +18,39 @@ package moe.kanon.kommons.lang
 
 import java.util.*
 
+/**
+ * Returns a new [service loader][ServiceLoader] for the given [service type][S] using the current thread's
+ * [context class loader][Thread.getContextClassLoader].
+ *
+ * @param [S] the type of the service to load
+ */
 inline fun <reified S> serviceLoaderFor(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
 
-inline fun <reified S> serviceLoaderFor(loader: ClassLoader): ServiceLoader<S> =
+/**
+ * Returns a new [service loader][ServiceLoader] for the given [service type][S] and class loader.
+ *
+ * @param [S] the type of the service to load
+ * @param [loader] the class loader to be used to load provider-configuration files and provider classes, or
+ * `null` if the system class loader *(or, failing that, the bootstrap class loader)* is to be used
+ */
+inline fun <reified S> serviceLoaderFor(loader: ClassLoader?): ServiceLoader<S> =
     ServiceLoader.load(S::class.java, loader)
 
+// fake constructor functions
+/**
+ * Returns a new [service loader][ServiceLoader] for the given [service type][S] using the current thread's
+ * [context class loader][Thread.getContextClassLoader].
+ *
+ * @param [S] the type of the service to load
+ */
 inline fun <reified S> ServiceLoader(): ServiceLoader<S> = ServiceLoader.load(S::class.java)
 
-inline fun <reified S> ServiceLoader(loader: ClassLoader): ServiceLoader<S> =
+/**
+ * Returns a new [service loader][ServiceLoader] for the given [service type][S] and class loader.
+ *
+ * @param [S] the type of the service to load
+ * @param [loader] the class loader to be used to load provider-configuration files and provider classes, or
+ * `null` if the system class loader *(or, failing that, the bootstrap class loader)* is to be used
+ */
+inline fun <reified S> ServiceLoader(loader: ClassLoader?): ServiceLoader<S> =
     ServiceLoader.load(S::class.java, loader)

@@ -41,7 +41,7 @@ import java.nio.file.Path
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  */
 @Throws(NoSuchFileException::class)
-@FakeKeyword inline fun requireExistence(path: Path, lazyMessage: () -> Any) {
+@FakeKeyword inline fun requireFileExistence(path: Path, lazyMessage: () -> Any) {
     if (path.notExists) throw NoSuchFileException(lazyMessage().toString())
 }
 
@@ -54,7 +54,7 @@ import java.nio.file.Path
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  */
 @Throws(NoSuchFileException::class)
-@FakeKeyword inline fun requireExistence(path: Path) = requireExistence(path) { "File <$path> doesn't exist!" }
+@FakeKeyword inline fun requireFileExistence(path: Path) = requireFileExistence(path) { "File <$path> doesn't exist!" }
 
 /**
  * Throws a [IOException] with the result of calling [lazyMessage] if `this` file is *not* a regular file.
@@ -65,7 +65,7 @@ import java.nio.file.Path
  * @throws [NotDirectoryException] if the `Path` receiver is *not* a regular file
  */
 @FakeKeyword inline fun requireRegularFile(path: Path, lazyMessage: () -> Any) {
-    requireExistence(path)
+    requireFileExistence(path)
     if (!path.isRegularFile) throw IOException(lazyMessage().toString())
 }
 
@@ -89,7 +89,7 @@ import java.nio.file.Path
  */
 @Throws(NoSuchFileException::class, NotDirectoryException::class)
 @FakeKeyword inline fun requireDirectory(path: Path, lazyMessage: () -> Any) {
-    requireExistence(path)
+    requireFileExistence(path)
     if (!path.isDirectory) throw NotDirectoryException(lazyMessage().toString())
 }
 
@@ -109,7 +109,7 @@ import java.nio.file.Path
  * support the current desktop environment.
  */
 @Throws(UnsupportedDesktopException::class)
-@FakeKeyword inline fun requireDesktop(lazyMessage: () -> Any) {
+@FakeKeyword inline fun requireSupportedDesktop(lazyMessage: () -> Any) {
     if (!Desktop.isDesktopSupported()) throw UnsupportedDesktopException(lazyMessage().toString())
 }
 
@@ -118,6 +118,6 @@ import java.nio.file.Path
  * desktop environment.
  */
 @Throws(UnsupportedDesktopException::class)
-@FakeKeyword inline fun requireDesktop() = requireDesktop {
+@FakeKeyword inline fun requireSupportedDesktop() = requireSupportedDesktop {
     "The Java Desktop API is not supported on the current platform. (OS:${System.getProperty("os.name")})"
 }

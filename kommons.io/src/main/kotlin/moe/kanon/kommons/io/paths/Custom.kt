@@ -19,12 +19,9 @@
 
 package moe.kanon.kommons.io.paths
 
-import moe.kanon.kommons.OS_NAME
-import moe.kanon.kommons.USER_HOME
-import moe.kanon.kommons.getEnv
 import moe.kanon.kommons.io.pathMatcherOf
 import moe.kanon.kommons.io.requireDirectory
-import moe.kanon.kommons.io.requireExistence
+import moe.kanon.kommons.io.requireFileExistence
 import moe.kanon.kommons.io.requireRegularFile
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -115,7 +112,7 @@ fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *more)
  * The `Path` is obtained by invoking the [getPath][FileSystem.getPath] method of the [default][FileSystems.getDefault]
  * [FileSystem].
  *
- * Note that while this method is very convenient, using it will imply an assumed reference to the default `FileSystem`
+ * Note that while this function is very convenient, using it will imply an assumed reference to the default `FileSystem`
  * and limit the utility of the calling code. Hence it should not be used in library code intended for flexible reuse.
  * A more flexible alternative is to use an existing `Path` instance as an anchor, such as:
  *
@@ -133,7 +130,7 @@ fun pathOf(first: String, vararg more: String): Path = Paths.get(first, *more)
  *
  * @see FileSystem.getPath
  */
-fun pathOf(parent: Path, vararg more: String): Path = Paths.get(parent.toString(), *more)
+fun pathOf(parent: Path, vararg more: String): Path = parent.resolve(*more)
 
 /**
  * Converts the given [URI] to a [Path] instance.
@@ -170,16 +167,138 @@ fun pathOf(parent: Path, vararg more: String): Path = Paths.get(parent.toString(
 fun pathOf(uri: URI): Path = Paths.get(uri)
 
 /**
- * Returns a new [Path] based on `this` string.
- */
-fun String.toPath(): Path = Paths.get(this)
-
-/**
  * Returns a new [Path] based on `this` uri.
  */
 fun URI.toPath(): Path = Paths.get(this)
 
 // -- EXTENSIONS -- \\
+/**
+ * Resolve the given [path][other] against `this` path.
+ *
+ * If the `other` parameter is an [absolute][Path.isAbsolute] path then this function trivially returns `other`. If
+ * `other` is an *empty path* then this method trivially returns `this` path. Otherwise this function considers `this`
+ * path to be a directory and resolves the given path against `this` path. In the simplest case, the given path does not
+ * have a [root][Path.getRoot] component, in which case this function *joins* the given path to `this` path and returns
+ * a resulting path that [ends][Path.endsWith] with the given path. Where the given path has a root component then
+ * resolution is highly implementation dependent and therefore unspecified.
+ *
+ * @param [other] the path to resolve against this path
+ *
+ * @return the resulting path
+ */
+operator fun Path.plus(other: Path): Path = this.resolve(other)
+
+/**
+ * Converts a given [path string][other] to a [path][Path] and resolves it against `this` path in exactly the manner
+ * specified by the [resolve(Path)][Path.resolve] function.
+ *
+ * For example, suppose that the name  separator is `"/"` and a path represents `"foo/bar"`, then invoking this method
+ * with the path string `"gus"` will result in the path `"foo/bar/gus"`.
+ *
+ * @param [other] the path string to resolve against this path
+ *
+ * @return the resulting path
+ *
+ * @throws [InvalidPathException] if the path string cannot be converted to a Path.
+ */
+operator fun Path.plus(other: String): Path = this.resolve(other)
+
+// resolve
+/**
+ * Resolve the given path against this path.
+ *
+ * If any of the paths in the given [paths] parameter is an [absolute][Path.isAbsolute] path then this function
+ * will trivially return *just* that path.  If any of the given `paths` is an *empty path* then that path will be
+ * skipped over when joining them all together. Otherwise this function considers `this` path to be a directory and
+ * resolves the given `paths` against `this` path. In the simplest case, the given `paths` does not have a
+ * [root][Path.getRoot] component, in which case this function *joins* the given `paths` to `this` path and returns a
+ * resulting path that [ends][Path.endsWith] with the given `paths`. Where the given `paths` has a root component then
+ * resolution is highly implementation dependent and therefore unspecified.
+ *
+ * @receiver the [Path] to resolve against
+ *
+ * @param [paths] the paths to resolve against `this` path
+ *
+ * @return the resulting path
+ */
+fun Path.resolve(vararg paths: Path): Path = paths.fold(this) { parent, path -> parent.resolve(path) }
+
+/**
+ * Converts a given [path strings][paths] to a [path][Path] and resolves it against `this` path in exactly the manner
+ * specified by the [resolve(Path)][Path.resolve] function.
+ *
+ * For example, suppose that the name separator is `"/"` and a path represents `"foo/bar"`, then invoking this function
+ * with the path strings `{"gus", "dus", "fus"}` will result in the `Path` `"foo/bar/gus/dus/fus"`.
+ *
+ * @receiver the [path][Path] to resolve against
+ *
+ * @param [paths] the path strings to resolve against `this` path
+ *
+ * @return the resulting path
+ *
+ * @throws [InvalidPathException] if any of the paths in the given [paths] cannot be converted to a [path][Path]
+ */
+fun Path.resolve(vararg paths: String): Path = paths.fold(this) { parent, path -> parent.resolve(path) }
+
+/**
+ * Resolves the given [paths] against `this` path and returns the result.
+ *
+ * The way that the path is resolved is dependant on what type is contained within the given `paths`.
+ *
+ * **NOTE:** This function *only* resolves against [Path] and [String] types, if any other types are encountered within
+ * the given `paths` then a [IllegalArgumentException] will be thrown. This behaviour is because Kotlin does not have
+ * union types, which means that we need to accept [Any] and then manually filter out any wrong types at runtime rather
+ * than at compile time.
+ *
+ * @receiver the [Path] to resolve against
+ *
+ * @param [paths] the paths to resolve against `this` *(should only contain [String] and/or [Path] types)*
+ *
+ * @return the resulting path
+ *
+ * @throws [IllegalArgumentException] if the given [paths] argument contains a type that is not a [String] or a [Path]
+ */
+fun Path.resolve(vararg paths: Any): Path = paths.fold(this) { parent, path ->
+    when (path) {
+        is Path -> parent.resolve(path)
+        is String -> parent.resolve(path)
+        else -> throw IllegalArgumentException("resolve(paths) only accepts Path or String types")
+    }
+}
+
+// resolveSibling
+/**
+ * Resolves the given path against this path's [parent][Path.getParent] path.
+ *
+ * This is useful where a file name needs to be *replaced* with another file name. For example, suppose that the name
+ * separator is `"/"` and a path represents `"dir1/dir2/foo"`, then invoking this function with the `Path`s
+ * `{"bar", "gus"}` will result in the `Path` `"dir1/dir2/bar/gus"`. If `this` path does not have a parent path, or any
+ * of the paths inside of [paths] is [absolute][Path.isAbsolute], then this functions returns that path. If any of the
+ * paths inside of `paths` is an empty path then that path is skipped over.
+ *
+ * @param [paths] the paths to resolve against this path's parent
+ *
+ * @return the resulting path
+ */
+fun Path.resolveSiblings(vararg paths: Path): Path =
+    paths.fold(this) { parent, path -> parent.resolveSibling(path) }
+
+/**
+ * Converts the given [path strings][paths] to a [path][Path] and resolves it against `this` path's
+ * [parent][Path.getParent] path in exactly the manner specified by the [resolveSibling(Path)][Path.resolveSibling]
+ * function.
+ *
+ * @param [paths] the path strings to resolve against `this` path's parent
+ *
+ * @return the resulting path
+ *
+ * @throws [InvalidPathException] if any of the paths in the given [paths] cannot be converted to a [path][Path]
+ *
+ * @see FileSystem.getPath
+ */
+fun Path.resolveSiblings(vararg paths: String): Path =
+    paths.fold(this) { parent, path -> parent.resolveSibling(path) }
+
 /**
  * The file name of `this` [file][Path] in [String] format.
  *
@@ -348,7 +467,7 @@ fun Path.writeString(string: String, vararg options: OpenOption): Path =
  * @see readLines
  */
 @JvmOverloads fun Path.readString(charset: Charset = StandardCharsets.UTF_8): String {
-    requireExistence(this)
+    requireFileExistence(this)
     return this.readBytes().toString(charset)
 }
 
@@ -802,7 +921,7 @@ val Path.directorySize: BigInteger
  * @throws [NoSuchFileException] if `this` file does *not* exist
  */
 @JvmOverloads inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
-    requireExistence(this)
+    requireFileExistence(this)
     for (line in readLines(charset)) action(line)
 }
 
@@ -944,7 +1063,7 @@ fun Path.getOrCreateChildDirectory(name: String, vararg attributes: FileAttribut
  * @throws [NoSuchFileException] if `this` file does not exist on the `file-system`.
  */
 inline fun Path.ifRegularFile(action: (Path) -> Unit): Path {
-    requireExistence(this)
+    requireFileExistence(this)
     return if (this.isRegularFile) this.apply(action) else this
 }
 
@@ -959,14 +1078,14 @@ inline fun Path.ifRegularFile(action: (Path) -> Unit): Path {
  * @throws [NoSuchFileException] if `this` file does not exist on the file-system
  */
 inline fun Path.ifDirectory(action: (Path) -> Unit): Path {
-    requireExistence(this)
+    requireFileExistence(this)
     return if (this.isDirectory) this.apply(action) else this
 }
 
 /**
- * Overwrites the bytes of `this` file with the bytes of the specified [source].
+ * Overwrites the bytes of `this` file with the bytes of the specified [source] file.
  *
- * If `this` file does not exist, it will be created.
+ * If `this` path does not point to an already existing file, one will be created.
  *
  * @receiver the file to overwrite the bytes of
  *
@@ -975,7 +1094,7 @@ inline fun Path.ifDirectory(action: (Path) -> Unit): Path {
  * @throws [NoSuchFileException] if the specified [source] file does not exist on the file-system
  */
 fun Path.overwriteBytesWith(source: Path): Path {
-    requireExistence(source) { "Source does not exist! <$source>" }
+    requireFileExistence(source) { "Source does not exist! <$source>" }
     return this.writeBytes(
         source.readBytes(),
         StandardOpenOption.WRITE,

@@ -29,7 +29,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("Booleans")
+@file:JvmName("KBooleans")
 @file:Suppress("NOTHING_TO_INLINE", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 
 package moe.kanon.kommons.lang
