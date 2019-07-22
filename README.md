@@ -1,58 +1,6 @@
 ## kanon.kommons
-Currently being entirely restructured.
 
-## Credits
-
-- [Commons Lang 3](https://commons.apache.org/proper/commons-lang/) by the [Apache Software Foundation](https://www.apache.org/).
-
-  - [Booleans.kt](https://gitlab.com/Olivki/kanon-kommons/blob/master/src/main/kotlin/lang/Booleans.kt#L78) is taken from [BooleanUtils.java](https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/BooleanUtils.java#L546).
-
-  `Commons Lang 3` is under the Apache 2.0 License.
-
-- [Humanizer.jvm](https://github.com/MehdiK/Humanizer.jvm) by [MehdiK](https://github.com/MehdiK).
-
-  - Various functions and classes from the `/lang/humanize` package. 
-
-  `Humanizer.jvm` is under the Apache 2.0 License.
-
-## Installation
-
-Gradle
-
-- Groovy
-
-  ```groovy
-  repositories {
-      jcenter()
-  }
-  
-  dependencies {
-      implementation "moe.kanon.kommons:kanon.kommons:0.6.0-alpha"
-  }
-  ```
-
-- Kotlin
-
-  ```kotlin
-  repositories {
-      jcenter()
-  }
-  
-  dependencies {
-      implementation(group = "moe.kanon.kommons", name = "moe.kanon", version = "0.6.0-alpha")
-  }
-  ```
-
-Maven
-
-```xml
-<dependency>
-  <groupId>moe.kanon.kommons</groupId>
-  <artifactId>kanon.kommons</artifactId>
-  <version>0.6.0-alpha</version>
-  <type>pom</type>
-</dependency>
-```
+This project contains all the modules that make up the `kanon.kommons` project, for more information please look at the each modules individual `README.md` file.
 
 ## License
 
