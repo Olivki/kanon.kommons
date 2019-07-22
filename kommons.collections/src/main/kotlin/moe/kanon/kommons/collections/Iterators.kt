@@ -25,9 +25,16 @@ private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
 
 // -- CLASSES -- \\
 // -- ITERATOR -- \\
-class ImmutableIterator<out T>(private val delegate: Iterator<T>) : Iterator<T> by delegate
+/**
+ * An [Iterator] that does not allow any of its elements to be modified.
+ */
+class UnmodifiableIterator<out T>(private val delegate: Iterator<T>) : Iterator<T> by delegate
 
-fun <T> Iterator<T>.toImmutable(): ImmutableIterator<T> = ImmutableIterator(this)
+/**
+ * Returns `this` iterator wrapped in a [UnmodifiableIterator], which does not allow any of it's elements to be
+ * modified.
+ */
+fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = UnmodifiableIterator(this)
 
 /**
  * Represents a [iterator][Iterator] that only iterates over one element.
@@ -52,7 +59,16 @@ object EmptyIterator : Iterator<Nothing> {
 }
 
 // -- LIST ITERATOR -- \\
-open class ImmutableListIterator<out T>(private val delegate: ListIterator<T>) : ListIterator<T> by delegate
+/**
+ * A [ListIterator] that does not allow any of its elements to be modified.
+ */
+class UnmodifiableListIterator<out T>(private val delegate: ListIterator<T>) : ListIterator<T> by delegate
+
+/**
+ * Returns `this` iterator wrapped in a [UnmodifiableListIterator], which does not allow any of it's elements to be
+ * modified.
+ */
+fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = UnmodifiableListIterator(this)
 
 /**
  * Represents a [list-iterator][ListIterator] that iterates over a single object.

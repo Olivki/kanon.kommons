@@ -61,7 +61,7 @@ fun <K, V> singletonMap(pair: Pair<K, V>): Map<K, V> = SingletonMap(pair.first, 
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableMap] of `this` map.
  */
-fun <K, V> Map<K, V>.toUnmodifiableMap(): Map<K, V> = Collections.unmodifiableMap(this)
+fun <K, V> Map<K, V>.asUnmodifiableMap(): Map<K, V> = Collections.unmodifiableMap(this)
 
 /**
  * Returns a new [TreeMap] that contains the specified [pairs].

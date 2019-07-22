@@ -57,7 +57,7 @@ object EmptyCollection : Collection<Nothing> {
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableCollection] of `this` collection.
  */
-fun <T> Collection<T>.toUnmodifiableCollection(): Collection<T> = Collections.unmodifiableCollection(this)
+fun <T> Collection<T>.asUnmodifiableCollection(): Collection<T> = Collections.unmodifiableCollection(this)
 
 /**
  * Returns an empty [Collection].

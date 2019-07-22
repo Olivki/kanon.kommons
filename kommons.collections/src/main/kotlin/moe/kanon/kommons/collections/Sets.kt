@@ -40,7 +40,7 @@ class SingletonSet<out E>(private val element: E) : Set<E> {
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableSet] of `this` set.
  */
-fun <T> Set<T>.toUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
+fun <T> Set<T>.asUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
 
 /**
  * Returns a new [singleton set][SingletonSet] wrapped around the specified [item].

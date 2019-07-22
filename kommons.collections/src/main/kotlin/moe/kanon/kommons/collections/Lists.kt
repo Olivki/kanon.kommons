@@ -62,7 +62,7 @@ class SingletonList<out E>(private val element: E) : List<E> {
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableList] of `this` list.
  */
-fun <T> List<T>.toUnmodifiableList(): List<T> = Collections.unmodifiableList(this)
+fun <T> List<T>.asUnmodifiableList(): List<T> = Collections.unmodifiableList(this)
 
 /**
  * Returns a new [List] that *only* contains the specified [element].
