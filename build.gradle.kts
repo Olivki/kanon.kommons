@@ -71,7 +71,7 @@ subprojects {
         publishing.repositories.convention[RepositoryHandlerBintrayExtension::class.java].bintray {
             owner = "olivki"
             repositoryName = "kanon.kommons"
-            packageName = project.group.toString()
+            packageName = this@subprojects.extra["packageName"]!!.toString()
         }
     }
 
