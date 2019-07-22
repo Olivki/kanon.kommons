@@ -1,6 +1,5 @@
-group = "moe.kanon.kommons.lang"
-description = ""
-version = "0.0.1"
+description = "Provides utilities/extensions for the general Kotlin std-lib"
+version = "0.1.0"
 extra["packageName"] = "lang"
 
 dependencies {

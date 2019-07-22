@@ -1,4 +1,3 @@
-group = "moe.kanon.kommons.io"
-description = ""
-version = "0.0.1"
+description = "Provides utilities/extensions for working with IO in Kotlin"
+version = "1.0.0"
 extra["packageName"] = "io"

@@ -34,6 +34,8 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "name.remal.maven-publish-bintray")
 
+    project.group = "moe.kanon.kommons"
+
     repositories {
         mavenCentral()
         jcenter()

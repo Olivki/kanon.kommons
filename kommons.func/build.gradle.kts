@@ -1,6 +1,5 @@
-group = "moe.kanon.kommons.func"
-description = "Provides some basic functional constructs for Kotlin"
-version = "0.0.1"
+description = "Provides some basic functional constructs and abstract data types for Kotlin"
+version = "1.0.0"
 extra["packageName"] = "func"
 
 dependencies {

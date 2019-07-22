@@ -1,6 +1,5 @@
-group = "moe.kanon.kommons.reflection"
-description = ""
-version = "0.0.1"
+description = "Provides some basic utilities for working with reflection in Kotlin"
+version = "0.1.0"
 extra["packageName"] = "reflection"
 
 dependencies {
