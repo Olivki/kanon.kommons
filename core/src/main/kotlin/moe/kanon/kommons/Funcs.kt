@@ -32,7 +32,7 @@ inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationExc
  */
 inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
 
-// TODO: Move over to kommons.system
+
 @JvmOverloads inline fun writeOut(out: Any? = "") = println(out)
 
 @JvmOverloads inline fun writeError(out: Any? = "") = System.err.println(out)
