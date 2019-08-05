@@ -296,10 +296,7 @@ sealed class Option<out T> : Identifiable {
 object None : Option<Nothing>() {
     override fun hashCode(): Int = 0
 
-    override fun equals(other: Any?): Boolean = when (other) {
-        this -> true
-        else -> false
-    }
+    override fun equals(other: Any?): Boolean = other is None
 
     override operator fun component1(): Nothing = throw NoSuchElementException()
 
