@@ -356,6 +356,22 @@ fun <T> Option<T>.isEmpty(): Boolean {
  */
 fun <T> Boolean.asSome(item: T): Option<T> = if (this) Some(item) else None
 
+/**
+ * Returns [some][Some] containing the specified [item] if `this` is `true`, or [none][None] if `this` is `false`.
+ *
+ * Note that this function *lazily* evaluates the [item], meaning that `item` will only ever be evaluated if `this`
+ * is `true`, and never if `this` is `false`.
+ *
+ * Example:
+ * ```kotlin
+ *  val string: String = ...
+ *  val split = ('#' in string).asSome { string.split('#')[1] }
+ * ```
+ * If using the `Boolean.asSome(item: T)` function instead, the above code would fail at runtime with a
+ * [IndexOutOfBoundsException].
+ */
+inline fun <T> Boolean.asSome(item: () -> T): Option<T> = if (this) Some(item()) else None
+
 inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
 
 // -- ITERABLE -- \\
