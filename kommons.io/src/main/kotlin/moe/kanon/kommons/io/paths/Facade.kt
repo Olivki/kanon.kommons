@@ -996,7 +996,7 @@ val Path.isHidden: Boolean get() = Files.isHidden(this)
  * @throws SecurityException if a security manager is installed and it denies an unspecified permission required by
  * `this` [file][Path] type detector implementation.
  */
-val Path.contentType: String get() = Files.probeContentType(this)
+val Path.contentType: String? get() = Files.probeContentType(this)
 
 /**
  * Returns `this` [file][Path] attribute view of a given type.
