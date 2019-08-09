@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("KClasses")
+@file:Suppress("UNCHECKED_CAST")
 
 package moe.kanon.kommons.reflection
 
@@ -28,3 +29,14 @@ import kotlin.reflect.full.memberProperties
 val Class<*>.isKotlinClass: Boolean get() = this.annotations.any { it.javaClass.name == "kotlin.Metadata" }
 
 val KClass<*>.isKotlinClass: Boolean get() = this.java.isKotlinClass
+
+/**
+ * Returns whether or not `this` class is an `object`.
+ */
+val KClass<*>.isObject: Boolean get() = this.objectInstance != null
+
+fun classOf(
+    fqName: String,
+    initialize: Boolean = false,
+    loader: ClassLoader = ClassLoader.getSystemClassLoader()
+): KClass<*> = Class.forName(fqName, initialize, loader).kotlin
