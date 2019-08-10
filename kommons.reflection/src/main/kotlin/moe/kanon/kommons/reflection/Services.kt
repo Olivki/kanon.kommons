@@ -63,6 +63,12 @@ class KServiceLoader<S : Any> private constructor(
             invoker: (KClass<S>) -> S = { it.createInstance() }
         ): KServiceLoader<S> = KServiceLoader(service, loader, invoker)
 
+        /**
+         * Returns a new service loader for the given [service][S], loaded using the given [loader], and any instances
+         * created by using the given [invoker] function.
+         *
+         * Note that the `invoker` function is *not* used if the located service is an `object` class.
+         */
         @JvmSynthetic inline operator fun <reified S : Any> invoke(
             loader: ClassLoader = ClassLoader.getSystemClassLoader(),
             noinline invoker: (KClass<S>) -> S = { it.createInstance() }
@@ -227,3 +233,14 @@ class KServiceLoader<S : Any> private constructor(
         }
     }
 }
+
+/**
+ * Returns a new service loader for the given [service][S], loaded using the given [loader], and any instances
+ * created by using the given [invoker] function.
+ *
+ * Note that the `invoker` function is *not* used if the located service is an `object` class.
+ */
+inline fun <reified S : Any> loadServices(
+    loader: ClassLoader = ClassLoader.getSystemClassLoader(),
+    noinline invoker: (KClass<S>) -> S = { it.createInstance() }
+): KServiceLoader<S> = KServiceLoader(loader, invoker)
