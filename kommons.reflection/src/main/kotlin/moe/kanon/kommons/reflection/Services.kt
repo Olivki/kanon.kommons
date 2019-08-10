@@ -18,6 +18,7 @@
 
 package moe.kanon.kommons.reflection
 
+import moe.kanon.kommons.writeOut
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -32,6 +33,7 @@ import kotlin.collections.LinkedHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.jvmName
 import kotlin.reflect.typeOf
 
@@ -84,10 +86,14 @@ class KServiceLoader<S : Any> private constructor(
     private val accessContext: AccessControlContext? =
         System.getSecurityManager()?.let { AccessController.getContext() }
     private val providers: MutableMap<String, S> = LinkedHashMap()
-    private var lookupIterator: Iterator<S> = LazyIterator(serviceClass, loader)
+    private lateinit var lookupIterator: Iterator<S>
 
     val java: ServiceLoader<S>
         @JvmName("toJava") get() = ServiceLoader.load(serviceClass.java, loader)
+
+    init {
+        reload()
+    }
 
     fun reload() {
         providers.clear()
@@ -186,14 +192,16 @@ class KServiceLoader<S : Any> private constructor(
         private fun hasNextService(): Boolean {
             if (nextName != null) return true
 
-            if (configs == null) configs = try {
-                loader.getResources("$PREFIX${service.jvmName}")
-            } catch (e: IOException) {
-                fail(service, "Error locating configuration files", e)
+            if (configs == null) {
+                configs = try {
+                    loader.getResources("$PREFIX${service.jvmName}")
+                } catch (e: IOException) {
+                    fail(service, "Error locating configuration files", e)
+                }
             }
 
-            while ((pending == null) || !pending!!.hasNext()) {
-                if (configs!!.hasMoreElements()) return true
+            while ((pending == null) || !(pending!!.hasNext())) {
+                if (!(configs!!.hasMoreElements())) return false
                 pending = parse(service, configs!!.nextElement())
             }
 
@@ -220,7 +228,7 @@ class KServiceLoader<S : Any> private constructor(
                 fail(service, "Provider $clzName not found")
             }
 
-            if (!service.isSubclassOf(clz)) fail(service, "Provider $clzName not a subtype")
+            if (!service.isSuperclassOf(clz)) fail(service, "Provider $clzName not a subtype")
 
             return try {
                 when {

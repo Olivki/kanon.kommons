@@ -65,3 +65,4 @@ gradle-app.setting
 
 !/appender.jar
 /logs/
+/kommons.reflection/src/test/kotlin/moe/kanon/kommons/reflection/Ugly.kt
