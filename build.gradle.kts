@@ -43,6 +43,7 @@ subprojects {
 
     project.afterEvaluate {
         publishing.publications.withType<MavenPublication> {
+            artifactId = "kommons.${project.name}"
             pom {
                 name.set(project.name)
                 description.set(project.description)
