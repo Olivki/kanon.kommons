@@ -16,33 +16,92 @@
 
 package moe.kanon.kommons.func.tuples
 
+import moe.kanon.kommons.affirmThat
+import moe.kanon.kommons.checkThat
+import moe.kanon.kommons.requireThat
 import java.lang.UnsupportedOperationException
+import kotlin.reflect.typeOf
 
 /**
  * A [tuple][Tuple0] that can store a variable arity amount of values inside of it.
  *
- * To retrieve values from this tuple use either [get] or [invoke] for null-safe retrieval.
+ * To retrieve values from this tuple use either the [get] or [invoke] operators for `null`-safe retrieval.
  */
 class TupleN(private vararg val objects: Any?) : Iterable<Any?> {
     /**
-     * Returns the value stored under the specified [index] of `this` tuple casted to [T].
+     * Returns how many objects are stored in `this` tuple.
      */
-    @Suppress("UNCHECKED_CAST")
-    @JvmName("getNullable")
-    operator fun <T> get(index: Int): T? = objects[index] as T?
+    val size: Int get() = objects.size
+
+    // -- GET VALUE -- \\
+    /**
+     * Returns the value stored under the given [index], cast to [T].
+     *
+     * @param [T] the type to cast the value to
+     *
+     * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size], the value stored under the given
+     * `index` is `null` or the value stored under `index` is *not* of the given [type][T]
+     */
+    @UseExperimental(ExperimentalStdlibApi::class)
+    @JvmSynthetic inline operator fun <reified T> get(index: Int): T {
+        val value = getRaw(index)
+        requireThat(value is T) { "Value stored under index <$index> is not of type <${typeOf<T>()}>" }
+        return value
+    }
 
     /**
-     * Returns the value stored under the specified [index] of `this` tuple casted to [T].
+     * Returns the value stored under the given [index], cast to [T].
      *
-     * Unlike [get] this function is `null` safe, meaning that it will never return a `null` value.
+     * @param [T] the type to cast the value to
      *
-     * @throws [UnsupportedOperationException] if the value stored under the specified `index` is `null`
+     * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size], the value stored under the given
+     * `index` is `null` or the value stored under `index` is *not* of the given [type][T]
      */
-    @Suppress("UNCHECKED_CAST")
-    @JvmName("get")
-    operator fun <T> invoke(index: Int): T =
-        objects[index] as T? ?: throw UnsupportedOperationException("Value under index <$index> is null")
+    @JvmSynthetic inline operator fun <reified T> invoke(index: Int): T = this[index]
 
+    /**
+     * Returns the `nullable` value stored under the given [index], cast to [T].
+     *
+     * @param [T] the type to cast the value to
+     *
+     * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size] or the value stored under `index` is *not*
+     * of the given [type][T]
+     */
+    @UseExperimental(ExperimentalStdlibApi::class)
+    @JvmSynthetic inline fun <reified T> getNullable(index: Int): T? {
+        val value = getRawNullable(index)
+        requireThat(value is T?) { "Value stored under index <$index> is not of type <${typeOf<T>()}?>" }
+        return value
+    }
+
+    /**
+     * Returns the raw value stored under the given [index].
+     *
+     * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size] or the value stored under the given
+     * `index` is `null`
+     */
+    @JvmName("getRawValue")
+    fun getRaw(index: Int): Any {
+        requireThat(index >= 0, "index >= 0")
+        requireThat(index < size, "index < this.size")
+        val value = objects[index]
+        requireThat(value != null) { "Value under index <$index> is null" }
+        return value
+    }
+
+    /**
+     * Returns the raw `nullable` value stored under the given [index].
+     *
+     * @throws [IllegalArgumentException] if `index` < `0` or `index` > [size]
+     */
+    @JvmName("getRawNullableValue")
+    fun getRawNullable(index: Int): Any? {
+        requireThat(index >= 0, "index >= 0")
+        requireThat(index < size, "index < this.size")
+        return objects[index]
+    }
+
+    // -- OVERRIDES -- \\
     override fun iterator(): Iterator<Any?> = objects.iterator()
 
     override fun equals(other: Any?): Boolean = when {

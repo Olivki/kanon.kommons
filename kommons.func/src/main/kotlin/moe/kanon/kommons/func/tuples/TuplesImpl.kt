@@ -41,6 +41,8 @@ object Null : Tuple0 {
     override fun toString(): String = "Null"
 }
 
+fun tupleOf(): Tuple0 = Null
+
 /**
  * Represents a generic implementation of a [1-tuple][Tuple1].
  *
@@ -61,6 +63,8 @@ data class Single<out A>(override val a: A) : Tuple1<A> {
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, A1> Tuple1<A>.zipWith(that: Tuple1<A1>): Tuple2<Tuple1<A>, Tuple1<A1>> = this toT that
+
+fun <A> tupleOf(a: A): Tuple1<A> = Single(a)
 
 /**
  * Represents a generic implementation of a [2-tuple][Tuple2].
@@ -99,6 +103,8 @@ operator fun <A, B> Pair<A, B>.not(): Tuple2<A, B> = toTuple()
  */
 infix fun <A, B, A1, B1> Tuple2<A, B>.zipWith(that: Tuple2<A1, B1>): Tuple2<Tuple2<A, B>, Tuple2<A1, B1>> = this toT that
 
+fun <A, B> tupleOf(a: A, b: B): Tuple2<A, B> = Duad(a, b)
+
 /**
  * Represents a generic implementation of a [3-tuple][Tuple3].
  *
@@ -131,6 +137,8 @@ operator fun <A, B, C> Triple<A, B, C>.not(): Tuple3<A, B, C> = toTuple()
  */
 infix fun <A, B, C, A1, B1, C1> Tuple3<A, B, C>.zipWith(that: Tuple3<A1, B1, C1>): Tuple2<Tuple3<A, B, C>, Tuple3<A1, B1, C1>> = this toT that
 
+fun <A, B, C> tupleOf(a: A, b: B, c: C): Tuple3<A, B, C> = Triad(a, b, c)
+
 /**
  * Represents a generic implementation of a [4-tuple][Tuple4].
  *
@@ -151,6 +159,8 @@ data class Quadruple<out A, out B, out C, out D>(override val a: A, override val
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, A1, B1, C1, D1> Tuple4<A, B, C, D>.zipWith(that: Tuple4<A1, B1, C1, D1>): Tuple2<Tuple4<A, B, C, D>, Tuple4<A1, B1, C1, D1>> = this toT that
+
+fun <A, B, C, D> tupleOf(a: A, b: B, c: C, d: D): Tuple4<A, B, C, D> = Quadruple(a, b, c, d)
 
 /**
  * Represents a generic implementation of a [5-tuple][Tuple5].
@@ -173,6 +183,8 @@ data class Quintuple<out A, out B, out C, out D, out E>(override val a: A, overr
  */
 infix fun <A, B, C, D, E, A1, B1, C1, D1, E1> Tuple5<A, B, C, D, E>.zipWith(that: Tuple5<A1, B1, C1, D1, E1>): Tuple2<Tuple5<A, B, C, D, E>, Tuple5<A1, B1, C1, D1, E1>> = this toT that
 
+fun <A, B, C, D, E> tupleOf(a: A, b: B, c: C, d: D, e: E): Tuple5<A, B, C, D, E> = Quintuple(a, b, c, d, e)
+
 /**
  * Represents a generic implementation of a [6-tuple][Tuple6].
  *
@@ -193,6 +205,8 @@ data class Sextuple<out A, out B, out C, out D, out E, out F>(override val a: A,
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, A1, B1, C1, D1, E1, F1> Tuple6<A, B, C, D, E, F>.zipWith(that: Tuple6<A1, B1, C1, D1, E1, F1>): Tuple2<Tuple6<A, B, C, D, E, F>, Tuple6<A1, B1, C1, D1, E1, F1>> = this toT that
+
+fun <A, B, C, D, E, F> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F): Tuple6<A, B, C, D, E, F> = Sextuple(a, b, c, d, e, f)
 
 /**
  * Represents a generic implementation of a [7-tuple][Tuple7].
@@ -215,6 +229,8 @@ data class Septuple<out A, out B, out C, out D, out E, out F, out G>(override va
  */
 infix fun <A, B, C, D, E, F, G, A1, B1, C1, D1, E1, F1, G1> Tuple7<A, B, C, D, E, F, G>.zipWith(that: Tuple7<A1, B1, C1, D1, E1, F1, G1>): Tuple2<Tuple7<A, B, C, D, E, F, G>, Tuple7<A1, B1, C1, D1, E1, F1, G1>> = this toT that
 
+fun <A, B, C, D, E, F, G> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G): Tuple7<A, B, C, D, E, F, G> = Septuple(a, b, c, d, e, f, g)
+
 /**
  * Represents a generic implementation of a [8-tuple][Tuple8].
  *
@@ -235,6 +251,8 @@ data class Octuple<out A, out B, out C, out D, out E, out F, out G, out H>(overr
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, A1, B1, C1, D1, E1, F1, G1, H1> Tuple8<A, B, C, D, E, F, G, H>.zipWith(that: Tuple8<A1, B1, C1, D1, E1, F1, G1, H1>): Tuple2<Tuple8<A, B, C, D, E, F, G, H>, Tuple8<A1, B1, C1, D1, E1, F1, G1, H1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H): Tuple8<A, B, C, D, E, F, G, H> = Octuple(a, b, c, d, e, f, g, h)
 
 /**
  * Represents a generic implementation of a [9-tuple][Tuple9].
@@ -257,6 +275,8 @@ data class Nonuple<out A, out B, out C, out D, out E, out F, out G, out H, out I
  */
 infix fun <A, B, C, D, E, F, G, H, I, A1, B1, C1, D1, E1, F1, G1, H1, I1> Tuple9<A, B, C, D, E, F, G, H, I>.zipWith(that: Tuple9<A1, B1, C1, D1, E1, F1, G1, H1, I1>): Tuple2<Tuple9<A, B, C, D, E, F, G, H, I>, Tuple9<A1, B1, C1, D1, E1, F1, G1, H1, I1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I): Tuple9<A, B, C, D, E, F, G, H, I> = Nonuple(a, b, c, d, e, f, g, h, i)
+
 /**
  * Represents a generic implementation of a [10-tuple][Tuple10].
  *
@@ -277,6 +297,8 @@ data class Decuple<out A, out B, out C, out D, out E, out F, out G, out H, out I
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1> Tuple10<A, B, C, D, E, F, G, H, I, J>.zipWith(that: Tuple10<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1>): Tuple2<Tuple10<A, B, C, D, E, F, G, H, I, J>, Tuple10<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J): Tuple10<A, B, C, D, E, F, G, H, I, J> = Decuple(a, b, c, d, e, f, g, h, i, j)
 
 /**
  * Represents a generic implementation of a [11-tuple][Tuple11].
@@ -299,6 +321,8 @@ data class Undecuple<out A, out B, out C, out D, out E, out F, out G, out H, out
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1> Tuple11<A, B, C, D, E, F, G, H, I, J, K>.zipWith(that: Tuple11<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1>): Tuple2<Tuple11<A, B, C, D, E, F, G, H, I, J, K>, Tuple11<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K): Tuple11<A, B, C, D, E, F, G, H, I, J, K> = Undecuple(a, b, c, d, e, f, g, h, i, j, k)
+
 /**
  * Represents a generic implementation of a [12-tuple][Tuple12].
  *
@@ -319,6 +343,8 @@ data class Duodecuple<out A, out B, out C, out D, out E, out F, out G, out H, ou
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1> Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>.zipWith(that: Tuple12<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1>): Tuple2<Tuple12<A, B, C, D, E, F, G, H, I, J, K, L>, Tuple12<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L): Tuple12<A, B, C, D, E, F, G, H, I, J, K, L> = Duodecuple(a, b, c, d, e, f, g, h, i, j, k, l)
 
 /**
  * Represents a generic implementation of a [13-tuple][Tuple13].
@@ -341,6 +367,8 @@ data class Tredecuple<out A, out B, out C, out D, out E, out F, out G, out H, ou
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1> Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>.zipWith(that: Tuple13<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1>): Tuple2<Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M>, Tuple13<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M): Tuple13<A, B, C, D, E, F, G, H, I, J, K, L, M> = Tredecuple(a, b, c, d, e, f, g, h, i, j, k, l, m)
+
 /**
  * Represents a generic implementation of a [14-tuple][Tuple14].
  *
@@ -361,6 +389,8 @@ data class Quattuordecuple<out A, out B, out C, out D, out E, out F, out G, out 
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1> Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>.zipWith(that: Tuple14<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1>): Tuple2<Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N>, Tuple14<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N): Tuple14<A, B, C, D, E, F, G, H, I, J, K, L, M, N> = Quattuordecuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 
 /**
  * Represents a generic implementation of a [15-tuple][Tuple15].
@@ -383,6 +413,8 @@ data class Quindecuple<out A, out B, out C, out D, out E, out F, out G, out H, o
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1> Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>.zipWith(that: Tuple15<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1>): Tuple2<Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>, Tuple15<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O): Tuple15<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O> = Quindecuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+
 /**
  * Represents a generic implementation of a [16-tuple][Tuple16].
  *
@@ -403,6 +435,8 @@ data class Sexdecuple<out A, out B, out C, out D, out E, out F, out G, out H, ou
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1> Tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>.zipWith(that: Tuple16<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1>): Tuple2<Tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>, Tuple16<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P): Tuple16<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P> = Sexdecuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 
 /**
  * Represents a generic implementation of a [17-tuple][Tuple17].
@@ -425,6 +459,8 @@ data class Septendecuple<out A, out B, out C, out D, out E, out F, out G, out H,
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1> Tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>.zipWith(that: Tuple17<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1>): Tuple2<Tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q>, Tuple17<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q): Tuple17<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q> = Septendecuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
+
 /**
  * Represents a generic implementation of a [18-tuple][Tuple18].
  *
@@ -445,6 +481,8 @@ data class Octodecuple<out A, out B, out C, out D, out E, out F, out G, out H, o
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1> Tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>.zipWith(that: Tuple18<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1>): Tuple2<Tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R>, Tuple18<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R): Tuple18<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R> = Octodecuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 
 /**
  * Represents a generic implementation of a [19-tuple][Tuple19].
@@ -467,6 +505,8 @@ data class Novemdecuple<out A, out B, out C, out D, out E, out F, out G, out H, 
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1> Tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>.zipWith(that: Tuple19<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1>): Tuple2<Tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S>, Tuple19<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S): Tuple19<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S> = Novemdecuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
+
 /**
  * Represents a generic implementation of a [20-tuple][Tuple20].
  *
@@ -487,6 +527,8 @@ data class Vigintuple<out A, out B, out C, out D, out E, out F, out G, out H, ou
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1> Tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>.zipWith(that: Tuple20<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1>): Tuple2<Tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>, Tuple20<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S, t: T): Tuple20<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T> = Vigintuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 
 /**
  * Represents a generic implementation of a [21-tuple][Tuple21].
@@ -509,6 +551,8 @@ data class Unvigintuple<out A, out B, out C, out D, out E, out F, out G, out H, 
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1> Tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>.zipWith(that: Tuple21<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1>): Tuple2<Tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U>, Tuple21<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S, t: T, u: U): Tuple21<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U> = Unvigintuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
+
 /**
  * Represents a generic implementation of a [22-tuple][Tuple22].
  *
@@ -529,6 +573,8 @@ data class Duovigintuple<out A, out B, out C, out D, out E, out F, out G, out H,
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1> Tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>.zipWith(that: Tuple22<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1>): Tuple2<Tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V>, Tuple22<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S, t: T, u: U, v: V): Tuple22<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> = Duovigintuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 
 /**
  * Represents a generic implementation of a [23-tuple][Tuple23].
@@ -551,6 +597,8 @@ data class Trevigintuple<out A, out B, out C, out D, out E, out F, out G, out H,
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1> Tuple23<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W>.zipWith(that: Tuple23<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1>): Tuple2<Tuple23<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W>, Tuple23<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1>> = this toT that
 
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S, t: T, u: U, v: V, w: W): Tuple23<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> = Trevigintuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
+
 /**
  * Represents a generic implementation of a [24-tuple][Tuple24].
  *
@@ -566,6 +614,10 @@ data class Quattuorvigintuple<out A, out B, out C, out D, out E, out F, out G, o
  * Returns a [tuple][Tuple2] that contains `this` tuple and [that] tuple.
  */
 infix fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1, X1> Tuple24<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X>.zipWith(that: Tuple24<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1, X1>): Tuple2<Tuple24<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X>, Tuple24<A1, B1, C1, D1, E1, F1, G1, H1, I1, J1, K1, L1, M1, N1, O1, P1, Q1, R1, S1, T1, U1, V1, W1, X1>> = this toT that
+
+fun <A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X> tupleOf(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: I, j: J, k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S, t: T, u: U, v: V, w: W, x: X): Tuple24<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X> = Quattuorvigintuple(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
+
+fun tupleOf(vararg objects: Any?): TupleN = TupleN(*objects)
 
 object Tuple {
     /**

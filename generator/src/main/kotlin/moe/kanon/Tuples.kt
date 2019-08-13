@@ -29,6 +29,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import kotlin.reflect.typeOf
 
 const val MAX_TUPLES = 24
 private const val PACKAGE = "moe.kanon.kommons.func.tuples"
@@ -327,6 +328,7 @@ private fun generateInterfaces(dir: Path) {
     writeOut(file)
 }
 
+@UseExperimental(ExperimentalStdlibApi::class)
 private fun generateImplementations(dir: Path) {
     val nullableAny = Any::class.asTypeName().copy(nullable = true)
 
@@ -357,6 +359,11 @@ private fun generateImplementations(dir: Path) {
                 addStatement("return \"Null\"")
                 returns<String>()
             }
+        }
+
+        func("tupleOf") {
+            returns(clazz(PACKAGE, "Tuple0"))
+            addStatement("return Null")
         }
 
         for (i in 1..MAX_TUPLES) {
@@ -529,6 +536,19 @@ private fun generateImplementations(dir: Path) {
                 )
                 addStatement("return this toT that")
             }
+
+            func("tupleOf") {
+                addTypeVariables(rawTypes)
+                for (type in rawTypes) param(type.name.toLowerCase(), type)
+                returns(curTupleInterfaceClass)
+                addStatement("return $curTuple(${rawTypes.joinToString { it.name.toLowerCase() }})")
+            }
+        }
+
+        func("tupleOf") {
+            param("objects", nullableAny, KModifier.VARARG)
+            returns(clazz(PACKAGE, "TupleN"))
+            addStatement("return TupleN(*objects)")
         }
 
         `object`("Tuple") {
