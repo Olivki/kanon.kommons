@@ -1,13 +1,4 @@
-include(
-    "core",
-    "generator",
-    "kommons.collections",
-    "kommons.func",
-    "kommons.io",
-    "kommons.lang",
-    "kommons.reflection",
-    "kommons.semver"
-)
+include("core", "generator", "collections", "func", "io", "lang", "reflection", "semver")
 
 rootProject.name = "kanon.kommons"
 
