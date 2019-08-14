@@ -69,11 +69,7 @@ enum class SortOrder { ASCENDING, DESCENDING, NONE }
 /**
  * Returns the hash-code from combining all the elements in `this` iterable.
  */
-fun Iterable<*>.calculateHashCode(): Int {
-    var hashCode = 1
-    for (e in this) hashCode = 31 * hashCode + (e?.hashCode() ?: 0)
-    return hashCode
-}
+fun Iterable<*>.calculateHashCode(): Int = fold(1) { hash, element -> 31 * hash + (element?.hashCode() ?: 0) }
 
 /**
  * Returns `true` if `this` iterable contains the exact same elements as the specified [other] iterable, `false`
@@ -250,218 +246,414 @@ fun <T> Iterable<T>.sampleSize(n: Int): List<T> {
  * @param [startIndex] the index at which the modification should start
  * @param [deleteCount] the amount of elements to remove, starting from [startIndex]
  */
-@JvmOverloads fun <T> Iterable<T>.shank(vararg elements: T, startIndex: Int = 0, deleteCount: Int = 0): List<T> {
+@JvmOverloads
+fun <T> Iterable<T>.shank(vararg elements: T, startIndex: Int = 0, deleteCount: Int = 0): List<T> {
     val list = this.toList()
     return list.slice(0 until startIndex) + elements + list.drop(startIndex + deleteCount)
 }
 
-
-
-// TODO: Documentation V
 // -- ARRAY CONVERSION FUNCTIONS -- \\
 // mapTo
-inline fun <T, R> Iterable<T>.mapTo(target: Array<R>, transformer: (T) -> R): Array<R> {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T, R> Iterable<T>.mapTo(destination: Array<R>, transform: (T) -> R): Array<R> {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: BooleanArray, transformer: (T) -> Boolean): BooleanArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: BooleanArray, transform: (T) -> Boolean): BooleanArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: CharArray, transformer: (T) -> Char): CharArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: CharArray, transform: (T) -> Char): CharArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: ByteArray, transformer: (T) -> Byte): ByteArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: ByteArray, transform: (T) -> Byte): ByteArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: ShortArray, transformer: (T) -> Short): ShortArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: ShortArray, transform: (T) -> Short): ShortArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: IntArray, transformer: (T) -> Int): IntArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: IntArray, transform: (T) -> Int): IntArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: LongArray, transformer: (T) -> Long): LongArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: LongArray, transform: (T) -> Long): LongArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: FloatArray, transformer: (T) -> Float): FloatArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: FloatArray, transform: (T) -> Float): FloatArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapTo(target: DoubleArray, transformer: (T) -> Double): DoubleArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(e)
-    return target
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to the
+ * given [destination].
+ */
+inline fun <T> Iterable<T>.mapTo(destination: DoubleArray, transform: (T) -> Double): DoubleArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(e)
+    return destination
 }
+
+// map...Array
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [Array].
+ */
+inline fun <T, R> Iterable<T>.mapToTypedArray(transform: (T) -> R): Array<R> = mapTo(createArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [BooleanArray].
+ */
+inline fun <T> Iterable<T>.mapToBooleanArray(transform: (T) -> Boolean): BooleanArray =
+    mapTo(BooleanArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [CharArray].
+ */
+inline fun <T> Iterable<T>.mapToCharArray(transform: (T) -> Char): CharArray = mapTo(CharArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [ByteArray].
+ */
+inline fun <T> Iterable<T>.mapToByteArray(transform: (T) -> Byte): ByteArray = mapTo(ByteArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [ShortArray].
+ */
+inline fun <T> Iterable<T>.mapToShortArray(transform: (T) -> Short): ShortArray =
+    mapTo(ShortArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [IntArray].
+ */
+inline fun <T> Iterable<T>.mapToIntArray(transform: (T) -> Int): IntArray = mapTo(IntArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [LongArray].
+ */
+inline fun <T> Iterable<T>.mapToLongArray(transform: (T) -> Long): LongArray = mapTo(LongArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [FloatArray].
+ */
+inline fun <T> Iterable<T>.mapToFloatArray(transform: (T) -> Float): FloatArray =
+    mapTo(FloatArray(this.size), transform)
+
+/**
+ * Applies the given [transform] function to each element of the original collection and appends the results to a
+ * newly created [DoubleArray].
+ */
+inline fun <T> Iterable<T>.mapToDoubleArray(transform: (T) -> Double): DoubleArray =
+    mapTo(DoubleArray(this.size), transform)
 
 // mapIndexedTo
-inline fun <T, R> Iterable<T>.mapIndexedTo(target: Array<R>, transformer: (i: Int, e: T) -> R): Array<R> {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T, R> Iterable<T>.mapIndexedTo(destination: Array<R>, transform: (i: Int, e: T) -> R): Array<R> {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: BooleanArray, transformer: (i: Int, e: T) -> Boolean): BooleanArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: BooleanArray, transform: (i: Int, e: T) -> Boolean): BooleanArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: CharArray, transformer: (i: Int, e: T) -> Char): CharArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: CharArray, transform: (i: Int, e: T) -> Char): CharArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: ByteArray, transformer: (i: Int, e: T) -> Byte): ByteArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: ByteArray, transform: (i: Int, e: T) -> Byte): ByteArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: ShortArray, transformer: (i: Int, e: T) -> Short): ShortArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: ShortArray, transform: (i: Int, e: T) -> Short): ShortArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: IntArray, transformer: (i: Int, e: T) -> Int): IntArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: IntArray, transform: (i: Int, e: T) -> Int): IntArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: LongArray, transformer: (i: Int, e: T) -> Long): LongArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: LongArray, transform: (i: Int, e: T) -> Long): LongArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: FloatArray, transformer: (i: Int, e: T) -> Float): FloatArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: FloatArray, transform: (i: Int, e: T) -> Float): FloatArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
-inline fun <T> Iterable<T>.mapIndexedTo(target: DoubleArray, transformer: (i: Int, e: T) -> Double): DoubleArray {
-    requireThat(this.size <= target.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) target[i] = transformer(i, e)
-    return target
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to the given [destination].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedTo(destination: DoubleArray, transform: (i: Int, e: T) -> Double): DoubleArray {
+    requireThat(this.size <= destination.size, "this.size <= target.size")
+    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    return destination
 }
 
 // mapIndexed...Array
-inline fun <T, R> Iterable<T>.mapIndexedArray(transformer: (i: Int, e: T) -> R): Array<R> =
-    mapIndexedTo(createArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [Array].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T, R> Iterable<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> =
+    mapIndexedTo(createArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedBooleanArray(transformer: (i: Int, e: T) -> Boolean): BooleanArray =
-    mapIndexedTo(BooleanArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [BooleanArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToBooleanArray(transform: (i: Int, e: T) -> Boolean): BooleanArray =
+    mapIndexedTo(BooleanArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedCharArray(transformer: (i: Int, e: T) -> Char): CharArray =
-    mapIndexedTo(CharArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [CharArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToCharArray(transform: (i: Int, e: T) -> Char): CharArray =
+    mapIndexedTo(CharArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedByteArray(transformer: (i: Int, e: T) -> Byte): ByteArray =
-    mapIndexedTo(ByteArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [ByteArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToByteArray(transform: (i: Int, e: T) -> Byte): ByteArray =
+    mapIndexedTo(ByteArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedShortArray(transformer: (i: Int, e: T) -> Short): ShortArray =
-    mapIndexedTo(ShortArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [ShortArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToShortArray(transform: (i: Int, e: T) -> Short): ShortArray =
+    mapIndexedTo(ShortArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedIntArray(transformer: (i: Int, e: T) -> Int): IntArray =
-    mapIndexedTo(IntArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [IntArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToIntArray(transform: (i: Int, e: T) -> Int): IntArray =
+    mapIndexedTo(IntArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedLongArray(transformer: (i: Int, e: T) -> Long): LongArray =
-    mapIndexedTo(LongArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [LongArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToLongArray(transform: (i: Int, e: T) -> Long): LongArray =
+    mapIndexedTo(LongArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedFloatArray(transformer: (i: Int, e: T) -> Float): FloatArray =
-    mapIndexedTo(FloatArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [FloatArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToFloatArray(transform: (i: Int, e: T) -> Float): FloatArray =
+    mapIndexedTo(FloatArray(this.size), transform)
 
-inline fun <T> Iterable<T>.mapIndexedDoubleArray(transformer: (i: Int, e: T) -> Double): DoubleArray =
-    mapIndexedTo(DoubleArray(this.size), transformer)
-
-// map...Array
-inline fun <T, R> Iterable<T>.mapArray(transformer: (T) -> R): Array<R> = mapTo(createArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapBooleanArray(transformer: (T) -> Boolean): BooleanArray =
-    mapTo(BooleanArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapCharArray(transformer: (T) -> Char): CharArray = mapTo(CharArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapByteArray(transformer: (T) -> Byte): ByteArray = mapTo(ByteArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapShortArray(transformer: (T) -> Short): ShortArray =
-    mapTo(ShortArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapIntArray(transformer: (T) -> Int): IntArray = mapTo(IntArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapLongArray(transformer: (T) -> Long): LongArray = mapTo(LongArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapFloatArray(transformer: (T) -> Float): FloatArray =
-    mapTo(FloatArray(this.size), transformer)
-
-inline fun <T> Iterable<T>.mapDoubleArray(transformer: (T) -> Double): DoubleArray =
-    mapTo(DoubleArray(this.size), transformer)
+/**
+ * Applies the given [transform] function to each element and its index in the original collection and appends the
+ * results to a newly created [DoubleArray].
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Iterable<T>.mapIndexedToDoubleArray(transform: (i: Int, e: T) -> Double): DoubleArray =
+    mapIndexedTo(DoubleArray(this.size), transform)
 
 // to...Array
 /**
  * Returns a new generic [Array] populated by the elements of `this` iterable.
  */
-fun <T> Iterable<T>.toTypedArray(): Array<T> = mapArray { it }
+fun <T> Iterable<T>.toTypedArray(): Array<T> = mapToTypedArray { it }
 
 /**
  * Returns a new [BooleanArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Boolean>.toBooleanArray(): BooleanArray = mapBooleanArray { it }
+fun Iterable<Boolean>.toBooleanArray(): BooleanArray = mapToBooleanArray { it }
 
 /**
  * Returns a new [CharArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Char>.toCharArray(): CharArray = mapCharArray { it }
+fun Iterable<Char>.toCharArray(): CharArray = mapToCharArray { it }
 
 /**
  * Returns a new [ByteArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Byte>.toByteArray(): ByteArray = mapByteArray { it }
+fun Iterable<Byte>.toByteArray(): ByteArray = mapToByteArray { it }
 
 /**
  * Returns a new [ShortArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Short>.toShortArray(): ShortArray = mapShortArray { it }
+fun Iterable<Short>.toShortArray(): ShortArray = mapToShortArray { it }
 
 /**
  * Returns a new [IntArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Int>.toIntArray(): IntArray = mapIntArray { it }
+fun Iterable<Int>.toIntArray(): IntArray = mapToIntArray { it }
 
 /**
  * Returns a new [LongArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Long>.toLongArray(): LongArray = mapLongArray { it }
+fun Iterable<Long>.toLongArray(): LongArray = mapToLongArray { it }
 
 /**
  * Returns a new [FloatArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Float>.toFloatArray(): FloatArray = mapFloatArray { it }
+fun Iterable<Float>.toFloatArray(): FloatArray = mapToFloatArray { it }
 
 /**
  * Returns a new [DoubleArray] populated by the elements of `this` iterable.
  */
-fun Iterable<Double>.toDoubleArray(): DoubleArray = mapDoubleArray { it }
+fun Iterable<Double>.toDoubleArray(): DoubleArray = mapToDoubleArray { it }
