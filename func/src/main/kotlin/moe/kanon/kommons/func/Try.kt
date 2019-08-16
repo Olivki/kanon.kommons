@@ -80,6 +80,15 @@ sealed class Try<out T> : Identifiable {
         }
 
     /**
+     * Returns [value][Success.item] if `this` is a [success][Success] or throws the [cause][Failure.cause] if `this`
+     * is a [failure][Failure].
+     */
+    fun unwrap(): T = when (this) {
+        is Failure -> throw cause
+        is Success -> item
+    }
+
+    /**
      * Returns the result of invoking either [ifFailure] or [ifSuccess], depending on whether `this` is a
      * [success][Success] or a [failure][Failure].
      *
