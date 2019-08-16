@@ -3,7 +3,7 @@ plugins {
 }
 
 description = "Provides some basic utilities for working with reflection in Kotlin"
-version = "0.3.1"
+version = "0.3.2"
 extra["packageName"] = "reflection"
 
 dependencies {

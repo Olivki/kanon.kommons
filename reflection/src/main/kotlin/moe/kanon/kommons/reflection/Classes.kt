@@ -26,7 +26,8 @@ import kotlin.reflect.full.memberProperties
 /**
  * Returns whether or nor `this` [class][Class] is a [kotlin class][KClass].
  */
-val Class<*>.isKotlinClass: Boolean get() = this.annotations.any { it.javaClass.name == "kotlin.Metadata" }
+val Class<*>.isKotlinClass: Boolean
+    get() = this.declaredAnnotations.any { it.annotationClass.qualifiedName == "kotlin.Metadata" }
 
 val KClass<*>.isKotlinClass: Boolean get() = this.java.isKotlinClass
 
