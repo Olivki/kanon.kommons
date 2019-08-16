@@ -32,9 +32,17 @@ val Class<*>.isKotlinClass: Boolean
 val KClass<*>.isKotlinClass: Boolean get() = this.java.isKotlinClass
 
 /**
- * Returns whether or not `this` class is an `object`.
+ * Returns `true` if `this` [class][Class] is a [Kotlin object](https://kotlinlang.org/docs/tutorials/kotlin-for-py/objects-and-companion-objects.html),
+ * otherwise `false`.
  */
-val KClass<*>.isObject: Boolean get() = this.objectInstance != null
+val Class<*>.isKotlinObject: Boolean
+    get() = this.isKotlinClass && this.declaredFields.any { it.type == this && it.name == "INSTANCE" }
+
+/**
+ * Returns `true` if `this` [class][Class] is a [Kotlin object](https://kotlinlang.org/docs/tutorials/kotlin-for-py/objects-and-companion-objects.html),
+ * otherwise `false`.
+ */
+val KClass<*>.isObject: Boolean get() = this.java.isKotlinObject
 
 fun classOf(
     fqName: String,
