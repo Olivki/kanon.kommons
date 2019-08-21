@@ -251,7 +251,7 @@ class KServiceLoader<S : Any> private constructor(
  * Note that unlike the factory function located in the companion object of [KServiceLoader] which uses the
  * [system-class-loader][ClassLoader.getSystemClassLoader], this function will use the class-loader of the invoker.
  */
-inline fun <T, reified S : Any> T.loadServices(
+inline fun <reified S : Any> Any?.loadServices(
     loader: ClassLoader = this?.javaClass?.classLoader ?: ClassLoader.getSystemClassLoader(),
     noinline invoker: (KClass<S>) -> S = { it.createInstance() }
 ): KServiceLoader<S> = KServiceLoader(loader, invoker)
