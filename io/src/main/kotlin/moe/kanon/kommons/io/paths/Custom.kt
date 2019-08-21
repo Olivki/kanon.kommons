@@ -48,6 +48,7 @@ import java.nio.file.PathMatcher
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.nio.file.StandardOpenOption.*
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileAttribute
 import java.nio.file.attribute.FileTime
@@ -398,8 +399,11 @@ var Path.extension: String
  * [checkDelete(String)][SecurityManager.checkDelete] function is invoked to check delete access if the file is opened
  * with the [DELETE_ON_CLOSE][StandardOpenOption.DELETE_ON_CLOSE] option.
  */
-fun Path.writeString(string: CharSequence, charset: Charset, vararg options: OpenOption): Path =
-    this.writeBytes(string.toString().toByteArray(charset), *options)
+fun Path.writeString(
+    string: CharSequence,
+    charset: Charset,
+    vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)
+): Path = this.writeBytes(string.toString().toByteArray(charset), *options)
 
 /**
  * Writes the given [string] to `this` [file][Path].
@@ -440,8 +444,10 @@ fun Path.writeString(string: CharSequence, charset: Charset, vararg options: Ope
  * [checkDelete(String)][SecurityManager.checkDelete] function is invoked to check delete access if the file is opened
  * with the [DELETE_ON_CLOSE][StandardOpenOption.DELETE_ON_CLOSE] option.
  */
-fun Path.writeString(string: String, vararg options: OpenOption): Path =
-    this.writeString(string, StandardCharsets.UTF_8, *options)
+fun Path.writeString(
+    string: String,
+    vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)
+): Path = this.writeString(string, StandardCharsets.UTF_8, *options)
 
 /**
  * Reads all characters from `this` [file][Path] into a [string][String], decoding from bytes to characters using the
@@ -466,7 +472,8 @@ fun Path.writeString(string: String, vararg options: OpenOption): Path =
  *
  * @see readLines
  */
-@JvmOverloads fun Path.readString(charset: Charset = StandardCharsets.UTF_8): String {
+@JvmOverloads
+fun Path.readString(charset: Charset = StandardCharsets.UTF_8): String {
     requireFileExistence(this)
     return this.readBytes().toString(charset)
 }
@@ -630,9 +637,9 @@ inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> =
  *  path.linesAsSequence(StandardCharsets.UTF_8)
  * ```
  *
- * @throws IOException If an I/O error occurs opening the file.
- * @throws SecurityException In the case of the default provider, and a security manager is installed, the
- * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
+ * @throws IOException if an I/O error occurs opening the file
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
  *
  * @see Path.linesSequence
  * @see readLines
@@ -671,7 +678,8 @@ val Path.lines: List<String> get() = this.readLines()
  * @see java.io.BufferedReader.lines
  */
 @Throws(IOException::class)
-@JvmOverloads fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
+@JvmOverloads
+fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
     val reader = this.newBufferedReader(charset)
     try {
         return reader.lineSequence()
@@ -856,7 +864,8 @@ fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
  * @exception NoSuchFileException if `this` file doesn't actually exist
  * @exception NotDirectoryException if `this` file is **not** a directory
  */
-@JvmOverloads fun Path.cleanDirectory(
+@JvmOverloads
+fun Path.cleanDirectory(
     globPattern: String = "*",
     maxDepth: Int = Int.MAX_VALUE,
     deleteDirectories: Boolean = false,
@@ -920,7 +929,8 @@ val Path.directorySize: BigInteger
  *
  * @throws [NoSuchFileException] if `this` file does *not* exist
  */
-@JvmOverloads inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
+@JvmOverloads
+inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
     requireFileExistence(this)
     for (line in readLines(charset)) action(line)
 }
@@ -1020,7 +1030,8 @@ fun Path.getOrCreateChildDirectory(name: String, vararg attributes: FileAttribut
  * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
  * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
  */
-@JvmOverloads fun Path.createDateDirectories(date: LocalDate = LocalDate.now()): Path {
+@JvmOverloads
+fun Path.createDateDirectories(date: LocalDate = LocalDate.now()): Path {
     requireDirectory(this)
     val text = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
     return this.resolve(text).createDirectories()
@@ -1046,7 +1057,8 @@ fun Path.getOrCreateChildDirectory(name: String, vararg attributes: FileAttribut
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`.
  * @throws [NotDirectoryException] if the `Path` receiver is *not* a directory.
  */
-@JvmOverloads fun Path.createDateTimeDirectories(dateTime: LocalDateTime = LocalDateTime.now()): Path {
+@JvmOverloads
+fun Path.createDateTimeDirectories(dateTime: LocalDateTime = LocalDateTime.now()): Path {
     requireDirectory(this)
     val text = dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd/HH/mm/ss"))
     return this.resolve(text).createDirectories()
@@ -1097,9 +1109,9 @@ fun Path.overwriteBytesWith(source: Path): Path {
     requireFileExistence(source) { "Source does not exist! <$source>" }
     return this.writeBytes(
         source.readBytes(),
-        StandardOpenOption.WRITE,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING
+        WRITE,
+        CREATE,
+        TRUNCATE_EXISTING
     )
 }
 
@@ -1107,7 +1119,8 @@ fun Path.overwriteBytesWith(source: Path): Path {
  * Returns a new a [FileSystem] based on `this` file, with the specified [env] variables and the specified [classLoader].
  */
 @JvmName("createFileSystemFrom")
-@JvmOverloads fun Path.createFileSystem(
+@JvmOverloads
+fun Path.createFileSystem(
     env: Map<String, String> = emptyMap(),
     classLoader: ClassLoader? = null
 ): FileSystem = FileSystems.newFileSystem(this.toUri(), env, classLoader)

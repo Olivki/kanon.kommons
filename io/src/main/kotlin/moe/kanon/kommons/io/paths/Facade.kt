@@ -56,6 +56,7 @@ import java.nio.file.SecureDirectoryStream
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.nio.file.StandardOpenOption.*
 import java.nio.file.attribute.BasicFileAttributeView
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.DosFileAttributes
@@ -67,6 +68,7 @@ import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFileAttributeView
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.UserPrincipal
+import java.util.*
 import java.util.stream.Stream
 import kotlin.streams.asSequence
 
@@ -100,7 +102,8 @@ typealias PathVisitor = FileVisitor<Path>
  * @throws SecurityException in the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  */
-fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInputStream(this, *options)
+fun Path.newInputStream(vararg options: OpenOption = arrayOf(READ)): InputStream =
+    Files.newInputStream(this, *options)
 
 /**
  * Opens *(or creates)* `this` [file][Path], returning an output stream that may be used to write bytes to the file.
@@ -145,7 +148,8 @@ fun Path.newInputStream(vararg options: OpenOption): InputStream = Files.newInpu
  * [checkDelete(String)][SecurityManager.checkDelete] method is invoked to check delete access if the file is opened
  * with the `DELETE_ON_CLOSE` option.
  */
-fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOutputStream(this, *options)
+fun Path.newOutputStream(vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)): OutputStream =
+    Files.newOutputStream(this, *options)
 
 /**
  * Opens or creates `this` [file][Path], returning a seekable byte channel to access `this` file.
@@ -197,7 +201,7 @@ fun Path.newOutputStream(vararg options: OpenOption): OutputStream = Files.newOu
  *
  * @see java.nio.channels.FileChannel.open
  */
-fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribute<*>): ByteChannel =
+fun Path.newByteChannel(options: Set<OpenOption> = EnumSet.of(READ), vararg attributes: FileAttribute<*>): ByteChannel =
     Files.newByteChannel(this, options.toMutableSet(), *attributes)
 
 /**
@@ -219,7 +223,7 @@ fun Path.newByteChannel(options: Set<OpenOption>, vararg attributes: FileAttribu
  *
  * @see java.nio.channels.FileChannel.open
  */
-fun Path.newByteChannel(vararg options: OpenOption): ByteChannel = Files.newByteChannel(this, *options)
+fun Path.newByteChannel(vararg options: OpenOption = arrayOf(READ)): ByteChannel = Files.newByteChannel(this, *options)
 
 /**
  * A [DirectoryStream Filter][DirectoryStream.Filter] that accepts *all* path instances.
@@ -435,7 +439,8 @@ fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path = Files.cr
  *
  * @see Files.createTempFile
  */
-@JvmOverloads fun Path.createTempFile(
+@JvmOverloads
+fun Path.createTempFile(
     prefix: String? = null,
     suffix: String? = null,
     vararg attributes: FileAttribute<*>
@@ -467,7 +472,8 @@ fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path = Files.cr
  * @throws SecurityException in the case of the default provider, and a security manager is installed, its
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file
  */
-@JvmOverloads fun createTmpFile(
+@JvmOverloads
+fun createTmpFile(
     prefix: String? = null,
     suffix: String? = null,
     vararg attributes: FileAttribute<*>
@@ -505,7 +511,8 @@ fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path = Files.cr
  *
  * @see Files.createTempDirectory
  */
-@JvmOverloads fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+@JvmOverloads
+fun Path.createTempDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
     Files.createTempDirectory(this, name, *attributes)
 
 /**
@@ -531,7 +538,8 @@ fun Path.createDirectories(vararg attributes: FileAttribute<*>): Path = Files.cr
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access when creating the
  * directory
  */
-@JvmOverloads fun createTmpDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
+@JvmOverloads
+fun createTmpDirectory(name: String? = null, vararg attributes: FileAttribute<*>): Path =
     Files.createTempDirectory(name, *attributes)
 
 /**
@@ -604,7 +612,7 @@ fun Path.readSymbolicLink(): Path = Files.readSymbolicLink(this)
  * [LinkPermission]`("hard")` or its [checkWrite(String)][SecurityManager.checkWrite] method denies write access
  * to either the link or the existing file.
  */
-infix fun Path.createLinkTo(existing: Path): Path = Files.createLink(this, existing)
+fun Path.createLinkTo(existing: Path): Path = Files.createLink(this, existing)
 
 /**
  * Deletes `this` [file][Path].
@@ -700,17 +708,17 @@ fun Path.deleteIfExists(): Boolean = Files.deleteIfExists(this)
  * Alternatively, suppose we want to move `this` [file][Path] to new directory, keeping the same file name, and replacing
  * any existing file of that name in the directory:
  *
- * ```Kotlin
+ * ```kotlin
  *     val source: Path = ...
  *     val newDir: Path = ...
  *     source.moveTo(newDir, keepName = true, StandardCopyOptions.REPLACE_EXISTING)
  * ```
  *
- * @param target the path to the target file. *(may be associated with a different provider to the source path)*
+ * @param [target] the path to the target file. *(may be associated with a different provider to the source path)*
  * @param [keepName] whether or not the name of `this` file should be kept when moving it
- * @param options options specifying how the move should be done.
+ * @param [options] options specifying how the move should be done.
  *
- * @return The path to the target file.
+ * @return the path to the target file.
  *
  * @throws UnsupportedOperationException if the array contains a copy option that is not supported.
  * @throws FileAlreadyExistsException If the target file exists but cannot be replaced because the `REPLACE_EXISTING`
@@ -771,7 +779,7 @@ fun Path.moveTo(target: Path, keepName: Boolean, vararg options: CopyOption): Pa
  * Alternatively, suppose we want to move `this` [file][Path] to new directory, keeping the same file name, and replacing
  * any existing file of that name in the directory:
  *
- * ```Kotlin
+ * ```kotlin
  *     val source: Path = ...
  *     val newDir: Path = ...
  *     source.moveTo(newDir, keepName = true, StandardCopyOptions.REPLACE_EXISTING)
@@ -911,7 +919,7 @@ fun Path.renameTo(name: String, vararg options: CopyOption): Path =
  * [FileStore], or [FileStoreAttributeView] objects obtained from it, continue to depend on the existence of the file.
  * In particular the behavior is not defined for the case that the file is deleted or moved to a different file store.
  *
- * @return The file store where the file is stored.
+ * @return the file store where the file is stored.
  *
  * @throws IOException if an I/O error occurs.
  * @throws SecurityException in the case of the default provider, and a security manager is installed, the
@@ -1697,7 +1705,8 @@ val Path.isExecutable: Boolean get() = Files.isExecutable(this)
  *
  * @see Path.readLines
  */
-@JvmOverloads fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
+@JvmOverloads
+fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
     Files.newBufferedReader(this, charset)
 
 /**
@@ -1725,8 +1734,10 @@ val Path.isExecutable: Boolean get() = Files.isExecutable(this)
  *
  * @see Path.writeBytes
  */
-fun Path.newBufferedWriter(charset: Charset, vararg options: OpenOption): BufferedWriter =
-    Files.newBufferedWriter(this, charset, *options)
+fun Path.newBufferedWriter(
+    charset: Charset,
+    vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)
+): BufferedWriter = Files.newBufferedWriter(this, charset, *options)
 
 /**
  * Opens *(or creates it if it does not exist yet)* `this` [file][Path] for writing, returning a [BufferedWriter] that
@@ -1752,7 +1763,7 @@ fun Path.newBufferedWriter(charset: Charset, vararg options: OpenOption): Buffer
  *
  * @see Path.writeBytes
  */
-fun Path.newBufferedWriter(vararg options: OpenOption): BufferedWriter =
+fun Path.newBufferedWriter(vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)): BufferedWriter =
     Files.newBufferedWriter(this, StandardCharsets.UTF_8, *options)
 
 /**
@@ -1910,7 +1921,10 @@ fun Path.readBytes(): ByteArray = Files.readAllBytes(this)
  * @throws SecurityException in the case of the default provider, and a security manager is  installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file
  */
-fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path = Files.write(this, bytes, *options)
+fun Path.writeBytes(
+    bytes: ByteArray,
+    vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)
+): Path = Files.write(this, bytes, *options)
 
 /**
  * Writes the given [lines] of text to `this` [file][Path].
@@ -1941,7 +1955,7 @@ fun Path.writeBytes(bytes: ByteArray, vararg options: OpenOption): Path = Files.
 fun Path.writeLines(
     lines: Iterable<CharSequence>,
     charset: Charset,
-    vararg options: OpenOption
+    vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)
 ): Path = Files.write(this, lines, charset, *options)
 
 /**
@@ -1969,8 +1983,10 @@ fun Path.writeLines(
  * @throws SecurityException in the case of the default provider, and a security manager is installed, the
  * [checkWrite(String)][SecurityManager.checkWrite] method is invoked to check write access to the file
  */
-fun Path.writeLines(lines: Iterable<CharSequence>, vararg options: OpenOption): Path =
-    Files.write(this, lines, *options)
+fun Path.writeLines(
+    lines: Iterable<CharSequence>,
+    vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)
+): Path = Files.write(this, lines, *options)
 
 /**
  * Returns a lazily populated [Sequence], the elements of which are the entries of this directory, and the entries of
@@ -2043,7 +2059,8 @@ val Path.allEntries: Sequence<Path> get() = this.walk()
  * provider, the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory.
  * @throws IOException if an I/O error is thrown by a visitor method.
  */
-@JvmOverloads fun Path.walkFileTree(
+@JvmOverloads
+fun Path.walkFileTree(
     options: Set<FileVisitOption> = emptySet(),
     maxDepth: Int = Int.MAX_VALUE,
     visitor: PathVisitor
@@ -2105,5 +2122,6 @@ val Path.allEntries: Sequence<Path> get() = this.walk()
  * the [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the directory
  * @throws IOException if an I/O error is thrown when accessing the starting file
  */
-@JvmOverloads fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): Sequence<Path> =
+@JvmOverloads
+fun Path.walk(maxDepth: Int = Int.MAX_VALUE, vararg options: FileVisitOption): Sequence<Path> =
     Files.walk(this, maxDepth, *options).asSequence()

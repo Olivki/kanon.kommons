@@ -66,11 +66,5 @@ gradle-app.setting
 !/appender.jar
 /logs/
 /reflection/src/test/kotlin/moe/kanon/kommons/reflection/Ugly.kt
-/generator/build/
-/collections/build/
-/func/build/
-/io/build/
-/lang/build/
-/reflection/build/
-/semver/build/
-/core/build/
+/build/
+*/build/
