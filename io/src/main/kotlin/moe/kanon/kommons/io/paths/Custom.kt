@@ -350,7 +350,7 @@ var Path.simpleName: String
  */
 var Path.extension: String
     get() = when {
-        this.name.substringBeforeLast('.') != name -> name.substringBeforeLast('.')
+        this.name.substringBeforeLast('.') != name -> name.substringAfterLast('.')
         this.isDirectory -> throw IOException("Can't retrieve extension from a directory <$this>")
         else -> throw IOException("Path <$this> does not have an extension.")
     }

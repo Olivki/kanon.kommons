@@ -247,11 +247,19 @@ class KServiceLoader<S : Any> private constructor(
  * created by using the given [invoker] function.
  *
  * That the `invoker` function is *not* used if the located service is an `object` class.
- *
- * Note that unlike the factory function located in the companion object of [KServiceLoader] which uses the
- * [system-class-loader][ClassLoader.getSystemClassLoader], this function will use the class-loader of the invoker.
  */
-inline fun <reified S : Any> Any?.loadServices(
+inline fun <reified S : Any> loadServices(
+    loader: ClassLoader = ClassLoader.getSystemClassLoader(),
+    noinline invoker: (KClass<S>) -> S = { it.createInstance() }
+): KServiceLoader<S> = KServiceLoader(loader, invoker)
+
+/**
+ * Returns a new service loader for the given [service][S], loaded using the given [loader], and any instances
+ * created by using the given [invoker] function.
+ *
+ * That the `invoker` function is *not* used if the located service is an `object` class.
+ */
+inline fun <reified S : Any> Any?.loadLocalServices(
     loader: ClassLoader = this?.javaClass?.classLoader ?: ClassLoader.getSystemClassLoader(),
     noinline invoker: (KClass<S>) -> S = { it.createInstance() }
 ): KServiceLoader<S> = KServiceLoader(loader, invoker)
