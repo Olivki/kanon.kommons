@@ -37,6 +37,7 @@ import moe.kanon.kommons.PortOf
 import moe.kanon.kommons.func.internal.EmptyIterator
 import moe.kanon.kommons.func.internal.SingletonIterator
 import moe.kanon.kommons.requireNonFatal
+import kotlin.contracts.contract
 
 typealias Disjoint<L, R> = Either<L, R>
 typealias DisjointUnion<L, R> = Either<L, R>
@@ -58,34 +59,61 @@ typealias DisjointUnion<L, R> = Either<L, R>
  */
 @PortOf("scala.util.Either")
 sealed class Either<out L, out R> : Identifiable {
-    /*
-     * I've opted to *not* include properties for "isLeft" and "isRight", as it's better practice to just do
-     * ```kotlin
-     *  val joint: Either<String, Int> = ...
-     *  val value = if (joint is Left) {
-     *      joint.value // is smart-cast to 'Left' with the value being a 'String'
-     *  } else {
-     *      ... // joint will not be smart-cast here
-     *  }
-     * ```
-     * the above code can be accomplished by just using the provided `fold` function too (which will accomplish it in
-     * a slightly "cleaner" fashion)
-     * ```kotlin
-     *  val joint: Either<String, Int> = ...
-     * val value = joint.fold({ it }, { it.toString() }) // will return the string value if joint is left, or the
-     * // string value of the int value if joint is a right side
-     * ```
+    companion object {
+        /**
+         * Returns a [left-side][Left] of a [disjoint union][Either], containing the specified [value].
+         */
+        @JvmStatic fun <L> left(value: L): Either<L, Nothing> = Left(value)
+
+        /**
+         * Returns a [right-side][Right] of a [disjoint union][Either], containing the specified [value].
+         */
+        @JvmStatic fun <R> right(value: R): Either<Nothing, R> = Right(value)
+
+        /**
+         * Returns a [right-side][Right] containing the given [value] if it is *not* `null`, or a [left-side][Left]
+         * containing nothing if it *is* `null`.
+         */
+        @JvmStatic fun <T> fromNullable(value: T?): Either<Nothing?, T> =
+            if (value == null) Left(value) else Right(value)
+
+        /**
+         * Wraps the invocation of the specified [closure] in a `try-catch` block and returns a [right-side][Right]
+         * containing the result if it succeeded, otherwise returns a [left-side][Left] containing the
+         * [cause][Throwable.cause] of the failure.
+         *
+         * Note that any fatal exceptions *(for now, this means any exceptions that inherit from [Error])* will not be
+         * caught, and will simply be re-thrown.
+         */
+        @JvmStatic inline fun <T> tryCatch(closure: () -> T): Either<Throwable, T> = try {
+            Right(closure())
+        } catch (t: Throwable) {
+            requireNonFatal(t)
+            Left(t)
+        }
+    }
+
+    /**
+     * Returns `true` if this is the [left-side][Left] of the union, otherwise `false`.
      */
+    abstract val isLeft: Boolean
+
+    /**
+     * Returns `true` if this is the [right-side][Right] of the union, otherwise `false`.
+     */
+    abstract val isRight: Boolean
 
     /**
      * Returns a [left-side-projection][LeftProjection] of `this` either instance.
      */
-    @get:JvmName("left") val left: LeftProjection<L, R> by lazy { LeftProjection(this) }
+    @get:JvmName("left")
+    val left: LeftProjection<L, R> by lazy { LeftProjection(this) }
 
     /**
      * Returns a [right-side-projection][RightProjection] of `this` either instance.
      */
-    @get:JvmName("right") val right: RightProjection<L, R> by lazy { RightProjection(this) }
+    @get:JvmName("right")
+    val right: RightProjection<L, R> by lazy { RightProjection(this) }
 
     /**
      * Returns the [value][Left.value] of `this` if it is [left][Left], or throws a [NoSuchElementException] if `this`
@@ -147,37 +175,6 @@ sealed class Either<out L, out R> : Identifiable {
      * `left`.
      */
     @JvmSynthetic inline operator fun not(): Either<R, L> = swap()
-
-    companion object {
-        /**
-         * Returns a [left-side][Left] of a [disjoint union][Either], containing the specified [value].
-         */
-        @JvmStatic fun <L> left(value: L): Either<L, Nothing> = Left(value)
-
-        /**
-         * Returns a [right-side][Right] of a [disjoint union][Either], containing the specified [value].
-         */
-        @JvmStatic fun <R> right(value: R): Either<Nothing, R> = Right(value)
-
-        /**
-         * Returns a [right-side][Right] containing the given [value] if it is *not* `null`, or a [left-side][Left]
-         * containing nothing if it *is* `null`.
-         */
-        @JvmStatic fun <T> fromNullable(value: T?): Either<Nothing?, T> =
-            if (value == null) Left(value) else Right(value)
-
-        /**
-         * Wraps the invocation of the specified [closure] in a `try-catch` block and returns a [right-side][Right]
-         * containing the result if it succeeded, otherwise returns a [left-side][Left] containing the
-         * [cause][Throwable.cause] of the failure.
-         */
-        @JvmStatic inline fun <T> tryCatch(closure: () -> T): Either<Throwable, T> = try {
-            Right(closure())
-        } catch (t: Throwable) {
-            requireNonFatal(t)
-            Left(t)
-        }
-    }
 }
 
 /**
@@ -199,10 +196,36 @@ fun <L, R> Either<Nothing, R>.withLeft(): Either<L, R> = this
 inline fun <L, R> Boolean.asEither(ifTrue: () -> L, ifFalse: () -> R): Either<L, R> =
     if (this) Left(ifTrue()) else Right(ifFalse())
 
+
+/**
+ * Returns `true` if this is the [left-side][Left] of the union, otherwise `false`.
+ */
+fun <L, R> Either<L, R>.isLeft(): Boolean {
+    contract {
+        returns(true) implies (this@isLeft is Left<L>)
+        returns(false) implies (this@isLeft is Right<R>)
+    }
+    return this.isLeft
+}
+
+/**
+ * Returns `true` if this is the [right-side][Right] of the union, otherwise `false`.
+ */
+fun <L, R> Either<L, R>.isRight(): Boolean {
+    contract {
+        returns(true) implies (this@isRight is Right<R>)
+        returns(false) implies (this@isRight is Left<L>)
+    }
+    return this.isRight
+}
+
 /**
  * Represents the left-side of a [disjoint union][Either].
  */
 data class Left<out T>(val value: T) : Either<T, Nothing>() {
+    override val isLeft: Boolean = true
+    override val isRight: Boolean = false
+
     /**
      * Up-casts `this` `Left<T>` *`(Either<T, Nothing>)`* to `Either<T, R>`.
      *
@@ -223,6 +246,9 @@ data class Left<out T>(val value: T) : Either<T, Nothing>() {
  * Represents the right-side of a [disjoint union][Either].
  */
 data class Right<out T>(val value: T) : Either<Nothing, T>() {
+    override val isLeft: Boolean = false
+    override val isRight: Boolean = true
+
     /**
      * Up-casts `this` `Right<T>` *`(Either<Nothing, T>)`* to `Either<L, T>`.
      *
@@ -239,7 +265,20 @@ data class Right<out T>(val value: T) : Either<Nothing, T>() {
     override fun toString(): String = "Right[$value]"
 }
 
+/**
+ * Represents a projection of a side in a [disjoint-union][Either].
+ */
 sealed class EitherProjection<out L, out R> : Identifiable {
+    /**
+     * Returns `true` if this is the [left-side][Left] of the union, otherwise `false`.
+     */
+    abstract val isLeft: Boolean
+
+    /**
+     * Returns `true` if this is the [right-side][Right] of the union, otherwise `false`.
+     */
+    abstract val isRight: Boolean
+
     /**
      * Returns `this` either with the values swapped around.
      *
@@ -250,11 +289,16 @@ sealed class EitherProjection<out L, out R> : Identifiable {
         is LeftProjection -> Right(value)
         is RightProjection -> Left(value)
     }
-
 }
 
+/**
+ * Represents a projection of the [left-side][Left] in a [disjoint-union][Either].
+ */
 class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
     Identifiable by either {
+    override val isLeft: Boolean = true
+    override val isRight: Boolean = false
+
     val iterator: Iterator<L>
         get() = when (either) {
             is Left -> SingletonIterator(either.value)
@@ -336,8 +380,14 @@ class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>
     override fun toString(): String = "LeftProjection[$either]"
 }
 
+/**
+ * Represents a projection of the [right-side][Right] in a [disjoint-union][Either].
+ */
 class RightProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
     Identifiable by either {
+    override val isLeft: Boolean = false
+    override val isRight: Boolean = true
+
     /**
      * Returns a [SingletonIterator] if `this` is [right][Right], or a [EmptyIterator] if `this` is [left][Left].
      */
@@ -422,6 +472,28 @@ class RightProjection<out L, out R> internal constructor(val either: Either<L, R
 
 
     override fun toString(): String = "RightProjection[$either]"
+}
+
+/**
+ * Returns `true` if this is the [left-side][Left] of the union, otherwise `false`.
+ */
+fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
+    contract {
+        returns(true) implies (this@isLeft is LeftProjection<L, R>)
+        returns(false) implies (this@isLeft is RightProjection<L, R>)
+    }
+    return this.isLeft
+}
+
+/**
+ * Returns `true` if this is the [right-side][Right] of the union, otherwise `false`.
+ */
+fun <L, R> EitherProjection<L, R>.isRight(): Boolean {
+    contract {
+        returns(true) implies (this@isRight is RightProjection<L, R>)
+        returns(false) implies (this@isRight is LeftProjection<L, R>)
+    }
+    return this.isRight
 }
 
 private class WrongJunctionException(message: String) : RuntimeException(message)

@@ -72,6 +72,59 @@ typealias Maybe<T> = Option<T>
  */
 @PortOf("java.util.Optional", "scala.util.Option")
 sealed class Option<out T> : Identifiable {
+    companion object {
+        // kotlin only
+        /**
+         * Returns a [Some] containing the specified [value], or [None] if `value` is `null`.
+         */
+        // enables the syntax of 'Optional(67)'
+        @JvmName("of")
+        @JvmStatic operator fun <T> invoke(value: T?): Option<T> = when (value) {
+            null -> None
+            else -> Some(value)
+        }
+
+        /**
+         * Returns a [Some] containing the result of invoking the specified [value], or [None] if `value` is `null`.
+         */
+        // enables the syntax of 'Optional { 67 }'
+        @JvmName("calculate")
+        inline operator fun <T : Any> invoke(value: () -> T?): Option<T> = value().toOption()
+
+        /**
+         * Invokes the specified [value] wrapped in a `try catch` block, returns [Some] if no errors are thrown,
+         * otherwise returns [None].
+         *
+         * Note that any fatal exceptions *(for now, this means any exceptions that inherit from [Error])* will not be
+         * caught, and will simply be re-thrown.
+         *
+         * This function enables one to use the [Option] class as a type of [Try]. Do note that unlike `Result`,
+         * no information regarding the thrown exception is saved in the `Optional` form, as `None` does not
+         * contain any data.
+         */
+        inline fun <T> tryCatch(value: () -> T): Option<T> = try {
+            Some(value())
+        } catch (t: Throwable) {
+            requireNonFatal(t)
+            None
+        }
+
+        /**
+         * Returns [None] cast to [T].
+         */
+        @JvmStatic fun <T> empty(): Option<T> = None
+    }
+
+    /**
+     * Returns `true` if this has a value present, otherwise `false`.
+     */
+    abstract val isPresent: Boolean
+
+    /**
+     * Returns `true` if this has no value present, otherwise `false`.
+     */
+    abstract val isEmpty: Boolean
+
     /**
      * Returns the [item][Some.item] if `this` is [Some], or throws a [NoSuchElementException] if `this` is [None].
      */
@@ -89,10 +142,6 @@ sealed class Option<out T> : Identifiable {
             is None -> EmptyIterator
             is Some -> SingletonIterator(item)
         }
-
-    val isPresent: Boolean by lazy { this is Some }
-
-    val isEmpty: Boolean by lazy { this is None }
 
     /**
      * Creates and returns a [JOptional][java.util.Optional] based on `this` optional.
@@ -248,52 +297,15 @@ sealed class Option<out T> : Identifiable {
     fun asSequence(): Sequence<T> = Sequence { iterator }
 
     abstract operator fun component1(): T
-
-    companion object {
-        // kotlin only
-        /**
-         * Returns a [Some] containing the specified [value], or [None] if `value` is `null`.
-         */
-        // enables the syntax of 'Optional(67)'
-        @JvmName("of")
-        @JvmStatic operator fun <T> invoke(value: T?): Option<T> = when (value) {
-            null -> None
-            else -> Some(value)
-        }
-
-        /**
-         * Returns a [Some] containing the result of invoking the specified [value], or [None] if `value` is `null`.
-         */
-        // enables the syntax of 'Optional { 67 }'
-        @JvmName("calculate")
-        inline operator fun <T : Any> invoke(value: () -> T?): Option<T> = value().toOption()
-
-        /**
-         * Invokes the specified [value] wrapped in a `try catch` block, returns [Some] if no errors are thrown,
-         * otherwise returns [None].
-         *
-         * This function enables one to use the [Option] class as a type of [Try]. Do note that unlike `Result`,
-         * no information regarding the thrown exception is saved in the `Optional` form, as `None` does not
-         * contain any data.
-         */
-        inline fun <T> tryCatch(value: () -> T): Option<T> = try {
-            Some(value())
-        } catch (t: Throwable) {
-            requireNonFatal(t)
-            None
-        }
-
-        /**
-         * Returns [None] cast to [T].
-         */
-        @JvmStatic fun <T> empty(): Option<T> = None
-    }
 }
 
 /**
  * Represents an empty [Option] value.
  */
 object None : Option<Nothing>() {
+    override val isPresent: Boolean = false
+    override val isEmpty: Boolean = true
+
     override fun hashCode(): Int = 0
 
     override fun equals(other: Any?): Boolean = other is None
@@ -309,6 +321,9 @@ typealias Just<T> = Some<T>
  * Represents a present [Option] value.
  */
 data class Some<out T>(val item: T) : Option<T>() {
+    override val isPresent: Boolean = true
+    override val isEmpty: Boolean = false
+
     override fun hashCode(): Int = item.hashCode()
 
     override fun equals(other: Any?): Boolean = item?.equals(other) ?: false
@@ -333,6 +348,9 @@ val <T> JOptional<T>.kotlin: Option<T>
         else -> None
     }
 
+/**
+ * Returns `true` if this has a value present, otherwise `false`.
+ */
 @JvmName("isSome")
 fun <T> Option<T>.isPresent(): Boolean {
     contract {
@@ -342,11 +360,14 @@ fun <T> Option<T>.isPresent(): Boolean {
     return this.isPresent
 }
 
+/**
+ * Returns `true` if this has no value present, otherwise `false`.
+ */
 @JvmName("isNone")
 fun <T> Option<T>.isEmpty(): Boolean {
     contract {
-        returns(false) implies (this@isEmpty is Some<T>)
         returns(true) implies (this@isEmpty is None)
+        returns(false) implies (this@isEmpty is Some<T>)
     }
     return this.isEmpty
 }
@@ -357,9 +378,9 @@ fun <T> Option<T>.isEmpty(): Boolean {
 fun <T> Boolean.asSome(item: T): Option<T> = if (this) Some(item) else None
 
 /**
- * Returns [some][Some] containing the specified [item] if `this` is `true`, or [none][None] if `this` is `false`.
+ * Returns [some][Some] containing the specified [lazyItem] if `this` is `true`, or [none][None] if `this` is `false`.
  *
- * Note that this function *lazily* evaluates the [item], meaning that `item` will only ever be evaluated if `this`
+ * Note that this function *lazily* evaluates the [lazyItem], meaning that `item` will only ever be evaluated if `this`
  * is `true`, and never if `this` is `false`.
  *
  * Example:
@@ -370,11 +391,16 @@ fun <T> Boolean.asSome(item: T): Option<T> = if (this) Some(item) else None
  * If using the `Boolean.asSome(item: T)` function instead, the above code would fail at runtime with a
  * [IndexOutOfBoundsException].
  */
-inline fun <T> Boolean.asSome(item: () -> T): Option<T> = if (this) Some(item()) else None
+inline fun <T> Boolean.asSome(lazyItem: () -> T): Option<T> = if (this) Some(lazyItem()) else None
 
 inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
 
 // -- ITERABLE -- \\
+/**
+ * Returns single element, or `None` if the collection is empty or has more than one element.
+ */
+fun <T> Iterable<T>.singleOrNone(): Option<T> = Option(singleOrNull())
+
 /**
  * Returns the first element, or [None] if `this` collection is empty.
  */
@@ -400,7 +426,55 @@ inline fun <T> Iterable<T>.lastOrNone(predicate: (T) -> Boolean): Option<T> = Op
  */
 fun <T> Iterable<T>.elementAtOrNone(index: Int): Option<T> = Option(elementAtOrNull(index))
 
+// -- SEQUENCE -- \\
+/**
+ * Returns single element, or `None` if the collection is empty or has more than one element.
+ *
+ * The operation is _terminal_.
+ */
+fun <T> Sequence<T>.singleOrNone(): Option<T> = Option(singleOrNull())
+
+/**
+ * Returns the first element, or [None] if `this` sequence is empty.
+ *
+ * The operation is _terminal_.
+ */
+fun <T> Sequence<T>.firstOrNone(): Option<T> = Option(firstOrNull())
+
+/**
+ * Returns the first element matching the specified [predicate], or [None] if none is found.
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.firstOrNone(predicate: (T) -> Boolean) = Option(firstOrNull(predicate))
+
+/**
+ * Returns the last element, or [None] if `this` sequence is empty.
+ *
+ * The operation is _terminal_.
+ */
+fun <T> Sequence<T>.lastOrNone(): Option<T> = Option(lastOrNull())
+
+/**
+ * Returns the last element matching the specified [predicate], or [None] if none is found.
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.lastOrNone(predicate: (T) -> Boolean): Option<T> = Option(lastOrNull(predicate))
+
+/**
+ * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` collection.
+ *
+ * The operation is _terminal_.
+ */
+fun <T> Sequence<T>.elementAtOrNone(index: Int): Option<T> = Option(elementAtOrNull(index))
+
 // -- LIST -- \\
+/**
+ * Returns single element, or `None` if the collection is empty or has more than one element.
+ */
+fun <T> List<T>.singleOrNone(): Option<T> = Option(singleOrNull())
+
 /**
  * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` list.
  */

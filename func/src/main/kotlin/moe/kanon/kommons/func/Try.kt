@@ -22,6 +22,7 @@ package moe.kanon.kommons.func
 import moe.kanon.kommons.Identifiable
 import moe.kanon.kommons.PortOf
 import moe.kanon.kommons.requireNonFatal
+import kotlin.contracts.contract
 
 typealias Result<T> = Try<T>
 
@@ -42,21 +43,79 @@ typealias Result<T> = Try<T>
  */
 @PortOf("scala.util.Try")
 sealed class Try<out T> : Identifiable {
-    val isFailure: Boolean by lazy { this is Failure }
-    val isSuccess: Boolean by lazy { this is Success }
+    companion object {
+        /**
+         * Returns a new [failure][Failure] carrying a [GenericTryException] with the given [message] and [cause].
+         */
+        @JvmOverloads
+        @JvmStatic fun <T> failure(message: String, cause: Throwable? = null): Try<T> =
+            Failure(GenericTryException(message, cause))
+
+        /**
+         * Returns a new [failure][Failure] wrapped around the given [exception].
+         */
+        @JvmStatic fun <T> failure(exception: Exception): Try<T> = Failure(exception)
+
+        /**
+         * Returns a new [success][Success] wrapped around the given [value].
+         */
+        @JvmStatic fun <T> success(value: T): Try<T> = Success(value)
+
+        /**
+         * Wraps [value] in a `try catch` block, and returns the result of invoking it; [Success] if no exceptions
+         * were thrown, or [Failure] if any exceptions were thrown.
+         *
+         * Note that any fatal exceptions *(for now, this means any exceptions that inherit from [Error])* will not be
+         * caught, and will simply be re-thrown.
+         *
+         * Note that any exceptions that are considered **fatal** are simply passed up the trace and are ***not***
+         * caught by this function. A exception is generally considered to be fatal if it a child of [Error].
+         */
+        @JvmName("run")
+        @JvmStatic inline operator fun <T> invoke(value: () -> T): Try<T> = try {
+            Success(value())
+        } catch (t: Throwable) {
+            requireNonFatal(t)
+            Failure(t)
+        }
+    }
+
+    /**
+     * Returns `true` if this is a [failure][Failure], otherwise `false`.
+     */
+    abstract val isFailure: Boolean
+
+    /**
+     * Returns `true` if this is a [success][Success], otherwise `false`.
+     */
+    abstract val isSuccess: Boolean
+
+    /**
+     * Executes the given [action] if `this` is a [success][Success].
+     */
+    inline fun ifSuccess(action: (T) -> Unit) {
+        if (this is Success) action(item)
+    }
 
     /**
      * Executes the given [action] if `this` is a [success][Success].
      */
     inline fun forEach(action: (T) -> Unit) {
-        if (isSuccess) action(value)
+        if (this is Success) action(item)
+    }
+
+    /**
+     * Executes the given [action] if `this` is a [failure][Failure].
+     */
+    inline fun ifFailure(action: (Throwable) -> Unit) {
+        if (this is Failure) action(underlyingCause)
     }
 
     /**
      * Executes the given [action] if `this` is a [failure][Failure].
      */
     inline fun forFailure(action: (Throwable) -> Unit) {
-        if (isFailure) action(cause)
+        if (this is Failure) action(underlyingCause)
     }
 
     /**
@@ -84,7 +143,7 @@ sealed class Try<out T> : Identifiable {
      * is a [failure][Failure].
      */
     fun unwrap(): T = when (this) {
-        is Failure -> throw cause
+        is Failure -> throw underlyingCause
         is Success -> item
     }
 
@@ -96,7 +155,7 @@ sealed class Try<out T> : Identifiable {
      * @param [ifSuccess] invoked with the [value][Success.item] of `this` [success][Success]
      */
     inline fun <R> fold(ifFailure: (Throwable) -> R, ifSuccess: (T) -> R): R = when (this) {
-        is Failure -> ifFailure(cause)
+        is Failure -> ifFailure(underlyingCause)
         is Success -> ifSuccess(item)
     }
 
@@ -137,7 +196,7 @@ sealed class Try<out T> : Identifiable {
      * ```
      */
     inline fun recover(transformer: (Throwable) -> @UnsafeVariance T): Try<T> = when (this) {
-        is Failure -> Try { transformer(cause) }
+        is Failure -> Try { transformer(underlyingCause) }
         is Success -> this
     }
 
@@ -161,7 +220,7 @@ sealed class Try<out T> : Identifiable {
      * ```
      */
     inline fun recoverWith(transformer: (Throwable) -> Try<@UnsafeVariance T>): Try<T> = when (this) {
-        is Failure -> transformer(cause)
+        is Failure -> transformer(underlyingCause)
         is Success -> this
     }
 
@@ -204,7 +263,7 @@ sealed class Try<out T> : Identifiable {
      * [Failure] containing a [UnsupportedOperationException] if `this` is a [success][Success].
      */
     fun invert(): Try<Throwable> = when (this) {
-        is Failure -> Success(cause)
+        is Failure -> Success(underlyingCause)
         is Success -> Failure(UnsupportedOperationException("Success[failure]"))
     }
 
@@ -243,27 +302,6 @@ sealed class Try<out T> : Identifiable {
     abstract operator fun component1(): T
 
     abstract operator fun component2(): Throwable
-
-    companion object {
-        @JvmStatic fun <T> failure(exception: Exception): Try<T> = Failure(exception)
-
-        @JvmStatic fun <T> success(value: T): Try<T> = Success(value)
-
-        /**
-         * Wraps [value] in a `try catch` block, and returns the result of invoking it; [Success] if no exceptions
-         * were thrown, or [Failure] if any exceptions were thrown.
-         *
-         * Note that any exceptions that are considered **fatal** are simply passed up the trace and are ***not***
-         * caught by this function. A exception is generally considered to be fatal if it a child of [Error].
-         */
-        @JvmName("run")
-        @JvmStatic inline operator fun <T> invoke(value: () -> T): Try<T> = try {
-            Success(value())
-        } catch (t: Throwable) {
-            requireNonFatal(t)
-            Failure(t)
-        }
-    }
 }
 
 /**
@@ -272,7 +310,10 @@ sealed class Try<out T> : Identifiable {
  * @property [underlyingCause] The [Throwable] that's the cause of the operation failing.
  */
 class Failure(val underlyingCause: Throwable) : Try<Nothing>() {
-    val message: String? get() = underlyingCause.message
+    override val isFailure: Boolean = true
+    override val isSuccess: Boolean = false
+
+    val message: String? = underlyingCause.message
 
     override fun component1(): Nothing = throw NoSuchElementException("Can't retrieve item from Failure")
 
@@ -294,6 +335,9 @@ class Failure(val underlyingCause: Throwable) : Try<Nothing>() {
  * @property [item] The underlying value that `this` result is wrapped around.
  */
 class Success<out T>(val item: T) : Try<T>() {
+    override val isFailure: Boolean = false
+    override val isSuccess: Boolean = true
+
     override fun component1(): T = item
 
     override fun component2(): Throwable = throw NoSuchElementException("Can't retrieve cause from Success")
@@ -305,11 +349,46 @@ class Success<out T>(val item: T) : Try<T>() {
     override fun toString(): String = "Success[$item]"
 }
 
-// exceptions
+// -- EXCEPTIONS -- \\
 class FailedPredicateException @JvmOverloads constructor(
     message: String = "Predicate did not match",
     cause: Throwable? = null
 ) : RuntimeException(message, cause)
+
+class GenericTryException internal constructor(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+// -- EXTENSIONS -- \\
+/**
+ * Returns `true` if this is a [success][Success], otherwise `false`.
+ */
+fun <T> Try<T>.isSuccess(): Boolean {
+    contract {
+        returns(true) implies (this@isSuccess is Success<T>)
+        returns(false) implies (this@isSuccess is Failure)
+    }
+    return this.isSuccess
+}
+
+/**
+ * Returns `true` if this is a [failure][Failure], otherwise `false`.
+ */
+fun <T> Try<T>.isFailure(): Boolean {
+    contract {
+        returns(true) implies (this@isFailure is Failure)
+        returns(false) implies (this@isFailure is Success<T>)
+    }
+    return this.isFailure
+}
+
+/**
+ * Returns a new [failure][Failure] wrapped around `this` throwable.
+ */
+fun <T> Throwable.toFailure(): Try<T> = Failure(this)
+
+/**
+ * Returns a new [success][Success] wrapped around `this` value.
+ */
+fun <T> T.toSuccess(): Try<T> = Success(this)
 
 // -- FAKE FACTORY FUNCTIONS -- \\
 fun Byte.Companion.tryParse(input: String): Try<Byte> = Try { input.toByte() }
