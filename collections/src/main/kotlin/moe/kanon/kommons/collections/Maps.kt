@@ -18,10 +18,8 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.satisfies
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashMap
+import kotlin.NoSuchElementException
 
 // -- CLASSES -- \\
 class SingletonMap<K, out V>(key: K, value: V) : Map<K, V> {
@@ -54,7 +52,7 @@ fun <K, V> singletonMap(key: K, value: V): Map<K, V> = SingletonMap(key, value)
 /**
  * Returns a new [Map] that only contains one entry, which is created from the values of the specified [pair].
  */
-@JvmName("singletonOf")
+@JvmName("singleton")
 fun <K, V> singletonMap(pair: Pair<K, V>): Map<K, V> = SingletonMap(pair.first, pair.second)
 
 // java
@@ -69,7 +67,7 @@ fun <K, V> Map<K, V>.asUnmodifiableMap(): Map<K, V> = Collections.unmodifiableMa
 fun <K : Comparable<K>, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = TreeMap(pairs.toMap())
 
 /**
- * Returns a new [EnumMap] that contains the specified [entries].
+ * Returns a new [emptyEnumMap] that contains the specified [entries].
  */
 // we're using the enum class constructor rather than the one that accepts a map so that the function won't fail if
 // the supplied 'entries' is empty.
@@ -77,19 +75,26 @@ inline fun <reified K : Enum<K>, V> enumMapOf(vararg entries: Pair<K, V>): Map<K
     EnumMap<K, V>(K::class.java).fillWith(entries)
 
 /**
- * Returns a new and empty [EnumMap] based on the specified [enum][K].
+ * Returns a new and empty [emptyEnumMap] based on the specified [enum][K].
  */
 @JvmName("emptyEnumMap")
-inline fun <reified K : Enum<K>, V> EnumMap(): EnumMap<K, V> = EnumMap(K::class.java)
+inline fun <reified K : Enum<K>, V> emptyEnumMap(): EnumMap<K, V> = EnumMap(K::class.java)
 
 /**
- * Returns a new [EnumMap] which is populated by the specified [init] function.
+ * Returns a new [emptyEnumMap] which is populated by the specified [init] function.
  */
 @JvmName("enumMap")
-inline fun <reified K : Enum<K>, V> EnumMap(init: (K) -> V): EnumMap<K, V> =
-    EnumMap<K, V>().fillWith(enumValues<K>().associate { it to init(it) })
+inline fun <reified K : Enum<K>, V> enumMap(init: (K) -> V): EnumMap<K, V> =
+    emptyEnumMap<K, V>().fillWith(enumValues<K>().associate { it to init(it) })
 
 // -- UTIL FUNCTIONS -- \\
+/**
+ * Returns the value stored under the given [key], or throws a [NoSuchElementException] where the `message` is set to
+ * the result of invoking [toString] on the given [lazyMessage] function.
+ */
+inline fun <K, V> Map<K, V>.getValueOrThrow(key: K, lazyMessage: () -> Any): V =
+    this[key] ?: throw NoSuchElementException(lazyMessage().toString())
+
 /**
  * Executes the specified [action] every time an `entry` matches the specified [predicate].
  */
