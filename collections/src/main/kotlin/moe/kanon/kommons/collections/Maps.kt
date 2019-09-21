@@ -29,7 +29,7 @@ private class SingletonMap<K, out V>(key: K, value: V) : AbstractMap<K, V>() {
     override val entries: Set<Map.Entry<K, V>> = singletonSetOf(entry)
     override val keys: Set<K> = singletonSetOf(entry.key)
     override val size: Int = 1
-    override val values: Collection<V> = SingletonCollection(entry.value)
+    override val values: Collection<V> = singletonCollectionOf(entry.value)
 
     override fun containsKey(key: @UnsafeVariance K): Boolean = key == entry.key
 
@@ -88,6 +88,22 @@ inline fun <reified K : Enum<K>, V> enumMap(init: (K) -> V): EnumMap<K, V> =
     emptyEnumMap<K, V>().fillWith(enumValues<K>().associate { it to init(it) })
 
 // -- UTIL FUNCTIONS -- \\
+/**
+ * Creates a string from all the elements separated using [separator] and using the given [prefix] and [postfix] if
+ * supplied.
+ *
+ * If the collection could be huge, you can specify a non-negative value of [limit], in which case only the first
+ * [limit] elements will be appended, followed by the [truncated] string (which defaults to "...").
+ */
+fun <K, V> Map<K, V>.joinToString(
+    separator: CharSequence = ", ",
+    prefix: CharSequence = "",
+    postfix: CharSequence = "",
+    limit: Int = -1,
+    truncated: CharSequence = "...",
+    transform: ((Map.Entry<K, V>) -> CharSequence)? = null
+): String = entries.joinToString(separator, prefix, postfix, limit, truncated, transform)
+
 /**
  * Returns the value stored under the given [key], or throws a [NoSuchElementException] where the `message` is set to
  * the result of invoking [toString] on the given [lazyMessage] function.
