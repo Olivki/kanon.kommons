@@ -27,7 +27,12 @@ import moe.kanon.kommons.requireThat
  * Note that this is accomplished by using the [count][Sequence.count] function, which means that depending on how many
  * elements are available in `this` sequence this may be a costly invocation.
  */
-val <T> Sequence<T>.size: Int @JvmName("sizeOf") get() = count()
+@Deprecated(
+    message = "the name might make the user think there is no penalty to invoking this property",
+    replaceWith = ReplaceWith("count()", "kotlin.sequences")
+)
+val <T> Sequence<T>.size: Int
+    @JvmName("sizeOf") get() = count()
 
 /**
  * Returns `true` if `this` sequence has no elements, otherwise returns `false`.
@@ -54,7 +59,7 @@ inline fun <T, X : Throwable> Sequence<T>.throwOnMatch(predicate: (T) -> Boolean
     this.onMatch(predicate) { throw exception(it) }
 
 /**
- * Returns a new [Sequence] containing all the entries from `this` iterable and the specified [other] sequences, the
+ * Returns a new [Sequence] containing all the entries from `this` sequence and the specified [other] sequences, the
  * order of all the elements is preserved.
  */
 fun <T> Sequence<T>.concatWith(vararg other: Sequence<T>): Sequence<T> = this + other.asSequence().flatten()
@@ -110,7 +115,7 @@ fun Sequence<*>.calculateHashCode(): Int = fold(1) { hash, element -> 31 * hash 
  * The operation is _terminal_.
  */
 infix fun Sequence<*>.hasSameElementsAs(other: Sequence<*>): Boolean {
-    if (other.size != this.size) return false
+    if (other.count() != this.count()) return false
 
     val otherIterator = other.iterator()
     for (elem in this) {
@@ -141,7 +146,7 @@ fun <T> Sequence<T>.occurrencesOf(item: T): Int = this.count { it == item }
  * The operation is _terminal_.
  */
 fun <T> Sequence<T>.sampleSize(n: Int): List<T> {
-    requireThat(n <= size) { "'n' is larger than collection size" }
+    requireThat(n <= count()) { "'n' is larger than sequence size" }
     return this.toList().shuffled().take(n)
 }
 
@@ -187,7 +192,7 @@ inline fun <T, R> Sequence<T>.scan(identity: R, transformer: (R, T) -> R): List<
  *
  * The operation is _terminal_.
  */
-fun <T> Sequence<T>.permutations(): TwoDimList<T> = when (this.size) {
+fun <T> Sequence<T>.permutations(): TwoDimList<T> = when (this.count()) {
     0 -> emptyList()
     1 -> listOf(this.toList())
     else -> foldIndexed(ArrayList()) { index, acc, item ->
@@ -201,7 +206,7 @@ fun <T> Sequence<T>.permutations(): TwoDimList<T> = when (this.size) {
  *
  * The operation is _terminal_.
  */
-infix fun <T> Sequence<T>.intersperse(element: T): List<T> = List(this.size) { listOf(this.elementAt(it), element) }
+infix fun <T> Sequence<T>.intersperse(element: T): List<T> = List(this.count()) { listOf(this.elementAt(it), element) }
     .flatten()
     .dropLast(1)
 
@@ -220,7 +225,7 @@ inline fun <T> Sequence<T>.unique(predicate: (T) -> Boolean): Boolean = this.cou
 tailrec infix operator fun <T> Sequence<T>.contains(content: Sequence<T>): Boolean = when {
     content.isEmpty -> true
     this.isEmpty -> content.isEmpty
-    this.take(content.size) == content -> true
+    this.take(content.count()) == content -> true
     else -> this.drop(1) contains content
 }
 
@@ -232,8 +237,534 @@ tailrec infix operator fun <T> Sequence<T>.contains(content: Sequence<T>): Boole
 infix fun <T> Sequence<T>.indicesOf(element: T): IntArray = this.asSequence()
     .withIndex()
     .filter { it.value == element }
-    .map { it.index }
-    .toIntArray()
+    .mapToIntArray { it.index }
+
+// -- ARRAY CONVERSION FUNCTIONS -- \\
+/*
+ *  Due to the fact that sequences do not actually store any data regarding the size of itself, these array functions
+ * are all implemented individually to make sure that they perform as fast as possible without having any extra overhead
+ * from invoking 'count' multiple times.
+ *
+ * i.e; the 'Sequence<T>.mapToTypedArray(transform: (T) -> R)' function could just be implemented like this
+ * ```kotlin
+ *  fun <T, R> Sequence<T>.mapToTypedArray(transform: (T) -> R): Array<R> = mapTo(createArray<R>(this.count()), transform)
+ * ```
+ * but that would mean that the 'count()' function would be invoked *twice*, and depending on how many elements the
+ * sequence is working on, that might cause some serious overhead, overhead which is completely not needed, as we know
+ * that the array that we provide is of the correct size.
+ *
+ * One could also say that we should just remove the 'requireThat' check in each 'mapTo' function, but that would go
+ * against the behaviour of the other 'mapTo' functions provided by the std-lib, and that might cause behaviour that
+ * the user did not intend for.
+ */
+
+// mapTo
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T, R> Sequence<T>.mapTo(destination: Array<R>, transform: (T) -> R): Array<R> {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: BooleanArray, transform: (T) -> Boolean): BooleanArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: CharArray, transform: (T) -> Char): CharArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: ByteArray, transform: (T) -> Byte): ByteArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: ShortArray, transform: (T) -> Short): ShortArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: IntArray, transform: (T) -> Int): IntArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: LongArray, transform: (T) -> Long): LongArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: FloatArray, transform: (T) -> Float): FloatArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to the
+ * given [destination].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapTo(destination: DoubleArray, transform: (T) -> Double): DoubleArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(element)
+    return destination
+}
+
+// map...Array
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [Array].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T, R> Sequence<T>.mapToTypedArray(transform: (T) -> R): Array<R> {
+    val destination = createArray<R>(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [BooleanArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToBooleanArray(transform: (T) -> Boolean): BooleanArray {
+    val destination = BooleanArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [CharArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToCharArray(transform: (T) -> Char): CharArray {
+    val destination = CharArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [ByteArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToByteArray(transform: (T) -> Byte): ByteArray {
+    val destination = ByteArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [ShortArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToShortArray(transform: (T) -> Short): ShortArray {
+    val destination = ShortArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [IntArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToIntArray(transform: (T) -> Int): IntArray {
+    val destination = IntArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [LongArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToLongArray(transform: (T) -> Long): LongArray {
+    val destination = LongArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [FloatArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToFloatArray(transform: (T) -> Float): FloatArray {
+    val destination = FloatArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element of the original sequence and appends the results to a
+ * newly created [DoubleArray].
+ *
+ * The operation is _terminal_.
+ */
+inline fun <T> Sequence<T>.mapToDoubleArray(transform: (T) -> Double): DoubleArray {
+    val destination = DoubleArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(element)
+    return destination
+}
+
+// mapIndexedTo
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T, R> Sequence<T>.mapIndexedTo(destination: Array<R>, transform: (i: Int, e: T) -> R): Array<R> {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: BooleanArray, transform: (i: Int, e: T) -> Boolean): BooleanArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: CharArray, transform: (i: Int, e: T) -> Char): CharArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: ByteArray, transform: (i: Int, e: T) -> Byte): ByteArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: ShortArray, transform: (i: Int, e: T) -> Short): ShortArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: IntArray, transform: (i: Int, e: T) -> Int): IntArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: LongArray, transform: (i: Int, e: T) -> Long): LongArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: FloatArray, transform: (i: Int, e: T) -> Float): FloatArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to the given [destination].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedTo(destination: DoubleArray, transform: (i: Int, e: T) -> Double): DoubleArray {
+    var index = 0
+    for (element in this.take(destination.size)) destination[index++] = transform(index, element)
+    return destination
+}
+
+// mapIndexed...Array
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [Array].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T, R> Sequence<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> {
+    val destination = createArray<R>(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [BooleanArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToBooleanArray(transform: (i: Int, e: T) -> Boolean): BooleanArray {
+    val destination = BooleanArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [CharArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToCharArray(transform: (i: Int, e: T) -> Char): CharArray {
+    val destination = CharArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [ByteArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToByteArray(transform: (i: Int, e: T) -> Byte): ByteArray {
+    val destination = ByteArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [ShortArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToShortArray(transform: (i: Int, e: T) -> Short): ShortArray {
+    val destination = ShortArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [IntArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToIntArray(transform: (i: Int, e: T) -> Int): IntArray {
+    val destination = IntArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [LongArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToLongArray(transform: (i: Int, e: T) -> Long): LongArray {
+    val destination = LongArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [FloatArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToFloatArray(transform: (i: Int, e: T) -> Float): FloatArray {
+    val destination = FloatArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
+
+/**
+ * Applies the given [transform] function to each element and its index in the original sequence and appends the
+ * results to a newly created [DoubleArray].
+ *
+ * The operation is _terminal_.
+ *
+ * @param [transform] function that takes the index of an element and the element itself and returns the result of the
+ * transform applied to the element.
+ */
+inline fun <T> Sequence<T>.mapIndexedToDoubleArray(transform: (i: Int, e: T) -> Double): DoubleArray {
+    val destination = DoubleArray(this.count())
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
+    return destination
+}
 
 // to...Array
 /**
@@ -242,7 +773,7 @@ infix fun <T> Sequence<T>.indicesOf(element: T): IntArray = this.asSequence()
  * The operation is _terminal_.
  */
 fun <T> Sequence<T>.toTypedArray(): Array<T> {
-    val result = createArray<T>(size)
+    val result = createArray<T>(this.count())
     var index = 0
     for (element in this) result[index++] = element
     return result
@@ -254,7 +785,7 @@ fun <T> Sequence<T>.toTypedArray(): Array<T> {
  * The operation is _terminal_.
  */
 fun Sequence<Char>.toCharArray(): CharArray {
-    val result = CharArray(size)
+    val result = CharArray(this.count())
     var index = 0
     for (element in this) result[index++] = element
     return result
@@ -266,7 +797,7 @@ fun Sequence<Char>.toCharArray(): CharArray {
  * The operation is _terminal_.
  */
 fun Sequence<Boolean>.toBooleanArray(): BooleanArray {
-    val result = BooleanArray(size)
+    val result = BooleanArray(this.count())
     var index = 0
     for (element in this) result[index++] = element
     return result
