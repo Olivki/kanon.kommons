@@ -124,3 +124,10 @@ class ZippedIterator<out A, out B>(
  */
 @JvmName("zippedOf")
 infix fun <A, B> Iterator<A>.zipWith(other: Iterator<B>): Iterator<Pair<A, B>> = ZippedIterator(this, other)
+
+// -- OTHER -- \\
+/**
+ * Returns a new [Iterator] that iterates over the given [items].
+ */
+@JvmName("of")
+fun <T> iteratorFor(vararg items: T): Iterator<T> = items.iterator()
