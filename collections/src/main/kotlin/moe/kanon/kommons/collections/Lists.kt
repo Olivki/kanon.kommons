@@ -21,42 +21,9 @@ package moe.kanon.kommons.collections
 
 import moe.kanon.kommons.INDEX_NOT_FOUND
 import moe.kanon.kommons.requireThat
-import java.util.*
-import kotlin.NoSuchElementException
+import java.util.Collections
 
 typealias TwoDimList<T> = List<List<T>>
-
-// -- CLASSES -- \\
-/**
- * Represents a [List] that only contains one [element].
- *
- * @property [element] The underlying element that `this` list is storing.
- */
-class SingletonList<out E>(private val element: E) : List<E> {
-    override val size: Int = 1
-
-    override fun contains(element: @UnsafeVariance E): Boolean = element == this.element
-
-    override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = elements.all { it == element }
-
-    override fun get(index: Int): E = if (index == 0) element else throw IndexOutOfBoundsException()
-
-    override fun indexOf(element: @UnsafeVariance E): Int = if (element == this.element) 0 else INDEX_NOT_FOUND
-
-    override fun isEmpty(): Boolean = false
-
-    override fun iterator(): Iterator<E> = SingletonIterator(element)
-
-    override fun lastIndexOf(element: @UnsafeVariance E): Int = if (element == this.element) 0 else INDEX_NOT_FOUND
-
-    override fun listIterator(): ListIterator<E> = SingletonListIterator(element)
-
-    override fun listIterator(index: Int): ListIterator<E> =
-        if (index == 0) SingletonListIterator(element) else EmptyListIterator
-
-    override fun subList(fromIndex: Int, toIndex: Int): List<E> =
-        if (fromIndex == 0 && toIndex == 0) this else emptyList()
-}
 
 // -- FACTORY FUNCTIONS -- \\
 /**
@@ -65,18 +32,41 @@ class SingletonList<out E>(private val element: E) : List<E> {
 fun <T> List<T>.asUnmodifiableList(): List<T> = Collections.unmodifiableList(this)
 
 /**
- * Returns a new [List] that *only* contains the specified [element].
+ * Returns a new [List] that *only* contains the specified [item].
  */
 @JvmName("singletonOf")
-fun <T> singletonList(element: T): List<T> = SingletonList(element)
+fun <T> singletonListOf(item: T): List<T> = object : AbstractList<T>() {
+    override val size: Int = 1
+
+    override fun contains(element: @UnsafeVariance T): Boolean = element == item
+
+    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean = elements.all { it == item }
+
+    override fun get(index: Int): T = if (index == 0) item else throw IndexOutOfBoundsException()
+
+    override fun indexOf(element: @UnsafeVariance T): Int = if (element == item) 0 else INDEX_NOT_FOUND
+
+    override fun isEmpty(): Boolean = false
+
+    override fun iterator(): Iterator<T> = singletonIteratorOf(item)
+
+    override fun lastIndexOf(element: @UnsafeVariance T): Int = if (element == item) 0 else INDEX_NOT_FOUND
+
+    override fun listIterator(): ListIterator<T> = singletonListIteratorOf(item)
+
+    override fun listIterator(index: Int): ListIterator<T> =
+        if (index == 0) singletonListIteratorOf(item) else emptyListIterator()
+
+    override fun subList(fromIndex: Int, toIndex: Int): List<T> =
+        if (fromIndex == 0 && toIndex == 0) this else emptyList()
+}
 
 /**
  * Creates a new two-dimensional list from the specified [width] and [height], with all values set to the specified
  * [default].
  */
 @JvmName("twoDimensionalList")
-fun <T> TwoDimList(width: Int, height: Int, default: T): TwoDimList<T> =
-    List(width) { List(height) { default } }
+fun <T> TwoDimList(width: Int, height: Int, default: T): TwoDimList<T> = List(width) { List(height) { default } }
 
 // -- UTILITY FUNCTIONS -- \\
 /**

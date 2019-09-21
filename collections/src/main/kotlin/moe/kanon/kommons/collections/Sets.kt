@@ -18,25 +18,8 @@
 
 package moe.kanon.kommons.collections
 
-import java.nio.file.StandardOpenOption
-import java.util.*
-import kotlin.reflect.KClass
-
-// -- CLASSES -- \\
-/**
- * Represents a [set][Set] that only contains one element.
- */
-class SingletonSet<out E>(private val element: E) : Set<E> {
-    override val size: Int = 1
-
-    override fun contains(element: @UnsafeVariance E): Boolean = element == this.element
-
-    override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = elements.all { it == element }
-
-    override fun isEmpty(): Boolean = false
-
-    override fun iterator(): Iterator<E> = SingletonIterator(element)
-}
+import java.util.Collections
+import java.util.EnumSet
 
 // -- FACTORY FUNCTIONS -- \\
 /**
@@ -45,27 +28,22 @@ class SingletonSet<out E>(private val element: E) : Set<E> {
 fun <T> Set<T>.asUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
 
 /**
- * Returns a new [singleton set][SingletonSet] wrapped around the specified [item].
+ * Returns a new [Set] that *only* contains the given [item].
  */
 @JvmName("singletonOf")
-fun <T> singletonSet(item: T): Set<T> = SingletonSet(item)
+fun <T> singletonSetOf(item: T): Set<T> = object : AbstractSet<T>() {
+    override val size: Int = 1
 
-/**
- * Converts `this` set to a [EnumSet].
- */
-inline fun <reified E : Enum<E>> Set<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this, E::class.java)
+    override fun contains(element: @UnsafeVariance T): Boolean = element == item
 
-/**
- * Returns a new [EnumSet] that initially contains the all of the elements in `this` range.
- */
-fun <E : Enum<E>> ClosedRange<E>.toEnumSet(): EnumSet<E> = EnumSet.range(this.start, this.endInclusive)
+    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean = elements.all { it == item }
 
-@PublishedApi
-internal fun <E : Enum<E>> convertToEnumSet(origin: Set<E>, clz: Class<E>): EnumSet<E> = when (origin) {
-    is EnumSet<E> -> origin
-    else -> EnumSet.noneOf(clz).apply { addAll(origin) }
+    override fun isEmpty(): Boolean = false
+
+    override fun iterator(): Iterator<T> = singletonIteratorOf(item)
 }
 
+// -- ENUM SET -- \\
 /**
  * Returns a new and empty [EnumSet] for the given [enum][E].
  */
@@ -73,6 +51,8 @@ inline fun <reified E : Enum<E>> emptyEnumSet(): EnumSet<E> = EnumSet.noneOf(E::
 
 /**
  * Returns a new [EnumSet] containing all the enum constants of the given [enum][E].
+ *
+ * @param [E] the [Enum] type to extract the constants from.
  */
 inline fun <reified E : Enum<E>> enumSetOf(): EnumSet<E> = emptyEnumSet<E>().apply { addAll(enumValues<E>()) }
 
@@ -113,5 +93,24 @@ fun <E : Enum<E>> enumSetOf(initial: E, vararg rest: E): EnumSet<E> = when (rest
     else -> EnumSet.of(initial, *rest)
 }
 
-// -- UTIL FUNCTIONS -- \\
+// to...
+/**
+ * Returns a new [enum-set][EnumSet] containing the entries of `this` collection.
+ */
+inline fun <reified E : Enum<E>> Iterable<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this, E::class.java)
 
+/**
+ * Returns a new [enum-set][EnumSet] containing the entries of `this` array.
+ */
+inline fun <reified E : Enum<E>> Array<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this.asIterable(), E::class.java)
+
+/**
+ * Returns a new [EnumSet] that initially contains the all of the elements in `this` range.
+ */
+fun <E : Enum<E>> ClosedRange<E>.toEnumSet(): EnumSet<E> = EnumSet.range(this.start, this.endInclusive)
+
+@PublishedApi
+internal fun <E : Enum<E>> convertToEnumSet(origin: Iterable<E>, clz: Class<E>): EnumSet<E> = when (origin) {
+    is EnumSet<E> -> origin
+    else -> EnumSet.noneOf(clz).apply { addAll(origin) }
+}

@@ -23,57 +23,71 @@ import moe.kanon.kommons.INDEX_NOT_FOUND
 
 private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
 
-// -- CLASSES -- \\
-// -- ITERATOR -- \\
 /**
- * An [Iterator] that does not allow any of its elements to be modified.
- */
-class UnmodifiableIterator<out T>(private val delegate: Iterator<T>) : Iterator<T> by delegate
-
-/**
- * Returns `this` iterator wrapped in a [UnmodifiableIterator], which does not allow any of it's elements to be
- * modified.
- */
-fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = UnmodifiableIterator(this)
-
-/**
- * Represents a [iterator][Iterator] that only iterates over one element.
+ * Returns an unmodifiable view of `this` iterator.
  *
- * @property [element] The single value that `this` iterator iterates over.
+ * Any attempts to invoke the `remove` operation on the returned instance will result in a
+ * [UnsupportedOperationException] being thrown.
  */
-class SingletonIterator<out T>(private val element: T) : Iterator<T> {
-    private var hasNext: Boolean = true
+@JvmName("unmodifiable")
+fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = object : Iterator<T> by this {}
 
-    override fun hasNext(): Boolean = hasNext
-
-    override fun next(): T = if (hasNext) element.also { hasNext = false } else throw NoSuchElementException()
-}
-
-/**
- * Represents a [iterator][Iterator] that iterates over nothing.
- */
-object EmptyIterator : Iterator<Nothing> {
+internal object EmptyIterator : Iterator<Nothing> {
     override fun hasNext(): Boolean = false
 
     override fun next(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
 }
 
+/**
+ * Returns an [Iterator] instance that iterates over no elements.
+ */
+@JvmName("empty")
+fun <T> emptyIterator(): Iterator<T> = EmptyIterator
+
+/**
+ * Returns a new [Iterator] that only iterates over the given [item].
+ */
+@JvmName("singletonOf")
+fun <T> singletonIteratorOf(item: T): Iterator<T> = object : AbstractIterator<T>() {
+    override fun computeNext() {
+        setNext(item)
+        done()
+    }
+}
+
 // -- LIST ITERATOR -- \\
 /**
- * A [ListIterator] that does not allow any of its elements to be modified.
+ * Returns an unmodifiable view of `this` iterator.
+ *
+ * Any attempts to invoke the `remove`, `set` and/or `add` operations will result in a [UnsupportedOperationException]
+ * being thrown.
  */
-class UnmodifiableListIterator<out T>(private val delegate: ListIterator<T>) : ListIterator<T> by delegate
+@JvmName("unmodifiableListIterator")
+fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = object : ListIterator<T> by this {}
+
+internal object EmptyListIterator : ListIterator<Nothing> {
+    override fun hasNext(): Boolean = false
+
+    override fun hasPrevious(): Boolean = false
+
+    override fun next(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
+
+    override fun nextIndex(): Int = INDEX_NOT_FOUND
+
+    override fun previous(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
+
+    override fun previousIndex(): Int = INDEX_NOT_FOUND
+}
 
 /**
- * Returns `this` iterator wrapped in a [UnmodifiableListIterator], which does not allow any of it's elements to be
- * modified.
+ * Returns a [ListIterator] instance that iterates over no elements.
  */
-fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = UnmodifiableListIterator(this)
+fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
 
 /**
- * Represents a [list-iterator][ListIterator] that iterates over a single object.
+ * Returns a new [ListIterator] instance that only iterates over the given [item].
  */
-class SingletonListIterator<out T>(private val item: T) : ListIterator<T> {
+fun <T> singletonListIteratorOf(item: T): ListIterator<T> = object : ListIterator<T> {
     private var hasNext = true
 
     override fun hasNext(): Boolean = hasNext
@@ -89,26 +103,9 @@ class SingletonListIterator<out T>(private val item: T) : ListIterator<T> {
     override fun previousIndex(): Int = 0
 }
 
-/**
- * Represents a [ListIterator] that iterates over no elements.
- */
-object EmptyListIterator : ListIterator<Nothing> {
-    override fun hasNext(): Boolean = false
-
-    override fun hasPrevious(): Boolean = false
-
-    override fun next(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
-
-    override fun nextIndex(): Int = INDEX_NOT_FOUND
-
-    override fun previous(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
-
-    override fun previousIndex(): Int = INDEX_NOT_FOUND
-}
-
 // -- ZIPPED ITERATOR -- \\
 /**
- * Represents a [iterator][Iterator] that returns elements from two iterators, [first] and [second].
+ * An [iterator][Iterator] that returns elements from two iterators, [first] and [second].
  *
  * @property [first] The first [Iterator] instance that `this` zipped-iterator uses.
  * @property [second] The second [Iterator] instance that `this` zipped-iterator uses.
@@ -121,11 +118,6 @@ class ZippedIterator<out A, out B>(
 
     override fun next(): Pair<A, B> = first.next() to second.next()
 }
-
-// -- FACTORY FUNCTIONS -- \\
-fun <T> emptyIterator(): Iterator<T> = EmptyIterator
-
-fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
 
 /**
  * Creates a [ZippedIterator] from `this` iterator and the given [other] instance.

@@ -18,15 +18,16 @@
 
 package moe.kanon.kommons.collections
 
-import java.util.*
-import kotlin.NoSuchElementException
+import java.util.Collections
+import java.util.EnumMap
+import java.util.TreeMap
 
 // -- CLASSES -- \\
-class SingletonMap<K, out V>(key: K, value: V) : Map<K, V> {
+private class SingletonMap<K, out V>(key: K, value: V) : AbstractMap<K, V>() {
     private val entry: Entry<K, V> = Entry(key, value)
 
-    override val entries: Set<Map.Entry<K, V>> = SingletonSet(entry)
-    override val keys: Set<K> = SingletonSet(entry.key)
+    override val entries: Set<Map.Entry<K, V>> = singletonSetOf(entry)
+    override val keys: Set<K> = singletonSetOf(entry.key)
     override val size: Int = 1
     override val values: Collection<V> = SingletonCollection(entry.value)
 
@@ -42,18 +43,17 @@ class SingletonMap<K, out V>(key: K, value: V) : Map<K, V> {
 }
 
 // -- FACTORY FUNCTIONS -- \\
-// custom
 /**
- * Returns a new [Map] that only contains one entry, which is created from the specified [key] and [value].
+ * Returns a new [Map] that only contains the given [value] mapped to the given [key].
  */
 @JvmName("singletonOf")
-fun <K, V> singletonMap(key: K, value: V): Map<K, V> = SingletonMap(key, value)
+fun <K, V> singletonMapOf(key: K, value: V): Map<K, V> = SingletonMap(key, value)
 
 /**
- * Returns a new [Map] that only contains one entry, which is created from the values of the specified [pair].
+ * Returns a new [Map] that only contains the given [value][Pair.second] mapped to the given [key][Pair.first].
  */
-@JvmName("singleton")
-fun <K, V> singletonMap(pair: Pair<K, V>): Map<K, V> = SingletonMap(pair.first, pair.second)
+@JvmName("singletonOf")
+fun <K, V> singletonMapOf(pair: Pair<K, V>): Map<K, V> = SingletonMap(pair.first, pair.second)
 
 // java
 /**
@@ -66,8 +66,9 @@ fun <K, V> Map<K, V>.asUnmodifiableMap(): Map<K, V> = Collections.unmodifiableMa
  */
 fun <K : Comparable<K>, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = TreeMap(pairs.toMap())
 
+// enum-map
 /**
- * Returns a new [emptyEnumMap] that contains the specified [entries].
+ * Returns a new [EnumMap] that contains the specified [entries].
  */
 // we're using the enum class constructor rather than the one that accepts a map so that the function won't fail if
 // the supplied 'entries' is empty.
@@ -75,13 +76,12 @@ inline fun <reified K : Enum<K>, V> enumMapOf(vararg entries: Pair<K, V>): Map<K
     EnumMap<K, V>(K::class.java).fillWith(entries)
 
 /**
- * Returns a new and empty [emptyEnumMap] based on the specified [enum][K].
+ * Returns a new and empty [EnumMap] based on the specified [enum][K].
  */
-@JvmName("emptyEnumMap")
 inline fun <reified K : Enum<K>, V> emptyEnumMap(): EnumMap<K, V> = EnumMap(K::class.java)
 
 /**
- * Returns a new [emptyEnumMap] which is populated by the specified [init] function.
+ * Returns a new [EnumMap] which is populated by the specified [init] function.
  */
 @JvmName("enumMap")
 inline fun <reified K : Enum<K>, V> enumMap(init: (K) -> V): EnumMap<K, V> =

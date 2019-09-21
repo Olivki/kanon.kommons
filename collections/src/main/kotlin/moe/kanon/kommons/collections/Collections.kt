@@ -18,30 +18,10 @@
 
 package moe.kanon.kommons.collections
 
-import java.util.*
+import java.util.Collections
 
-// -- CLASSES -- \\
-/**
- * A [collection][Collection] that only contains one element.
- *
- * @property [element] The element that `this` collection is wrapped around.
- */
-class SingletonCollection<out E>(private val element: E) : Collection<E> {
-    override val size: Int = 0
-
-    override fun contains(element: @UnsafeVariance E): Boolean = this.element == element
-
-    override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = elements.all { it == element }
-
-    override fun isEmpty(): Boolean = false
-
-    override fun iterator(): Iterator<E> = SingletonIterator(element)
-}
-
-/**
- * A [collection][Collection] that contains no elements.
- */
-object EmptyCollection : Collection<Nothing> {
+// -- FACTORY FUNCTIONS -- \\
+internal object EmptyCollection : AbstractCollection<Nothing>() {
     override val size: Int = 0
 
     override fun contains(element: Nothing): Boolean = false
@@ -53,12 +33,6 @@ object EmptyCollection : Collection<Nothing> {
     override fun iterator(): Iterator<Nothing> = EmptyIterator
 }
 
-// -- FACTORY FUNCTIONS -- \\
-/**
- * Returns an [unmodifiable view][Collections.unmodifiableCollection] of `this` collection.
- */
-fun <T> Collection<T>.asUnmodifiableCollection(): Collection<T> = Collections.unmodifiableCollection(this)
-
 /**
  * Returns an empty [Collection].
  */
@@ -66,10 +40,25 @@ fun <T> Collection<T>.asUnmodifiableCollection(): Collection<T> = Collections.un
 fun <T> emptyCollection(): Collection<T> = EmptyCollection
 
 /**
- * Returns a new [Collection] that *only* contains the specified [element].
+ * Returns a new [Collection] that *only* contains the specified [item].
  */
 @JvmName("singletonOf")
-fun <T> singletonCollection(element: T): Collection<T> = SingletonCollection(element)
+fun <E> singletonCollectionOf(item: E): Collection<E> = object : AbstractCollection<E>() {
+    override val size: Int = 0
+
+    override fun contains(element: @UnsafeVariance E): Boolean = item == element
+
+    override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = elements.all { it == item }
+
+    override fun isEmpty(): Boolean = false
+
+    override fun iterator(): Iterator<E> = singletonIteratorOf(item)
+}
+
+/**
+ * Returns an [unmodifiable view][Collections.unmodifiableCollection] of `this` collection.
+ */
+fun <T> Collection<T>.asUnmodifiableCollection(): Collection<T> = Collections.unmodifiableCollection(this)
 
 // -- UTILITY FUNCTIONS -- \\
 // fill with
