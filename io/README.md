@@ -6,6 +6,8 @@ This module contains utilities for working with IO in Kotlin.
 
 The biggest part of this module is taken up by the `Path` extensions, which is a port of all the functions found in the `Files` class in the Java std-lib, plus some more custom functions.
 
+`moe.kanon.kommons.io.BufferedImages.kt` is mainly a wrapper for the [imgscalr](https://github.com/rkalla/imgscalr) library. 
+
 ## Installation
 
 Gradle

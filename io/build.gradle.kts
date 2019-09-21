@@ -1,3 +1,7 @@
 description = "Provides utilities/extensions for working with IO in Kotlin"
-version = "1.1.1"
+version = "1.2.0"
 extra["packageName"] = "io"
+
+dependencies {
+    implementation(group = "org.imgscalr", name = "imgscalr-lib", version = "4.2")
+}

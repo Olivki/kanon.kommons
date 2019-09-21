@@ -29,6 +29,7 @@ import java.io.Reader
 import java.io.UncheckedIOException
 import java.math.BigInteger
 import java.net.URI
+import java.net.URL
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.DirectoryIteratorException
@@ -48,7 +49,9 @@ import java.nio.file.PathMatcher
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
-import java.nio.file.StandardOpenOption.*
+import java.nio.file.StandardOpenOption.CREATE
+import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
+import java.nio.file.StandardOpenOption.WRITE
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileAttribute
 import java.nio.file.attribute.FileTime
@@ -61,6 +64,17 @@ import java.util.ArrayList
 private const val BUFFER_SIZE = 8192
 
 // -- FACTORY FUNCTIONS -- \\
+/**
+ * Converts a path string to a [Path].
+ *
+ * @return the resulting `Path`.
+ *
+ * @throws InvalidPathException if the path string cannot be converted to a `Path`.
+ *
+ * @see FileSystem.getPath
+ */
+fun pathOf(path: String): Path = Paths.get(path)
+
 /**
  * Converts a path string, or a sequence of strings that when joined form a path string, to a [Path].
  *
@@ -89,7 +103,7 @@ private const val BUFFER_SIZE = 8192
  * @param first the path string or initial part of the path string
  * @param more additional strings to be joined to form the path string.
  *
- * @return The resulting `Path`.
+ * @return the resulting `Path`.
  *
  * @throws InvalidPathException if the path string cannot be converted to a `Path`.
  *
@@ -168,9 +182,23 @@ fun pathOf(parent: Path, vararg more: String): Path = parent.resolve(*more)
 fun pathOf(uri: URI): Path = Paths.get(uri)
 
 /**
+ * Returns a [Path] that points towards the resource with the given [name], or `null` if none is found.
+ *
+ * @receiver the object which [class][Any.javaClass] is used to retrieve the resource
+ *
+ * @see [Class.getResource]
+ */
+fun Any.resourcePathOf(name: String): Path? = resourceOf(name)?.toPath()
+
+/**
  * Returns a new [Path] based on `this` uri.
  */
 fun URI.toPath(): Path = Paths.get(this)
+
+/**
+ * Returns a new [Path] that points towards `this` url.
+ */
+fun URL.toPath(): Path = this.toURI().toPath()
 
 // -- EXTENSIONS -- \\
 /**
