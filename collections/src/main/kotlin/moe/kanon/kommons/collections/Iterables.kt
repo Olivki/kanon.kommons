@@ -413,7 +413,8 @@ inline fun <T> Iterable<T>.mapToDoubleArray(transform: (T) -> Double): DoubleArr
  */
 inline fun <T, R> Iterable<T>.mapIndexedTo(destination: Array<R>, transform: (i: Int, e: T) -> R): Array<R> {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -426,7 +427,8 @@ inline fun <T, R> Iterable<T>.mapIndexedTo(destination: Array<R>, transform: (i:
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: BooleanArray, transform: (i: Int, e: T) -> Boolean): BooleanArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -439,7 +441,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: BooleanArray, transform: (i
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: CharArray, transform: (i: Int, e: T) -> Char): CharArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -452,7 +455,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: CharArray, transform: (i: I
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: ByteArray, transform: (i: Int, e: T) -> Byte): ByteArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -465,7 +469,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: ByteArray, transform: (i: I
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: ShortArray, transform: (i: Int, e: T) -> Short): ShortArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -478,7 +483,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: ShortArray, transform: (i: 
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: IntArray, transform: (i: Int, e: T) -> Int): IntArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -491,7 +497,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: IntArray, transform: (i: In
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: LongArray, transform: (i: Int, e: T) -> Long): LongArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -504,7 +511,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: LongArray, transform: (i: I
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: FloatArray, transform: (i: Int, e: T) -> Float): FloatArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
@@ -517,7 +525,8 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: FloatArray, transform: (i: 
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: DoubleArray, transform: (i: Int, e: T) -> Double): DoubleArray {
     requireThat(this.size <= destination.size, "this.size <= target.size")
-    for ((i, e) in withIndex()) destination[i] = transform(i, e)
+    var index = 0
+    for (element in this) destination[index++] = transform(index, element)
     return destination
 }
 
