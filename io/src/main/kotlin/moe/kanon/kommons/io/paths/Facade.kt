@@ -56,7 +56,10 @@ import java.nio.file.SecureDirectoryStream
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
-import java.nio.file.StandardOpenOption.*
+import java.nio.file.StandardOpenOption.CREATE
+import java.nio.file.StandardOpenOption.READ
+import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
+import java.nio.file.StandardOpenOption.WRITE
 import java.nio.file.attribute.BasicFileAttributeView
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.DosFileAttributes
@@ -68,7 +71,7 @@ import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFileAttributeView
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.UserPrincipal
-import java.util.*
+import java.util.EnumSet
 import java.util.stream.Stream
 import kotlin.streams.asSequence
 
@@ -1886,8 +1889,8 @@ fun Path.readBytes(): ByteArray = Files.readAllBytes(this)
  *
  * @see newBufferedReader
  */
-@JvmOverloads fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<String> =
-    Files.readAllLines(this, charset)
+@JvmOverloads
+fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<String> = Files.readAllLines(this, charset)
 
 /**
  * Writes the given [bytes] to `this` [file][Path].

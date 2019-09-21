@@ -23,6 +23,7 @@ import moe.kanon.kommons.io.pathMatcherOf
 import moe.kanon.kommons.io.requireDirectory
 import moe.kanon.kommons.io.requireFileExistence
 import moe.kanon.kommons.io.requireRegularFile
+import moe.kanon.kommons.io.resourceOf
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.Reader
@@ -188,7 +189,7 @@ fun pathOf(uri: URI): Path = Paths.get(uri)
  *
  * @see [Class.getResource]
  */
-fun Any.resourcePathOf(name: String): Path? = resourceOf(name)?.toPath()
+fun Any.resourcePathOf(name: String): Path? = this.resourceOf(name)?.toPath()
 
 /**
  * Returns a new [Path] based on `this` uri.
@@ -674,7 +675,9 @@ inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> =
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-val Path.lines: List<String> get() = this.readLines()
+@Deprecated("Ambiguous usage of a property", replaceWith = ReplaceWith("readLines()", "moe.kanon.kommons.io.paths"))
+val Path.lines: List<String>
+    get() = this.readLines()
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence].
@@ -705,9 +708,71 @@ val Path.lines: List<String> get() = this.readLines()
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-@Throws(IOException::class)
+@Deprecated(
+    "Name deviates from already known functions",
+    replaceWith = ReplaceWith("readLinesSequence()", "moe.kanon.kommons.io.paths")
+)
 @JvmOverloads
 fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
+    val reader = this.newBufferedReader(charset)
+    try {
+        return reader.lineSequence()
+    } catch (e: Error) {
+        try {
+            reader.close()
+        } catch (ex: IOException) {
+            try {
+                e.addSuppressed(ex)
+            } catch (ignore: Throwable) {
+            }
+        }
+
+        throw e
+    } catch (e: RuntimeException) {
+        try {
+            reader.close()
+        } catch (ex: IOException) {
+            try {
+                e.addSuppressed(ex)
+            } catch (ignore: Throwable) {
+            }
+        }
+
+        throw e
+    }
+}
+
+/**
+ * Reads all the lines from this [file][Path] into a [Sequence].
+ *
+ * Unlike [readAllLines(Path, Charset)][readLines], this method does not read all lines into a [List], but instead
+ * populates lazily as the stream is consumed.
+ *
+ * Bytes from the file are decoded into characters using the specified charset and the same line terminators as
+ * specified by [readLines] are supported.
+ *
+ * After this method returns, then any subsequent I/O exception that occurs while reading from the file or when a
+ * malformed or unmappable byte sequence is read, is wrapped in an [UncheckedIOException] that will be thrown from the
+ * [Sequence] method that caused the read to take place. In case an [IOException] is thrown when closing the file, it is
+ * also wrapped as an [UncheckedIOException].
+ *
+ * The returned sequence encapsulates a [Reader].
+ *
+ * @param charset the charset to use for decoding
+ *
+ * ([UTF_8][StandardCharsets.UTF_8] by default)
+ *
+ * @throws IOException if an I/O error occurs opening the file
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
+ *
+ * @see Path.lines
+ * @see readLines
+ * @see newBufferedReader
+ * @see java.io.BufferedReader.lines
+ */
+@JvmOverloads
+fun Path.readLinesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
     val reader = this.newBufferedReader(charset)
     try {
         return reader.lineSequence()
@@ -1135,12 +1200,7 @@ inline fun Path.ifDirectory(action: (Path) -> Unit): Path {
  */
 fun Path.overwriteBytesWith(source: Path): Path {
     requireFileExistence(source) { "Source does not exist! <$source>" }
-    return this.writeBytes(
-        source.readBytes(),
-        WRITE,
-        CREATE,
-        TRUNCATE_EXISTING
-    )
+    return this.writeBytes(source.readBytes(), WRITE, CREATE, TRUNCATE_EXISTING)
 }
 
 /**
