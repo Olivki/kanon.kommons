@@ -19,6 +19,7 @@
 
 package moe.kanon.kommons.io.paths
 
+import moe.kanon.kommons.CloseableSequence
 import moe.kanon.kommons.io.pathMatcherOf
 import moe.kanon.kommons.io.requireDirectory
 import moe.kanon.kommons.io.requireFileExistence
@@ -62,6 +63,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
+import java.util.NoSuchElementException
 
 private const val BUFFER_SIZE = 8192
 
@@ -782,7 +784,11 @@ fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<Stri
 fun Path.readLinesToList(charset: Charset = StandardCharsets.UTF_8): List<String> = this.readLines(charset).toList()
 
 /**
- * Returns a lazily populated [Sequence] of the lines of `this` file, the returned sequence may only be iterated once.
+ * Returns a lazily populated [CloseableSequence] of the lines of `this` file, the returned sequence may only be
+ * iterated once.
+ *
+ * Note that the returned sequence **MUST** be closed after use, otherwise a stream to `this` file will be permantly
+ * kept open.
  *
  * Bytes from the file are decoded into characters using the specified charset and the same line terminators as
  * specified by [readLinesToList] are supported.
@@ -808,8 +814,73 @@ fun Path.readLinesToList(charset: Charset = StandardCharsets.UTF_8): List<String
  * @see java.io.BufferedReader.lines
  */
 @JvmOverloads
-fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): Sequence<String> =
-    this.newBufferedReader(charset).use(BufferedReader::lineSequence)
+fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): CloseableSequence<String> {
+    val reader = this.newBufferedReader(charset)
+    try {
+        return CloseableLinesSequence(reader)
+    } catch (e: Error) {
+        try {
+            reader.close()
+        } catch (ex: IOException) {
+            try {
+                e.addSuppressed(ex)
+            } catch (ignore: Throwable) {
+            }
+        }
+
+        throw e
+    } catch (e: RuntimeException) {
+        try {
+            reader.close()
+        } catch (ex: IOException) {
+            try {
+                e.addSuppressed(ex)
+            } catch (ignore: Throwable) {
+            }
+        }
+
+        throw e
+    }
+}
+
+/**
+ * Returns the result of invoking [block] with the sequence returned from [readLines], and then closing the sequence.
+ *
+ * This function is a "wrapper" function instead of doing `file.readLines().use { ... }`, one can just do
+ * `file.mapLines { ... }`.
+ */
+@JvmOverloads
+inline fun <R> Path.mapLines(charset: Charset = StandardCharsets.UTF_8, block: (Sequence<String>) -> R): R =
+    this.readLines(charset).use(block)
+
+// from the 'ReadWrite.kt' file in the kotlin std-lib, but implemented with the 'CloseableSequence' interface
+private class CloseableLinesSequence(private val reader: BufferedReader) : CloseableSequence<String> {
+    override fun close() {
+        reader.close()
+    }
+
+    override fun iterator(): Iterator<String> {
+        return object : Iterator<String> {
+            private var nextValue: String? = null
+            private var done = false
+
+            override fun hasNext(): Boolean {
+                if (nextValue == null && !done) {
+                    nextValue = reader.readLine()
+                    if (nextValue == null) done = true
+                }
+                return nextValue != null
+            }
+
+            override fun next(): String {
+                if (!hasNext()) throw NoSuchElementException()
+                val answer = nextValue
+                nextValue = null
+                return answer!!
+            }
+        }
+    }
+}
 
 /**
  * Returns a [PathMatcher] instance from the [fileSystem][Path.getFileSystem] used by `this` path.
