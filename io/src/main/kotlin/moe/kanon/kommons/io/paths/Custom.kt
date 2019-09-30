@@ -24,6 +24,7 @@ import moe.kanon.kommons.io.requireDirectory
 import moe.kanon.kommons.io.requireFileExistence
 import moe.kanon.kommons.io.requireRegularFile
 import moe.kanon.kommons.io.resourceOf
+import java.io.BufferedReader
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.Reader
@@ -499,7 +500,7 @@ fun Path.writeString(
  * @throws [SecurityException] In the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] function is invoked to check read access to `this` file.
  *
- * @see readLines
+ * @see readLinesToList
  */
 @JvmOverloads
 fun Path.readString(charset: Charset = StandardCharsets.UTF_8): String {
@@ -671,22 +672,26 @@ inline fun Path.filter(crossinline predicate: (Path) -> Boolean): List<Path> =
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
  *
  * @see Path.linesSequence
- * @see readLines
+ * @see readLinesToList
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
-@Deprecated("Ambiguous usage of a property", replaceWith = ReplaceWith("readLines()", "moe.kanon.kommons.io.paths"))
+@Deprecated(
+    "Ambiguous usage of a property",
+    replaceWith = ReplaceWith("readLinesToList()", "moe.kanon.kommons.io.paths"),
+    level = DeprecationLevel.ERROR
+)
 val Path.lines: List<String>
-    get() = this.readLines()
+    get() = this.readLinesToList()
 
 /**
  * Reads all the lines from this [file][Path] into a [Sequence].
  *
- * Unlike [readAllLines(Path, Charset)][readLines], this method does not read all lines into a [List], but instead
+ * Unlike [readLines(Path, Charset)][readLinesToList], this method does not read all lines into a [List], but instead
  * populates lazily as the stream is consumed.
  *
  * Bytes from the file are decoded into characters using the specified charset and the same line terminators as
- * specified by [readLines] are supported.
+ * specified by [readLinesToList] are supported.
  *
  * After this method returns, then any subsequent I/O exception that occurs while reading from the file or when a
  * malformed or unmappable byte sequence is read, is wrapped in an [UncheckedIOException] that will be thrown from the
@@ -704,13 +709,14 @@ val Path.lines: List<String>
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
  *
  * @see Path.lines
- * @see readLines
+ * @see readLinesToList
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
 @Deprecated(
     "Name deviates from already known functions",
-    replaceWith = ReplaceWith("readLinesSequence()", "moe.kanon.kommons.io.paths")
+    replaceWith = ReplaceWith("readLines()", "moe.kanon.kommons.io.paths"),
+    level = DeprecationLevel.ERROR
 )
 @JvmOverloads
 fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
@@ -743,13 +749,43 @@ fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<Stri
 }
 
 /**
- * Reads all the lines from this [file][Path] into a [Sequence].
+ * Reads all the lines from `this` [file][Path].
  *
- * Unlike [readAllLines(Path, Charset)][readLines], this method does not read all lines into a [List], but instead
- * populates lazily as the stream is consumed.
+ * This method ensures that the file is closed when all bytes have been read or an I/O error, or other runtime
+ * exception, is thrown. Bytes from the file are decoded into characters using the specified [charset].
+ *
+ * This method recognizes the following as line terminators:
+ *
+ * - `\u000D` followed by `\u000A`.
+ * - **`CARRIAGE RETURN`** followed by **`LINE FEED`**.
+ * - `\u000A`, **`LINE FEED`**.
+ * - `\u000D`, **`CARRIAGE RETURN`**.
+ *
+ * Additional Unicode line terminators may be recognized in future releases.
+ *
+ * Note that this method is intended for simple cases where it is convenient to read all lines in a single operation.
+ * It is not intended for reading in large files.
+ *
+ * @param charset the charset to use for decoding
+ *
+ * ([UTF-8][StandardCharsets.UTF_8] by default)
+ *
+ * @return the lines from the file as a [List]
+ *
+ * @throws IOException if an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read
+ * @throws SecurityException in the case of the default provider, and a security manager is installed, the
+ * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
+ *
+ * @see newBufferedReader
+ */
+@JvmOverloads
+fun Path.readLinesToList(charset: Charset = StandardCharsets.UTF_8): List<String> = this.readLines(charset).toList()
+
+/**
+ * Returns a lazily populated [Sequence] of the lines of `this` file, the returned sequence may only be iterated once.
  *
  * Bytes from the file are decoded into characters using the specified charset and the same line terminators as
- * specified by [readLines] are supported.
+ * specified by [readLinesToList] are supported.
  *
  * After this method returns, then any subsequent I/O exception that occurs while reading from the file or when a
  * malformed or unmappable byte sequence is read, is wrapped in an [UncheckedIOException] that will be thrown from the
@@ -767,39 +803,13 @@ fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<Stri
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
  *
  * @see Path.lines
- * @see readLines
+ * @see readLinesToList
  * @see newBufferedReader
  * @see java.io.BufferedReader.lines
  */
 @JvmOverloads
-fun Path.readLinesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<String> {
-    val reader = this.newBufferedReader(charset)
-    try {
-        return reader.lineSequence()
-    } catch (e: Error) {
-        try {
-            reader.close()
-        } catch (ex: IOException) {
-            try {
-                e.addSuppressed(ex)
-            } catch (ignore: Throwable) {
-            }
-        }
-
-        throw e
-    } catch (e: RuntimeException) {
-        try {
-            reader.close()
-        } catch (ex: IOException) {
-            try {
-                e.addSuppressed(ex)
-            } catch (ignore: Throwable) {
-            }
-        }
-
-        throw e
-    }
-}
+fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): Sequence<String> =
+    this.newBufferedReader(charset).use(BufferedReader::lineSequence)
 
 /**
  * Returns a [PathMatcher] instance from the [fileSystem][Path.getFileSystem] used by `this` path.
@@ -1025,7 +1035,7 @@ val Path.directorySize: BigInteger
 @JvmOverloads
 inline fun Path.eachLine(charset: Charset = StandardCharsets.UTF_8, action: (String) -> Unit) {
     requireFileExistence(this)
-    for (line in readLines(charset)) action(line)
+    for (line in readLinesToList(charset)) action(line)
 }
 
 /**

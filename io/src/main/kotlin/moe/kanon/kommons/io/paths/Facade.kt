@@ -1706,7 +1706,7 @@ val Path.isExecutable: Boolean get() = Files.isExecutable(this)
  * @throws SecurityException in the case of the default provider, and a security manager is installed, the
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  *
- * @see Path.readLines
+ * @see Path.readLinesToList
  */
 @JvmOverloads
 fun Path.newBufferedReader(charset: Charset = StandardCharsets.UTF_8): BufferedReader =
@@ -1858,39 +1858,6 @@ infix fun Path.copyTo(outputStream: OutputStream): Long = Files.copy(this, outpu
  * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file.
  */
 fun Path.readBytes(): ByteArray = Files.readAllBytes(this)
-
-/**
- * Reads all the lines from `this` [file][Path].
- *
- * This method ensures that the file is closed when all bytes have been read or an I/O error, or other runtime
- * exception, is thrown. Bytes from the file are decoded into characters using the specified [charset].
- *
- * This method recognizes the following as line terminators:
- *
- * - `\u000D` followed by `\u000A`.
- * - **`CARRIAGE RETURN`** followed by **`LINE FEED`**.
- * - `\u000A`, **`LINE FEED`**.
- * - `\u000D`, **`CARRIAGE RETURN`**.
- *
- * Additional Unicode line terminators may be recognized in future releases.
- *
- * Note that this method is intended for simple cases where it is convenient to read all lines in a single operation.
- * It is not intended for reading in large files.
- *
- * @param charset the charset to use for decoding
- *
- * ([UTF-8][StandardCharsets.UTF_8] by default)
- *
- * @return the lines from the file as a [List]
- *
- * @throws IOException if an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read
- * @throws SecurityException in the case of the default provider, and a security manager is installed, the
- * [checkRead(String)][SecurityManager.checkRead] method is invoked to check read access to the file
- *
- * @see newBufferedReader
- */
-@JvmOverloads
-fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): List<String> = Files.readAllLines(this, charset)
 
 /**
  * Writes the given [bytes] to `this` [file][Path].

@@ -1,6 +1,8 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import name.remal.gradle_plugins.dsl.extensions.convention
+import name.remal.gradle_plugins.dsl.extensions.get
+import name.remal.gradle_plugins.dsl.extensions.implementation
 import name.remal.gradle_plugins.plugins.publish.bintray.RepositoryHandlerBintrayExtension
-import name.remal.gradle_plugins.dsl.extensions.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     repositories {
@@ -43,7 +45,7 @@ subprojects {
 
     project.afterEvaluate {
         publishing.publications.withType<MavenPublication> {
-            artifactId = "kommons.${project.name}"
+            artifactId = if (project.name != "core") "kommons.${project.name}" else project.name
             pom {
                 name.set(project.name)
                 description.set(project.description)
