@@ -781,7 +781,8 @@ fun Path.linesSequence(charset: Charset = StandardCharsets.UTF_8): Sequence<Stri
  * @see newBufferedReader
  */
 @JvmOverloads
-fun Path.readLinesToList(charset: Charset = StandardCharsets.UTF_8): List<String> = this.readLines(charset).toList()
+fun Path.readLinesToList(charset: Charset = StandardCharsets.UTF_8): List<String> =
+    this.mapLines(charset) { it.toList() }
 
 /**
  * Returns a lazily populated [CloseableSequence] of the lines of `this` file, the returned sequence may only be
@@ -852,6 +853,22 @@ fun Path.readLines(charset: Charset = StandardCharsets.UTF_8): CloseableSequence
 @JvmOverloads
 inline fun <R> Path.mapLines(charset: Charset = StandardCharsets.UTF_8, block: (Sequence<String>) -> R): R =
     this.readLines(charset).use(block)
+
+/**
+ * Returns the contents of the line of `this` file at the given [index], or throws an [IndexOutOfBoundsException] if
+ * `this` file does not have a line at `index`.
+ */
+@JvmOverloads
+fun Path.readLine(index: Int, charset: Charset = StandardCharsets.UTF_8): String =
+    this.mapLines(charset) { it.elementAt(index) }
+
+/**
+ * Returns the contents of the line of `this` file at the given [index], or `null` if `this` file does not have a line
+ * at `index`.
+ */
+@JvmOverloads
+fun Path.readLineOrNull(index: Int, charset: Charset = StandardCharsets.UTF_8): String? =
+    this.mapLines(charset) { it.elementAtOrNull(index) }
 
 // from the 'ReadWrite.kt' file in the kotlin std-lib, but implemented with the 'CloseableSequence' interface
 private class CloseableLinesSequence(private val reader: BufferedReader) : CloseableSequence<String> {
