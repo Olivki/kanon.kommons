@@ -72,7 +72,7 @@ fun <K : Comparable<K>, V> treeMapOf(vararg pairs: Pair<K, V>): TreeMap<K, V> = 
  */
 // we're using the enum class constructor rather than the one that accepts a map so that the function won't fail if
 // the supplied 'entries' is empty.
-inline fun <reified K : Enum<K>, V> enumMapOf(vararg entries: Pair<K, V>): Map<K, V> =
+inline fun <reified K : Enum<K>, V> enumMapOf(vararg entries: Pair<K, V>): EnumMap<K, V> =
     EnumMap<K, V>(K::class.java).fillWith(entries)
 
 /**
