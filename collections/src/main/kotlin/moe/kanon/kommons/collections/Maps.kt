@@ -146,3 +146,13 @@ fun <K, V, M : MutableMap<K, V>> M.fillWith(pairs: Array<out Pair<K, V>>): M = t
  * Adds the contents of the specified [map] to `this` map, and returns `this`.
  */
 fun <K, V, M : MutableMap<K, V>> M.fillWith(map: Map<K, V>): M = this.apply { putAll(map) }
+
+/**
+ * Returns a map containing all entries that have a key that are instances of the specified type parameter [R].
+ */
+inline fun <reified R, V> Map<*, V>.filterKeysIsInstance(): Map<R, V> = this.filterKeys { it is R } as Map<R, V>
+
+/**
+ * Returns a map containing all entries that have a value that are instances of the specified type parameter [R].
+ */
+inline fun <K, reified R> Map<K, *>.filterValuesIsInstance(): Map<K, R> = this.filterValues { it is R } as Map<K, R>
