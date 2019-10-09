@@ -87,6 +87,17 @@ inline fun <reified K : Enum<K>, V> emptyEnumMap(): EnumMap<K, V> = EnumMap(K::c
 inline fun <reified K : Enum<K>, V> enumMap(init: (K) -> V): EnumMap<K, V> =
     emptyEnumMap<K, V>().fillWith(enumValues<K>().associate { it to init(it) })
 
+/**
+ * Returns a new [enum-map][EnumMap] containing the entries of `this` map.
+ */
+inline fun <reified K : Enum<K>, V> Map<K, V>.toEnumMap(): EnumMap<K, V> = convertToEnumMap(this, K::class.java)
+
+@PublishedApi
+internal fun <K : Enum<K>, V> convertToEnumMap(origin: Map<K, V>, clz: Class<K>): EnumMap<K, V> = when (origin) {
+    is EnumMap -> origin
+    else -> EnumMap<K, V>(clz).apply { putAll(origin) }
+}
+
 // -- UTIL FUNCTIONS -- \\
 /**
  * Creates a string from all the elements separated using [separator] and using the given [prefix] and [postfix] if
