@@ -6,6 +6,8 @@ This module provides some basic functional constructs and abstract data types to
 
 The data types provided are currently the following; `Option`, `Either`, `Try`, `Tuple0..24`, `TupleN`, and several extension functions for each data type to integrate them nicely with the Kotlin std-lib.
 
+This was mainly made as an exercise, if you want to make use of abstract data types and functional concepts in Kotlin, I'd highly recommend using [arrow](https://github.com/arrow-kt/arrow) instead of this library.
+
 ## Installation
 
 Gradle
