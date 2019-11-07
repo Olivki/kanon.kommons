@@ -227,11 +227,11 @@ data class LinkedCachingCell<out T> @JvmOverloads constructor(
     var next: LinkedCachingCell<@UnsafeVariance T>? = null
 ) : CachingCell<T>(element, keyHash, rest) {
     override fun toString(): String = when {
-        previous == null && next == null && rest != null -> "LinkedCell[$element -> ${rest!!.element}]"
-        previous == null && next == null -> "LinkedCell[$element]"
-        previous == null && next != null -> "LinkedCell[$element -> ${next!!.element}]"
-        previous != null && next != null -> "LinkedCell[${previous!!.element} -> $element -> ${next!!.element}]"
-        else -> "LinkedCell[$element]"
+        previous == null && next == null && rest != null -> "LinkedCachingCell[$element -> ${rest!!.element}]"
+        previous == null && next == null -> "LinkedCachingCell[$element]"
+        previous == null && next != null -> "LinkedCachingCell[$element -> ${next!!.element}]"
+        previous != null && next != null -> "LinkedCachingCell[${previous!!.element} -> $element -> ${next!!.element}]"
+        else -> "LinkedCachingCell[$element]"
     }
 }
 
