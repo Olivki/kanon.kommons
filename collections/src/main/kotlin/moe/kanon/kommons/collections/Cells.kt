@@ -73,6 +73,63 @@ class CellIterator<out T>(start: Cell<T>) : Iterator<T> {
 }
 
 /**
+ * A [Cell] that knows of the [previous] element and the [next] element in a chain.
+ *
+ * @property [next] The next node in the chain.
+ * @property [previous] The previous node in the chain.
+ */
+data class LinkedCell<out T> @JvmOverloads constructor(
+    val element: T,
+    var previous: LinkedCell<@UnsafeVariance T>? = null,
+    var next: LinkedCell<@UnsafeVariance T>? = null
+) {
+    override fun toString(): String = when {
+        previous == null && next == null -> "LinkedCell[$element]"
+        previous == null && next != null -> "LinkedCell[$element -> ${next!!.element}]"
+        previous != null && next != null -> "LinkedCell[${previous!!.element} -> $element -> ${next!!.element}]"
+        else -> "LinkedCell[$element]"
+    }
+}
+
+/**
+ * Returns the first [LinkedCachingCell] in the [previous][LinkedCachingCell.previous] chain of `this` cell, or throws
+ * [NoSuchElementException] if `this` cell has no `previous` cell.
+ */
+@JvmName("getFirst")
+fun <T> LinkedCell<T>.first(): LinkedCell<T> {
+    if (previous == null) throw NoSuchElementException()
+    var currentCell = next
+    while (currentCell?.next != null) currentCell = currentCell.next
+    return currentCell!!
+}
+
+/**
+ * Returns the last [LinkedCachingCell] in the [next][LinkedCachingCell.next] chain of `this` cell, or throws [NoSuchElementException]
+ * if `this` cell has no `next` cell.
+ */
+@JvmName("getLast")
+fun <T> LinkedCell<T>.last(): LinkedCell<T> {
+    if (next == null) throw NoSuchElementException()
+    var currentCell = next
+    while (currentCell?.next != null) currentCell = currentCell.next
+    return currentCell!!
+}
+
+/**
+ * An iterator that iterates over [LinkedCells][LinkedCell] and returns the underlying values.
+ */
+class LinkedCellIterator<out T>(start: LinkedCell<T>) : Iterator<T> {
+    private var currentCell: LinkedCell<T>? = start
+
+    override fun hasNext(): Boolean = if (currentCell == null) false else currentCell!!.next != null
+
+    override fun next(): T = if (!hasNext()) throw NoSuchElementException() else currentCell!!.let {
+        currentCell = it.next
+        it.element
+    }
+}
+
+/**
  * Represents a node in a singly linked list that has a attribute to cache hash-codes.
  *
  * ### Port Details
@@ -146,7 +203,6 @@ class CachingCellIterator<out T>(start: CachingCell<T>) : Iterator<T> {
     }
 }
 
-// linked
 /**
  * A [Cell] with two traversal modes:
  *
