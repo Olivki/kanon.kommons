@@ -272,6 +272,18 @@ fun <T> CachingCell<T>.last(): CachingCell<T> {
 }
 
 /**
+ * Returns the last [CachingCell] in the [rest][CachingCell.rest] chain of `this` cell, or `null` if `this` cell has no
+ * `rest` cell.
+ */
+@JvmName("getLastOrNull")
+fun <T> CachingCell<T>.lastOrNull(): CachingCell<T>? {
+    if (rest == null) return null
+    var currentCell = rest
+    while (currentCell?.rest != null) currentCell = currentCell.rest
+    return currentCell!!
+}
+
+/**
  * An iterator that iterates over [CachingCells][CachingCell] and returns the underlying values.
  *
  * ### Port Details
@@ -351,7 +363,7 @@ fun <T> LinkedCachingCell<T>.last(): LinkedCachingCell<T> {
  */
 @JvmName("getFirstOrNull")
 fun <T> LinkedCachingCell<T>.firstOrNull(): LinkedCachingCell<T>? {
-    if (previous == null) throw NoSuchElementException()
+    if (previous == null) return null
     var currentCell = previous
     while (currentCell?.previous != null) currentCell = currentCell.previous
     return currentCell!!
@@ -363,7 +375,7 @@ fun <T> LinkedCachingCell<T>.firstOrNull(): LinkedCachingCell<T>? {
  */
 @JvmName("getLastOrNull")
 fun <T> LinkedCachingCell<T>.lastOrNull(): LinkedCachingCell<T>? {
-    if (next == null) throw NoSuchElementException()
+    if (next == null) return null
     var currentCell = next
     while (currentCell?.next != null) currentCell = currentCell.next
     return currentCell!!
