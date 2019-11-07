@@ -98,8 +98,8 @@ data class LinkedCell<out T> @JvmOverloads constructor(
 @JvmName("getFirst")
 fun <T> LinkedCell<T>.first(): LinkedCell<T> {
     if (previous == null) throw NoSuchElementException()
-    var currentCell = next
-    while (currentCell?.next != null) currentCell = currentCell.next
+    var currentCell = previous
+    while (currentCell?.previous != null) currentCell = currentCell.previous
     return currentCell!!
 }
 
@@ -242,8 +242,8 @@ data class LinkedCachingCell<out T> @JvmOverloads constructor(
 @JvmName("getFirst")
 fun <T> LinkedCachingCell<T>.first(): LinkedCachingCell<T> {
     if (previous == null) throw NoSuchElementException()
-    var currentCell = next
-    while (currentCell?.next != null) currentCell = currentCell.next
+    var currentCell = previous
+    while (currentCell?.previous != null) currentCell = currentCell.previous
     return currentCell!!
 }
 
