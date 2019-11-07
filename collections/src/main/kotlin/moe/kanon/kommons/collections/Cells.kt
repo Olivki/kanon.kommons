@@ -39,6 +39,23 @@ import moe.kanon.kommons.PortOf
  */
 @PortOf("ceylon.collection.Cell")
 data class Cell<out T> @JvmOverloads constructor(val element: T, var next: Cell<@UnsafeVariance T>? = null) {
+    /**
+     * Returns `this` cell as an [Iterable] instance, that iterates over the [next] chain of `this` cell.
+     */
+    fun asIterable(): Iterable<Cell<@UnsafeVariance T>> = object : Iterable<Cell<@UnsafeVariance T>> {
+        override fun iterator(): Iterator<Cell<T>> = object : AbstractIterator<Cell<@UnsafeVariance T>>() {
+            override fun computeNext() {
+                if (next == null) {
+                    done()
+                } else {
+                    var currentCell = next
+                    while (currentCell?.next != null) currentCell = currentCell.next
+                    setNext(currentCell!!)
+                }
+            }
+        }
+    }
+
     override fun toString(): String = if (next == null) "Cell[$element]" else "Cell[$element -> ${next!!.element}]"
 }
 
@@ -49,6 +66,17 @@ data class Cell<out T> @JvmOverloads constructor(val element: T, var next: Cell<
 @JvmName("getLast")
 fun <T> Cell<T>.last(): Cell<T> {
     if (next == null) throw NoSuchElementException()
+    var currentCell = next
+    while (currentCell?.next != null) currentCell = currentCell.next
+    return currentCell!!
+}
+
+/**
+ * Returns the last [Cell] in the [next][Cell.next] chain of `this` cell, or `null` if `this` cell has no `next` cell.
+ */
+@JvmName("getLastOrNull")
+fun <T> Cell<T>.lastOrNull(): Cell<T>? {
+    if (next == null) return null
     var currentCell = next
     while (currentCell?.next != null) currentCell = currentCell.next
     return currentCell!!
@@ -83,6 +111,40 @@ data class LinkedCell<out T> @JvmOverloads constructor(
     var previous: LinkedCell<@UnsafeVariance T>? = null,
     var next: LinkedCell<@UnsafeVariance T>? = null
 ) {
+    /**
+     * Returns `this` cell as an [Iterable] instance, that iterates over the [next] chain of `this` cell.
+     */
+    fun asNextIterable(): Iterable<LinkedCell<@UnsafeVariance T>> = object : Iterable<LinkedCell<@UnsafeVariance T>> {
+        override fun iterator(): Iterator<LinkedCell<T>> = object : AbstractIterator<LinkedCell<@UnsafeVariance T>>() {
+            override fun computeNext() {
+                if (next == null) {
+                    done()
+                } else {
+                    var currentCell = next
+                    while (currentCell?.next != null) currentCell = currentCell.next
+                    setNext(currentCell!!)
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns `this` cell as an [Iterable] instance, that iterates over the [previous] chain of `this` cell.
+     */
+    fun asPreviousIterable(): Iterable<LinkedCell<@UnsafeVariance T>> = object : Iterable<LinkedCell<@UnsafeVariance T>> {
+        override fun iterator(): Iterator<LinkedCell<T>> = object : AbstractIterator<LinkedCell<@UnsafeVariance T>>() {
+            override fun computeNext() {
+                if (previous == null) {
+                    done()
+                } else {
+                    var currentCell = previous
+                    while (currentCell?.previous != null) currentCell = currentCell.previous
+                    setNext(currentCell!!)
+                }
+            }
+        }
+    }
+
     override fun toString(): String = when {
         previous == null && next == null -> "LinkedCell[$element]"
         previous == null && next != null -> "LinkedCell[$element -> ${next!!.element}]"
@@ -110,6 +172,30 @@ fun <T> LinkedCell<T>.first(): LinkedCell<T> {
 @JvmName("getLast")
 fun <T> LinkedCell<T>.last(): LinkedCell<T> {
     if (next == null) throw NoSuchElementException()
+    var currentCell = next
+    while (currentCell?.next != null) currentCell = currentCell.next
+    return currentCell!!
+}
+
+/**
+ * Returns the first [LinkedCell] in the [previous][LinkedCell.previous] chain of `this` cell, or `null` if `this` cell
+ * has no `previous` cell.
+ */
+@JvmName("getFirstOrNull")
+fun <T> LinkedCell<T>.firstOrNull(): LinkedCell<T>? {
+    if (previous == null) return null
+    var currentCell = previous
+    while (currentCell?.previous != null) currentCell = currentCell.previous
+    return currentCell!!
+}
+
+/**
+ * Returns the last [LinkedCell] in the [next][LinkedCell.next] chain of `this` cell, or `null` if `this` cell has no
+ * `next` cell.
+ */
+@JvmName("getLastOrNull")
+fun <T> LinkedCell<T>.lastOrNull(): LinkedCell<T>? {
+    if (next == null) return null
     var currentCell = next
     while (currentCell?.next != null) currentCell = currentCell.next
     return currentCell!!
@@ -253,6 +339,30 @@ fun <T> LinkedCachingCell<T>.first(): LinkedCachingCell<T> {
  */
 @JvmName("getLast")
 fun <T> LinkedCachingCell<T>.last(): LinkedCachingCell<T> {
+    if (next == null) throw NoSuchElementException()
+    var currentCell = next
+    while (currentCell?.next != null) currentCell = currentCell.next
+    return currentCell!!
+}
+
+/**
+ * Returns the first [LinkedCachingCell] in the [previous][LinkedCachingCell.previous] chain of `this` cell, or `null`
+ * if `this` cell has no `previous` cell.
+ */
+@JvmName("getFirstOrNull")
+fun <T> LinkedCachingCell<T>.firstOrNull(): LinkedCachingCell<T>? {
+    if (previous == null) throw NoSuchElementException()
+    var currentCell = previous
+    while (currentCell?.previous != null) currentCell = currentCell.previous
+    return currentCell!!
+}
+
+/**
+ * Returns the last [LinkedCachingCell] in the [next][LinkedCachingCell.next] chain of `this` cell, or `null` if `this`
+ * cell has no `next` cell.
+ */
+@JvmName("getLastOrNull")
+fun <T> LinkedCachingCell<T>.lastOrNull(): LinkedCachingCell<T>? {
     if (next == null) throw NoSuchElementException()
     var currentCell = next
     while (currentCell?.next != null) currentCell = currentCell.next
