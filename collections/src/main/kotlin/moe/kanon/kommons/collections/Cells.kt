@@ -163,12 +163,12 @@ class CachingCellIterator<out T>(start: CachingCell<T>) : Iterator<T> {
  * @property [previous] The previous node in the chain.
  */
 @PortOf("ceylon.collection.LinkedCell")
-data class LinkedCell<out T> @JvmOverloads constructor(
+data class LinkedCachingCell<out T> @JvmOverloads constructor(
     override val element: T,
     override val keyHash: Int,
     override var rest: CachingCell<@UnsafeVariance T>?,
-    var previous: LinkedCell<@UnsafeVariance T>?,
-    var next: LinkedCell<@UnsafeVariance T>? = null
+    var previous: LinkedCachingCell<@UnsafeVariance T>?,
+    var next: LinkedCachingCell<@UnsafeVariance T>? = null
 ) : CachingCell<T>(element, keyHash, rest) {
     override fun toString(): String = when {
         previous == null && next == null && rest != null -> "LinkedCell[$element -> ${rest!!.element}]"
@@ -180,11 +180,11 @@ data class LinkedCell<out T> @JvmOverloads constructor(
 }
 
 /**
- * Returns the first [LinkedCell] in the [previous][LinkedCell.previous] chain of `this` cell, or throws
+ * Returns the first [LinkedCachingCell] in the [previous][LinkedCachingCell.previous] chain of `this` cell, or throws
  * [NoSuchElementException] if `this` cell has no `previous` cell.
  */
 @JvmName("getFirst")
-fun <T> LinkedCell<T>.first(): LinkedCell<T> {
+fun <T> LinkedCachingCell<T>.first(): LinkedCachingCell<T> {
     if (previous == null) throw NoSuchElementException()
     var currentCell = next
     while (currentCell?.next != null) currentCell = currentCell.next
@@ -192,11 +192,11 @@ fun <T> LinkedCell<T>.first(): LinkedCell<T> {
 }
 
 /**
- * Returns the last [LinkedCell] in the [next][LinkedCell.next] chain of `this` cell, or throws [NoSuchElementException]
+ * Returns the last [LinkedCachingCell] in the [next][LinkedCachingCell.next] chain of `this` cell, or throws [NoSuchElementException]
  * if `this` cell has no `next` cell.
  */
 @JvmName("getLast")
-fun <T> LinkedCell<T>.last(): LinkedCell<T> {
+fun <T> LinkedCachingCell<T>.last(): LinkedCachingCell<T> {
     if (next == null) throw NoSuchElementException()
     var currentCell = next
     while (currentCell?.next != null) currentCell = currentCell.next
@@ -204,14 +204,14 @@ fun <T> LinkedCell<T>.last(): LinkedCell<T> {
 }
 
 /**
- * An iterator that iterates over [LinkedCells][LinkedCell] and returns the underlying values.
+ * An iterator that iterates over [LinkedCells][LinkedCachingCell] and returns the underlying values.
  *
  * ### Port Details
  * [ceylon.collection.LinkedCellIterator](https://github.com/eclipse/ceylon-sdk/blob/master/source/ceylon/collection/LinkedCell.ceylon#L25)
  */
 @PortOf("ceylon.collection.LinkedCellIterator")
-class LinkedCellIterator<out T>(start: LinkedCell<T>) : Iterator<T> {
-    private var currentCell: LinkedCell<T>? = start
+class LinkedCachingCellIterator<out T>(start: LinkedCachingCell<T>) : Iterator<T> {
+    private var currentCell: LinkedCachingCell<T>? = start
 
     override fun hasNext(): Boolean = if (currentCell == null) false else currentCell!!.next != null
 
