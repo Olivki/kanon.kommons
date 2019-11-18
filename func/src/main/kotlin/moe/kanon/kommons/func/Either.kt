@@ -220,6 +220,18 @@ fun <L, R> Either<L, R>.isRight(): Boolean {
 }
 
 /**
+ * Returns the [value][Left.value] of `this` if it is [left][Left], or throws a [NoSuchElementException] if `this`
+ * is [right][Right].
+ */
+operator fun <L, R> Either<L, R>.component1(): L = leftValue
+
+/**
+ * Returns the [value][Right.value] of `this` if it is [right][Right], or throws a [NoSuchElementException] if
+ * `this` is [left][Left].
+ */
+operator fun <L, R> Either<L, R>.component2(): R = rightValue
+
+/**
  * Represents the left-side of a [disjoint union][Either].
  */
 data class Left<out T>(val value: T) : Either<T, Nothing>() {
