@@ -24,12 +24,7 @@ import kotlin.properties.ReadWriteProperty
  *
  * This is made to keep in line with the [Delegates] object offered by the Kotlin standard library.
  */
-@Deprecated(
-    "Ambiguous name in relation to what it does",
-    ReplaceWith("KDelegates", "moe.kanon.kommons.lang.delegates"),
-    DeprecationLevel.ERROR
-)
-object Delegate {
+object KDelegates {
     /**
      * Returns a property delegate for a read/write property that can only be set *once*, any subsequent set attempts
      * will result in a [UnsupportedOperationException] being thrown.
