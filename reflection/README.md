@@ -4,6 +4,11 @@
 
 This module contains utilities for working with reflection in Kotlin.
 
+## TODO
+
+- Utils for converting a `KType` to `Type` *(there does exist an inbuilt property for converting a `KType` to a `Type`, but `KType` instances created using the `typeOf` function do **not** work with that extension property. This behaviour might change in Kotlin 1.4, so this might not be implemented)*.
+- Utils for converting a `Type` to a `KType`.
+
 ## Installation
 
 Gradle
