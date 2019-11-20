@@ -29,7 +29,8 @@ package moe.kanon.kommons.lang
  *
  * @param [delimiters] the characters that determine what words get capitalized
  */
-@JvmOverloads fun String.capitalizeWords(vararg delimiters: Char = charArrayOf(' ')): String = buildString {
+@JvmOverloads
+fun String.capitalizeWords(vararg delimiters: Char = charArrayOf(' ')): String = buildString {
     fun Char.isDelimiter(): Boolean = when {
         ' ' in delimiters -> this.isWhitespace()
         else -> this@isDelimiter in delimiters
@@ -93,7 +94,8 @@ fun String.capitalizeWords(predicate: (Char) -> Boolean): String = buildString {
  *
  * @since 0.6.0
  */
-@JvmOverloads fun String.uncapitalizeWords(vararg delimiters: Char = charArrayOf(' ')): String = buildString {
+@JvmOverloads
+fun String.uncapitalizeWords(vararg delimiters: Char = charArrayOf(' ')): String = buildString {
     fun Char.isDelimiter(): Boolean = when {
         ' ' in delimiters -> this.isWhitespace()
         else -> this@isDelimiter in delimiters
@@ -151,7 +153,8 @@ fun String.uncapitalizeWords(predicate: (Char) -> Boolean): String = buildString
  *
  * @param [delimiters] the characters that determine what words get capitalized
  */
-@JvmOverloads fun String.normalizeWordCasing(vararg delimiters: Char = charArrayOf(' ')): String =
+@JvmOverloads
+fun String.normalizeWordCasing(vararg delimiters: Char = charArrayOf(' ')): String =
     this.toLowerCase().capitalizeWords(*delimiters)
 
 /**

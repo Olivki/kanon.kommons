@@ -27,7 +27,10 @@ package moe.kanon.kommons.lang
 import moe.kanon.kommons.OverflowException
 import moe.kanon.kommons.PortOf
 
-@PublishedApi internal inline fun <reified E : Enum<E>> notFound(extra: () -> String): Nothing =
+// Should the names here be changed to 'enumOf' rather than 'valueOf'?
+
+@PublishedApi
+internal inline fun <reified E : Enum<E>> notFound(extra: () -> String): Nothing =
     throw NoSuchElementException("Could find no constant of enum <${E::class.java.name}> ${extra()}")
 
 /**

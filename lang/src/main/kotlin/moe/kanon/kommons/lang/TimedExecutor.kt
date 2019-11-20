@@ -18,7 +18,6 @@
 
 package moe.kanon.kommons.lang
 
-import moe.kanon.kommons.writeOut
 import java.time.Duration
 
 /**

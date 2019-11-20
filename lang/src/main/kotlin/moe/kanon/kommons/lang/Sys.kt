@@ -22,8 +22,11 @@ import java.io.InputStream
 import java.io.PrintStream
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
-import kotlin.NoSuchElementException
+import java.util.Properties
+
+/*
+ * This class was mainly made for "fun", it's actual usage is questionable, might be removed at a later date.
+ */
 
 /**
  * A simple facade for the [System] class.
