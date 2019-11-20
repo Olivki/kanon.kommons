@@ -17,7 +17,11 @@
 package moe.kanon.kommons.lang.delegates
 
 import kotlin.properties.Delegates
+import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty0
 
 /**
  * A "container" for the different `delegate` properties offered by `kommons.lang`.
@@ -33,4 +37,24 @@ object KDelegates {
      * [UnsupportedOperationException] will also be thrown.
      */
     fun <T> writeOnce(): ReadWriteProperty<Any?, T> = WriteOnceProperty()
+
+    /**
+     * Returns a property delegate for a read-only property that delegates all `get` operations towards the given
+     * [target].
+     */
+    fun <T> alias(target: KProperty0<T>): ReadOnlyProperty<Any?, T> = object : ReadOnlyProperty<Any?, T> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): T = target.get()
+    }
+
+    /**
+     * Returns a property delegate for a read-only property that delegates all `get` & `set` operations towards the
+     * given [target].
+     */
+    fun <T> alias(target: KMutableProperty0<T>): ReadWriteProperty<Any?, T> = object : ReadWriteProperty<Any?, T> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): T = target.get()
+
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+            target.set(value)
+        }
+    }
 }
