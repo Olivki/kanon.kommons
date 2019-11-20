@@ -63,6 +63,11 @@ class WriteOnceProperty<T> : ReadWriteProperty<Any?, T> {
  * - If `this` property is *not* a delegated property.
  * - If `this` property is *not* a `write-once` property.
  */
+@Deprecated(
+    "Ambiguous name in relation to what it does",
+    ReplaceWith("isWriteOnceSet", "moe.kanon.kommons.lang.delegates"),
+    DeprecationLevel.ERROR
+)
 val KProperty0<*>.isSet: Boolean
     get() {
         this.isAccessible = true
@@ -80,7 +85,46 @@ val KProperty0<*>.isSet: Boolean
  * - If `this` property is *not* a delegated property.
  * - If `this` property is *not* a `write-once` property.
  */
+@Deprecated(
+    "Ambiguous name in relation to what it does",
+    ReplaceWith("isWriteOnceNotSet", "moe.kanon.kommons.lang.delegates"),
+    DeprecationLevel.ERROR
+)
 val KProperty0<*>.isNotSet: Boolean
+    get() {
+        this.isAccessible = true
+        return when (val delegate = this.getDelegate()) {
+            null -> throw IllegalAccessException("Property <${this.name}> is not a delegated property")
+            is WriteOnceProperty<*> -> delegate.isNotSet
+            else -> throw IllegalAccessException("Property <${this.name}> is not a write-once property")
+        }
+    }
+
+/**
+ * Returns whether or not `this` [write-once][WriteOnceProperty] property has been set.
+ *
+ * @throws [IllegalAccessException]
+ * - If `this` property is *not* a delegated property.
+ * - If `this` property is *not* a `write-once` property.
+ */
+val KProperty0<*>.isWriteOnceSet: Boolean
+    get() {
+        this.isAccessible = true
+        return when (val delegate = this.getDelegate()) {
+            null -> throw IllegalAccessException("Property <${this.name}> is not a delegated property")
+            is WriteOnceProperty<*> -> delegate.isSet
+            else -> throw IllegalAccessException("Property <${this.name}> is not a write-once property")
+        }
+    }
+
+/**
+ * Returns whether or not `this` [write-once][WriteOnceProperty] property has been set.
+ *
+ * @throws [IllegalAccessException]
+ * - If `this` property is *not* a delegated property.
+ * - If `this` property is *not* a `write-once` property.
+ */
+val KProperty0<*>.isWriteOnceNotSet: Boolean
     get() {
         this.isAccessible = true
         return when (val delegate = this.getDelegate()) {
