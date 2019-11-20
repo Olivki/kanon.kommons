@@ -18,7 +18,6 @@
 
 package moe.kanon.kommons.reflection
 
-import moe.kanon.kommons.FakeKeyword
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
@@ -34,12 +33,7 @@ import kotlin.reflect.typeOf
  * to wrap the types in more layers.
  */
 
-// ugly hack to circumvent having to use either 'UseExperimental' or the 'ExperimentalStdLibApi' annotation every time
-// one wants to use the 'typeOf' function
-//@FakeKeyword
-//@UseExperimental(ExperimentalStdlibApi::class)
-//inline fun <reified T> type(): KType = typeOf<T>()
-
+// -- UTIL FUNCTIONS -- \\
 /**
  * Returns `true` if `this` type contains the given [other] type, `false` otherwise.
  */
@@ -82,3 +76,68 @@ fun KType.isSubtypeOf(clz: KClass<*>): Boolean = this.isSubtypeOf(clz.starProjec
  */
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T> KType.isSubtypeOf(): Boolean = this.isSubtypeOf(typeOf<T>())
+
+// -- 'PRIMITIVE' TYPES -- \\
+@UseExperimental(ExperimentalStdlibApi::class)
+private val BYTE_TYPE by lazy { typeOf<Byte>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val SHORT_TYPE by lazy { typeOf<Short>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val INT_TYPE by lazy { typeOf<Int>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val LONG_TYPE by lazy { typeOf<Long>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val FLOAT_TYPE by lazy { typeOf<Float>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val DOUBLE_TYPE by lazy { typeOf<Double>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val BOOLEAN_TYPE by lazy { typeOf<Boolean>() }
+
+@UseExperimental(ExperimentalStdlibApi::class)
+private val STRING_TYPE by lazy { typeOf<String>() }
+
+/**
+ * Returns a [KType] representing the [Byte] type.
+ */
+val Byte.Companion.TYPE: KType get() = BYTE_TYPE
+
+/**
+ * Returns a [KType] representing the [Short] type.
+ */
+val Short.Companion.TYPE: KType get() = SHORT_TYPE
+
+/**
+ * Returns a [KType] representing the [Int] type.
+ */
+val Int.Companion.TYPE: KType get() = INT_TYPE
+
+/**
+ * Returns a [KType] representing the [Long] type.
+ */
+val Long.Companion.TYPE: KType get() = LONG_TYPE
+
+/**
+ * Returns a [KType] representing the [Float] type.
+ */
+val Float.Companion.TYPE: KType get() = FLOAT_TYPE
+
+/**
+ * Returns a [KType] representing the [Double] type.
+ */
+val Double.Companion.TYPE: KType get() = DOUBLE_TYPE
+
+/**
+ * Returns a [KType] representing the [Boolean] type.
+ */
+val Boolean.Companion.TYPE: KType get() = BOOLEAN_TYPE
+
+/**
+ * Returns a [KType] representing the [String] type.
+ */
+val String.Companion.TYPE: KType get() = STRING_TYPE
