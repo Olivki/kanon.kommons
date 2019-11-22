@@ -23,7 +23,6 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.jvm.isAccessible
 
 /**
@@ -143,15 +142,14 @@ val KProperty0<*>.isWriteOnceNotSet: Boolean
  * - If `this` property is *not* a delegated property.
  * - If `this` property is *not* a `write-once` property.
  */
-val KProperty1<Any?, *>.isWriteOnceSet: Boolean
-    get() {
-        this.isAccessible = true
-        return when (val delegate = this.getDelegate(this.instanceParameter)) {
-            null -> throw IllegalAccessException("Property <${this.name}> is not a delegated property")
-            is WriteOnceProperty<*> -> delegate.isSet
-            else -> throw IllegalAccessException("Property <${this.name}> is not a write-once property")
-        }
+fun <T, R> isWriteOnceSet(receiver: T, property: KProperty1<T, R>): Boolean {
+    property.isAccessible = true
+    return when (val delegate = property.getDelegate(receiver)) {
+        null -> throw IllegalAccessException("Property <${property.name}> is not a delegated property")
+        is WriteOnceProperty<*> -> delegate.isSet
+        else -> throw IllegalAccessException("Property <${property.name}> is not a write-once property")
     }
+}
 
 /**
  * Returns whether or not `this` [write-once][WriteOnceProperty] property has been set.
@@ -160,12 +158,11 @@ val KProperty1<Any?, *>.isWriteOnceSet: Boolean
  * - If `this` property is *not* a delegated property.
  * - If `this` property is *not* a `write-once` property.
  */
-val KProperty1<Any?, *>.isWriteOnceNotSet: Boolean
-    get() {
-        this.isAccessible = true
-        return when (val delegate = this.getDelegate(this.instanceParameter)) {
-            null -> throw IllegalAccessException("Property <${this.name}> is not a delegated property")
-            is WriteOnceProperty<*> -> delegate.isNotSet
-            else -> throw IllegalAccessException("Property <${this.name}> is not a write-once property")
-        }
+fun <T, R> isWriteOnceNotSet(receiver: T, property: KProperty1<T, R>): Boolean {
+    property.isAccessible = true
+    return when (val delegate = property.getDelegate(receiver)) {
+        null -> throw IllegalAccessException("Property <${property.name}> is not a delegated property")
+        is WriteOnceProperty<*> -> delegate.isNotSet
+        else -> throw IllegalAccessException("Property <${property.name}> is not a write-once property")
     }
+}
