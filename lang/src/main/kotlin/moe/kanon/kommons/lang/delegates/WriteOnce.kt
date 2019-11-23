@@ -36,7 +36,7 @@ import kotlin.reflect.jvm.isAccessible
 class WriteOnceProperty<T> : ReadWriteProperty<Any?, T> {
     private object NOT_SET
 
-    private var value: Any? = null
+    private var value: Any? = NOT_SET
 
     /**
      * Returns whether or not the string of the property has been set.
