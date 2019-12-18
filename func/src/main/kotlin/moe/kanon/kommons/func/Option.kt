@@ -496,7 +496,7 @@ fun <T> List<T>.lastOrNone(): Option<T> = Option(lastOrNull())
  */
 @Deprecated(
     "The name does not follow naming convention",
-    ReplaceWith("getOrNone", "moe.kanon.kommons.func"),
+    ReplaceWith("getOrNone(key)", "moe.kanon.kommons.func"),
     DeprecationLevel.ERROR
 )
 fun <K, V> Map<K, V>.getValueOrNone(key: K): Option<V> = Option(this[key])
