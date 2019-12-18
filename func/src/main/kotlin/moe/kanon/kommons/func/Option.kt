@@ -494,7 +494,17 @@ fun <T> List<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 /**
  * Returns the value stored under the given [key] in `this` map, or [None] if no value is stored under the given `key`.
  */
+@Deprecated(
+    "The name does not follow naming convention",
+    ReplaceWith("getOrNone", "moe.kanon.kommons.func"),
+    DeprecationLevel.ERROR
+)
 fun <K, V> Map<K, V>.getValueOrNone(key: K): Option<V> = Option(this[key])
+
+/**
+ * Returns the value stored under the given [key] in `this` map, or [None] if no value is stored under the given `key`.
+ */
+fun <K, V> Map<K, V>.getOrNone(key: K): Option<V> = Option(this[key])
 
 // -- TO... FUNCTIONS -- \\
 /**

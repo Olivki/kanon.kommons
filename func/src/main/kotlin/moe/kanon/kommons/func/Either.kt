@@ -63,18 +63,21 @@ sealed class Either<out L, out R> : Identifiable {
         /**
          * Returns a [left-side][Left] of a [disjoint union][Either], containing the specified [value].
          */
-        @JvmStatic fun <L> left(value: L): Either<L, Nothing> = Left(value)
+        @JvmStatic
+        fun <L> left(value: L): Either<L, Nothing> = Left(value)
 
         /**
          * Returns a [right-side][Right] of a [disjoint union][Either], containing the specified [value].
          */
-        @JvmStatic fun <R> right(value: R): Either<Nothing, R> = Right(value)
+        @JvmStatic
+        fun <R> right(value: R): Either<Nothing, R> = Right(value)
 
         /**
          * Returns a [right-side][Right] containing the given [value] if it is *not* `null`, or a [left-side][Left]
          * containing nothing if it *is* `null`.
          */
-        @JvmStatic fun <T> fromNullable(value: T?): Either<Nothing?, T> =
+        @JvmStatic
+        fun <T> fromNullable(value: T?): Either<Nothing?, T> =
             if (value == null) Left(value) else Right(value)
 
         /**
@@ -85,7 +88,8 @@ sealed class Either<out L, out R> : Identifiable {
          * Note that any fatal exceptions *(for now, this means any exceptions that inherit from [Error])* will not be
          * caught, and will simply be re-thrown.
          */
-        @JvmStatic inline fun <T> tryCatch(closure: () -> T): Either<Throwable, T> = try {
+        @JvmStatic
+        inline fun <T> tryCatch(closure: () -> T): Either<Throwable, T> = try {
             Right(closure())
         } catch (t: Throwable) {
             requireNonFatal(t)
