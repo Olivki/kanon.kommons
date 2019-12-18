@@ -1056,6 +1056,7 @@ fun Sequence<Path>.filterByGlob(globPattern: String): Sequence<Path> =
  * @exception NotDirectoryException if `this` file is **not** a directory
  */
 @JvmOverloads
+@Deprecated("Does not work", level = DeprecationLevel.ERROR)
 fun Path.cleanDirectory(
     globPattern: String = "*",
     maxDepth: Int = Int.MAX_VALUE,
