@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,17 +35,17 @@ import kotlin.reflect.typeOf
 
 // -- UTIL FUNCTIONS -- \\
 /**
- * Returns `true` if `this` type contains the given [other] type, `false` otherwise.
+ * Returns `true` if `this` type contains the given [other] type, otherwise `false`.
  */
 operator fun KType.contains(other: KType): Boolean = this.arguments.any { it.type == other }
 
 /**
- * Returns `true` if `this` type contains the given [clz] class as a star projected type, `false` otherwise.
+ * Returns `true` if `this` type contains the given [clz] class as a star projected type, otherwise `false`.
  */
 operator fun KType.contains(clz: KClass<*>): Boolean = this.arguments.any { it.type == clz.starProjectedType }
 
 /**
- * Returns `true` if `this` type contains the given [T] type, `false` otherwise.
+ * Returns `true` if `this` type contains the given [T] type, otherwise `false`.
  */
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T> KType.hasType(): Boolean = this.arguments.any { it.type == typeOf<T>() }
@@ -56,23 +56,23 @@ inline fun <reified T> KType.hasType(): Boolean = this.arguments.any { it.type =
 operator fun KType.iterator(): Iterator<KTypeProjection> = this.arguments.iterator()
 
 /**
- * Returns `true` if `this` type is the same or is a supertype of [clz], `false` otherwise.
+ * Returns `true` if `this` type is the same or is a supertype of [clz], otherwise `false`.
  */
 fun KType.isSupertypeOf(clz: KClass<*>): Boolean = this.isSupertypeOf(clz.starProjectedType)
 
 /**
- * Returns `true` if `this` type is the same or is a supertype of [T], `false` otherwise.
+ * Returns `true` if `this` type is the same or is a supertype of [T], otherwise `false`.
  */
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T> KType.isSupertypeOf(): Boolean = this.isSupertypeOf(typeOf<T>())
 
 /**
- * Returns `true` if `this` type is the same or is a subtype of [clz], `false` otherwise.
+ * Returns `true` if `this` type is the same or is a subtype of [clz], otherwise `false`.
  */
 fun KType.isSubtypeOf(clz: KClass<*>): Boolean = this.isSubtypeOf(clz.starProjectedType)
 
 /**
- * Returns `true` if `this` type is the same or is a subtype of [T], `false` otherwise.
+ * Returns `true` if `this` type is the same or is a subtype of [T], otherwise `false`.
  */
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T> KType.isSubtypeOf(): Boolean = this.isSubtypeOf(typeOf<T>())

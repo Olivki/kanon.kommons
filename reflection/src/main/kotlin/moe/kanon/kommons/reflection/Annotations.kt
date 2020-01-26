@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,26 @@
 package moe.kanon.kommons.reflection
 
 import kotlin.reflect.KAnnotatedElement
-import kotlin.reflect.KClass
 
 /**
- * Returns whether or not `this` [annotated element][KAnnotatedElement] is annotated with the specified [annotation][A].
+ * Returns `true` if `this` element is annotated with the given [annotation][A], otherwise `false`.
  */
 inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean = this.annotations.any { it is A }
 
 /**
- * Returns the instance of specified the [annotation][A] that `this` element is annotated with or throws a
- * [NoSuchElementException] if `this` is not annotated with the specified `annotation`.
+ * Returns the *first* instance of the given [annotation][A] on `this` element, or throws a [NoSuchElementException]
+ * if `this` element is not annotated with the given `annotation`.
  */
 inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A = this.annotations.filterIsInstance<A>()
     .firstOrNull() ?: throw NoSuchElementException("<$this> is not annotated with <${A::class}>")
 
 /**
- * Calls [notExists] if `this` element does *not* contain the specified [annotation][A] otherwise calls [exists] if
- * it does contain it.
+ * Invokes the [notExists] function if `this` element is not annotated with the given [annotation][A], otherwise
+ * invokes the [exists] function, and returns the result.
+ *
+ * @return the result of invoking either the [notExists] or [exists] function
  */
+// TODO: Rename?
 inline fun <reified A : Annotation, R> KAnnotatedElement.foldAnnotation(notExists: () -> R, exists: (A) -> R): R = when {
     this.hasAnnotation<A>() -> exists(getAnnotation())
     else -> notExists()
