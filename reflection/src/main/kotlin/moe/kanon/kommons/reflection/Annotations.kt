@@ -29,8 +29,19 @@ inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean =
  * Returns the *first* instance of the given [annotation][A] on `this` element, or throws a [NoSuchElementException]
  * if `this` element is not annotated with the given `annotation`.
  */
-inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A = this.annotations.filterIsInstance<A>()
+inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A = this.annotations
+    .filterIsInstance<A>()
     .firstOrNull() ?: throw NoSuchElementException("<$this> is not annotated with <${A::class}>")
+
+/**
+ * Invokes the given [scope] function with the first instance of the given [annotation][A] if `this` element is
+ * annotated by it, otherwise does nothing.
+ */
+inline fun <reified A : Annotation> KAnnotatedElement.ifHasAnnotation(scope: (A) -> Unit) {
+    if (hasAnnotation<A>()) {
+        scope(getAnnotation())
+    }
+}
 
 /**
  * Invokes the [notExists] function if `this` element is not annotated with the given [annotation][A], otherwise
@@ -39,7 +50,8 @@ inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A = this.
  * @return the result of invoking either the [notExists] or [exists] function
  */
 // TODO: Rename?
-inline fun <reified A : Annotation, R> KAnnotatedElement.foldAnnotation(notExists: () -> R, exists: (A) -> R): R = when {
-    this.hasAnnotation<A>() -> exists(getAnnotation())
-    else -> notExists()
-}
+inline fun <reified A : Annotation, R> KAnnotatedElement.foldAnnotation(notExists: () -> R, exists: (A) -> R): R =
+    when {
+        this.hasAnnotation<A>() -> exists(getAnnotation())
+        else -> notExists()
+    }
