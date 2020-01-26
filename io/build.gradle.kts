@@ -1,5 +1,5 @@
 description = "Provides utilities/extensions for working with IO in Kotlin"
-version = "1.4.1"
+version = "1.4.2"
 extra["packageName"] = "io"
 
 dependencies {

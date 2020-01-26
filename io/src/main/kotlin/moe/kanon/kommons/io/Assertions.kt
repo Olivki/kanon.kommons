@@ -40,9 +40,10 @@ import java.nio.file.Path
  *
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  */
+@FakeKeyword
 @Throws(NoSuchFileException::class)
-@FakeKeyword inline fun requireFileExistence(path: Path, lazyMessage: () -> Any) {
-    if (path.notExists) throw NoSuchFileException(lazyMessage().toString())
+inline fun requireFileExistence(path: Path, lazyMessage: () -> Any) {
+    if (path.notExists) throw NoSuchFileException(path.toString(), null, lazyMessage().toString())
 }
 
 /**
@@ -53,8 +54,9 @@ import java.nio.file.Path
  *
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  */
+@FakeKeyword
 @Throws(NoSuchFileException::class)
-@FakeKeyword inline fun requireFileExistence(path: Path) = requireFileExistence(path) { "File <$path> doesn't exist!" }
+inline fun requireFileExistence(path: Path) = requireFileExistence(path) { "File <$path> doesn't exist!" }
 
 /**
  * Throws a [IOException] with the result of calling [lazyMessage] if `this` file is *not* a regular file.
@@ -64,7 +66,8 @@ import java.nio.file.Path
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  * @throws [NotDirectoryException] if the `Path` receiver is *not* a regular file
  */
-@FakeKeyword inline fun requireRegularFile(path: Path, lazyMessage: () -> Any) {
+@FakeKeyword
+inline fun requireRegularFile(path: Path, lazyMessage: () -> Any) {
     requireFileExistence(path)
     if (!path.isRegularFile) throw IOException(lazyMessage().toString())
 }
@@ -77,7 +80,8 @@ import java.nio.file.Path
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  * @throws [NotDirectoryException] if the `Path` receiver is *not* a regular file
  */
-@FakeKeyword inline fun requireRegularFile(path: Path) = requireRegularFile(path) { "<$path> is not a regular file" }
+@FakeKeyword
+inline fun requireRegularFile(path: Path) = requireRegularFile(path) { "<$path> is not a regular file" }
 
 /**
  * Throws a [NotDirectoryException] with the result of calling [lazyMessage] if `this` file is *not* a directory.
@@ -87,8 +91,9 @@ import java.nio.file.Path
  * @throws [NoSuchFileException] if the `Path` receiver does not have an existing file on the `file-system`
  * @throws [NotDirectoryException] if the `Path` receiver is *not* a directory
  */
+@FakeKeyword
 @Throws(NoSuchFileException::class, NotDirectoryException::class)
-@FakeKeyword inline fun requireDirectory(path: Path, lazyMessage: () -> Any) {
+inline fun requireDirectory(path: Path, lazyMessage: () -> Any) {
     requireFileExistence(path)
     if (!path.isDirectory) throw NotDirectoryException(lazyMessage().toString())
 }
@@ -101,15 +106,17 @@ import java.nio.file.Path
  * @throws [NoSuchFileException] If the `Path` receiver does not have an existing file on the `file-system`.
  * @throws [NotDirectoryException] If the `Path` receiver is *not* a directory.
  */
+@FakeKeyword
 @Throws(NoSuchFileException::class, NotDirectoryException::class)
-@FakeKeyword inline fun requireDirectory(path: Path) = requireDirectory(path) { "File <$path> needs to be a directory!" }
+inline fun requireDirectory(path: Path) = requireDirectory(path) { "File <$path> needs to be a directory!" }
 
 /**
  * Throws a [UnsupportedDesktopException] with the result of calling [lazyMessage] if the Java Desktop API does not
  * support the current desktop environment.
  */
+@FakeKeyword
 @Throws(UnsupportedDesktopException::class)
-@FakeKeyword inline fun requireSupportedDesktop(lazyMessage: () -> Any) {
+inline fun requireSupportedDesktop(lazyMessage: () -> Any) {
     if (!Desktop.isDesktopSupported()) throw UnsupportedDesktopException(lazyMessage().toString())
 }
 
@@ -117,7 +124,8 @@ import java.nio.file.Path
  * Throws a [UnsupportedDesktopException] with a default message if the Java Desktop API does not support the current
  * desktop environment.
  */
+@FakeKeyword
 @Throws(UnsupportedDesktopException::class)
-@FakeKeyword inline fun requireSupportedDesktop() = requireSupportedDesktop {
+inline fun requireSupportedDesktop() = requireSupportedDesktop {
     "The Java Desktop API is not supported on the current platform. (OS:${System.getProperty("os.name")})"
 }
