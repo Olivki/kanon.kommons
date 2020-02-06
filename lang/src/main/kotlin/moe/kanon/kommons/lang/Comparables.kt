@@ -20,10 +20,20 @@ package moe.kanon.kommons.lang
 
 /**
  * Returns the [end][ClosedRange.endInclusive] of the given [range] if `this` is larger than `range`,
- * or [start][ClosedRange.start] if `this` is smaller than `range`, otherwise returns `this`.
+ * or [start][ClosedRange.start] if `this` is smaller than `range`, otherwise returns `this` value.
  */
 fun <T : Comparable<T>> T.clampTo(range: ClosedRange<T>): T = when {
     this > range.endInclusive -> range.endInclusive
     this < range.start -> range.start
     else -> this
 }
+
+/**
+ * Returns `this` value if `this` is inside of the given [range], otherwise returns `null`.
+ */
+fun <T : Comparable<T>> T.takeIfInRange(range: ClosedRange<T>): T? = this.takeIf { it in range }
+
+/**
+ * Returns `this` value if `this` is *not* inside of the given [range], otherwise returns `null`.
+ */
+fun <T : Comparable<T>> T.takeUnlessInRange(range: ClosedRange<T>): T? = this.takeUnless { it in range }
