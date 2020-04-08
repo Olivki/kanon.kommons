@@ -22,6 +22,7 @@ import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
 
 /**
@@ -35,7 +36,7 @@ import kotlin.reflect.jvm.isAccessible
 class WriteOnceProperty<T> : ReadWriteProperty<Any?, T> {
     private object NOT_SET
 
-    private var value: Any? = null
+    private var value: Any? = NOT_SET
 
     /**
      * Returns whether or not the string of the property has been set.
@@ -133,3 +134,35 @@ val KProperty0<*>.isWriteOnceNotSet: Boolean
             else -> throw IllegalAccessException("Property <${this.name}> is not a write-once property")
         }
     }
+
+/**
+ * Returns whether or not `this` [write-once][WriteOnceProperty] property has been set.
+ *
+ * @throws [IllegalAccessException]
+ * - If `this` property is *not* a delegated property.
+ * - If `this` property is *not* a `write-once` property.
+ */
+fun <T, R> isWriteOnceSet(receiver: T, property: KProperty1<T, R>): Boolean {
+    property.isAccessible = true
+    return when (val delegate = property.getDelegate(receiver)) {
+        null -> throw IllegalAccessException("Property <${property.name}> is not a delegated property")
+        is WriteOnceProperty<*> -> delegate.isSet
+        else -> throw IllegalAccessException("Property <${property.name}> is not a write-once property")
+    }
+}
+
+/**
+ * Returns whether or not `this` [write-once][WriteOnceProperty] property has been set.
+ *
+ * @throws [IllegalAccessException]
+ * - If `this` property is *not* a delegated property.
+ * - If `this` property is *not* a `write-once` property.
+ */
+fun <T, R> isWriteOnceNotSet(receiver: T, property: KProperty1<T, R>): Boolean {
+    property.isAccessible = true
+    return when (val delegate = property.getDelegate(receiver)) {
+        null -> throw IllegalAccessException("Property <${property.name}> is not a delegated property")
+        is WriteOnceProperty<*> -> delegate.isNotSet
+        else -> throw IllegalAccessException("Property <${property.name}> is not a write-once property")
+    }
+}

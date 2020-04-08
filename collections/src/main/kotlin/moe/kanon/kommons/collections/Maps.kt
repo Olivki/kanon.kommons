@@ -119,7 +119,19 @@ fun <K, V> Map<K, V>.joinToString(
  * Returns the value stored under the given [key], or throws a [NoSuchElementException] where the `message` is set to
  * the result of invoking [toString] on the given [lazyMessage] function.
  */
+@Deprecated(
+    "The name does not follow naming convention",
+    ReplaceWith("getOrThrow(key, lazyMessage)", "moe.kanon.kommons.collections"),
+    DeprecationLevel.ERROR
+)
 inline fun <K, V> Map<K, V>.getValueOrThrow(key: K, lazyMessage: () -> Any): V =
+    this[key] ?: throw NoSuchElementException(lazyMessage().toString())
+
+/**
+ * Returns the value stored under the given [key], or throws a [NoSuchElementException] where the `message` is set to
+ * the result of invoking [toString] on the given [lazyMessage] function.
+ */
+inline fun <K, V> Map<K, V>.getOrThrow(key: K, lazyMessage: () -> Any): V =
     this[key] ?: throw NoSuchElementException(lazyMessage().toString())
 
 /**

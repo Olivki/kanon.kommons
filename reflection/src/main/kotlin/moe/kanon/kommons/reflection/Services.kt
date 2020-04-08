@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,20 @@
 
 package moe.kanon.kommons.reflection
 
-import moe.kanon.kommons.writeOut
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.security.PrivilegedAction
-import java.security.AccessController
 import java.net.URL
 import java.security.AccessControlContext
-import java.util.*
-import kotlin.NoSuchElementException
-import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashMap
+import java.security.AccessController
+import java.security.PrivilegedAction
+import java.util.Enumeration
+import java.util.ServiceConfigurationError
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.jvmName
-import kotlin.reflect.typeOf
 
 /**
  * A Kotlin specific re-implementation of the [ServiceLoader] class provided in the Java standard library.
@@ -58,8 +54,9 @@ class KServiceLoader<S : Any> private constructor(
          *
          * Note that the `invoker` function is *not* used if the located service is an `object` class.
          */
+        @JvmStatic
         @JvmName("loadServices")
-        @JvmStatic operator fun <S : Any> invoke(
+        operator fun <S : Any> invoke(
             service: KClass<S>,
             loader: ClassLoader = ClassLoader.getSystemClassLoader(),
             invoker: (KClass<S>) -> S = { it.createInstance() }
@@ -71,7 +68,8 @@ class KServiceLoader<S : Any> private constructor(
          *
          * Note that the `invoker` function is *not* used if the located service is an `object` class.
          */
-        @JvmSynthetic inline operator fun <reified S : Any> invoke(
+        @JvmSynthetic
+        inline operator fun <reified S : Any> invoke(
             loader: ClassLoader = ClassLoader.getSystemClassLoader(),
             noinline invoker: (KClass<S>) -> S = { it.createInstance() }
         ): KServiceLoader<S> = invoke(S::class, loader, invoker)
@@ -246,7 +244,7 @@ class KServiceLoader<S : Any> private constructor(
  * Returns a new service loader for the given [service][S], loaded using the given [loader], and any instances
  * created by using the given [invoker] function.
  *
- * That the `invoker` function is *not* used if the located service is an `object` class.
+ * Note that the `invoker` function is *not* used if the located service is an `object` class.
  */
 inline fun <reified S : Any> loadServices(
     loader: ClassLoader = ClassLoader.getSystemClassLoader(),
@@ -257,7 +255,7 @@ inline fun <reified S : Any> loadServices(
  * Returns a new service loader for the given [service][S], loaded using the given [loader], and any instances
  * created by using the given [invoker] function.
  *
- * That the `invoker` function is *not* used if the located service is an `object` class.
+ * Note that the `invoker` function is *not* used if the located service is an `object` class.
  */
 inline fun <reified S : Any> Any?.loadLocalServices(
     loader: ClassLoader = this?.javaClass?.classLoader ?: ClassLoader.getSystemClassLoader(),
