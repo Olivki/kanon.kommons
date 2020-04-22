@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,14 @@ import kotlin.experimental.and
 /**
  * Returns whether or not this [Byte] number is odd.
  */
-val Byte.isOdd: Boolean get() = this and 1 != 0.toByte()
+val Byte.isOdd: Boolean
+    get() = this and 1 != 0.toByte()
 
 /**
  * Returns whether or not this [Byte] number is even.
  */
-val Byte.isEven: Boolean get() = this and 1 == 0.toByte()
+val Byte.isEven: Boolean
+    get() = this and 1 == 0.toByte()
 
 /**
  * Parses the given [value] as a [Byte] number and returns the result.
@@ -56,12 +58,14 @@ fun Byte.Companion.parse(value: String, radix: Int): Byte = java.lang.Byte.parse
 /**
  * Returns whether or not this [Short] number is odd.
  */
-val Short.isOdd: Boolean get() = this and 1 != 0.toShort()
+val Short.isOdd: Boolean
+    get() = this and 1 != 0.toShort()
 
 /**
  * Returns whether or not this [Short] number is even.
  */
-val Short.isEven: Boolean get() = this and 1 == 0.toShort()
+val Short.isEven: Boolean
+    get() = this and 1 == 0.toShort()
 
 /**
  * Parses the given [value] as a [Short] number and returns the result.
@@ -87,12 +91,14 @@ fun Short.Companion.parse(value: String, radix: Int): Short = java.lang.Short.pa
 /**
  * Returns whether or not this [Int] number is odd.
  */
-val Int.isOdd: Boolean get() = this and 1 != 0
+val Int.isOdd: Boolean
+    get() = this and 1 != 0
 
 /**
  * Returns whether or not this [Int] number is even.
  */
-val Int.isEven: Boolean get() = this and 1 == 0
+val Int.isEven: Boolean
+    get() = this and 1 == 0
 
 /**
  * Parses the given [value] as an [Int] number and returns the result.
@@ -118,12 +124,14 @@ fun Int.Companion.parse(value: String, radix: Int): Int = java.lang.Integer.pars
 /**
  * Returns whether or not this [Long] number is odd.
  */
-val Long.isOdd: Boolean get() = this and 1 != 0L
+val Long.isOdd: Boolean
+    get() = this and 1 != 0L
 
 /**
  * Returns whether or not this [Long] number is even.
  */
-val Long.isEven: Boolean get() = this and 1 == 0L
+val Long.isEven: Boolean
+    get() = this and 1 == 0L
 
 /**
  * Parses the given [value] as a [Long] number and returns the result.
