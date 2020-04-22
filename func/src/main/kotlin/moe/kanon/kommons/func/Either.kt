@@ -113,10 +113,10 @@ sealed class Either<out L, out R> : Identifiable {
     val left: EitherProjection.Left<L, R> by lazy { EitherProjection.Left(this) }
 
     /**
-     * Returns a [right-side-projection][EitherProjection.RightProjection] of `this` either instance.
+     * Returns a [right-side-projection][EitherProjection.Right] of `this` either instance.
      */
     @get:JvmName("right")
-    val right: EitherProjection.RightProjection<L, R> by lazy { EitherProjection.RightProjection(this) }
+    val right: EitherProjection.Right<L, R> by lazy { EitherProjection.Right(this) }
 
     /**
      * Returns the [value][Left.value] of `this` if it is [left][Left], or throws a [NoSuchElementException] if `this`
@@ -303,7 +303,7 @@ sealed class EitherProjection<out L, out R> : Identifiable {
      */
     fun swap(): Either<R, L> = when (this) {
         is Left -> Either.Right(value)
-        is RightProjection -> Either.Left(value)
+        is Right -> Either.Left(value)
     }
 
     /**
@@ -399,7 +399,7 @@ sealed class EitherProjection<out L, out R> : Identifiable {
     /**
      * Represents a projection of the [right-side][Either.Right] in a [disjoint-union][Either].
      */
-    class RightProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
+    class Right<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
         Identifiable by either {
         override val isLeft: Boolean = false
         override val isRight: Boolean = true
@@ -499,7 +499,7 @@ sealed class EitherProjection<out L, out R> : Identifiable {
 fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
     contract {
         returns(true) implies (this@isLeft is EitherProjection.Left<L, R>)
-        returns(false) implies (this@isLeft is EitherProjection.RightProjection<L, R>)
+        returns(false) implies (this@isLeft is EitherProjection.Right<L, R>)
     }
     return this.isLeft
 }
@@ -509,7 +509,7 @@ fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
  */
 fun <L, R> EitherProjection<L, R>.isRight(): Boolean {
     contract {
-        returns(true) implies (this@isRight is EitherProjection.RightProjection<L, R>)
+        returns(true) implies (this@isRight is EitherProjection.Right<L, R>)
         returns(false) implies (this@isRight is EitherProjection.Left<L, R>)
     }
     return this.isRight
