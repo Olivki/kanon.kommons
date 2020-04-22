@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("Executors")
-
 package moe.kanon.kommons.lang
 
 import java.time.Duration
@@ -25,6 +23,7 @@ import java.time.Duration
  *
  * @property [threshold] The threshold that needs to be passed for this to execute anything.
  */
+@Deprecated(message = "Class does not belong in kommons.lang.")
 data class TimedExecutor(val threshold: Long) {
     constructor(duration: Duration) : this(duration.toMillis())
 
@@ -34,7 +33,8 @@ data class TimedExecutor(val threshold: Long) {
      * Returns whether or not the specified [threshold] has been passed in time.
      */
     val canExecute: Boolean
-        @JvmName("canExecute") get() = (Sys.nanoTimeMillis - lastPoll) >= threshold
+        @JvmName("canExecute")
+        get() = (Sys.nanoTimeMillis - lastPoll) >= threshold
 
     /**
      * Refreshes the [lastPoll] property to be set to the current nano-time.
