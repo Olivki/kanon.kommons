@@ -143,7 +143,7 @@ infix fun Sequence<*>.hasSameElementsAs(other: Sequence<*>): Boolean {
  *
  * The operation is _terminal_.
  */
-fun <T> Sequence<T>.allEqual(): Boolean = if (this.isEmpty) false else this.all { it == first() }
+fun <T> Sequence<T>.allEqual(): Boolean = if (this.none()) false else this.all { it == first() }
 
 /**
  * Returns how many times the specified [item] appears in `this` sequence.
@@ -235,8 +235,8 @@ inline fun <T> Sequence<T>.unique(predicate: (T) -> Boolean): Boolean = this.cou
  * The operation is _terminal_.
  */
 tailrec infix operator fun <T> Sequence<T>.contains(content: Sequence<T>): Boolean = when {
-    content.isEmpty -> true
-    this.isEmpty -> content.isEmpty
+    content.none() -> true
+    this.none() -> content.none()
     this.take(content.count()) == content -> true
     else -> this.drop(1) contains content
 }
