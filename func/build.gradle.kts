@@ -1,7 +1,7 @@
 description = "Provides some basic functional constructs and abstract data types for Kotlin"
-version = "1.6.1"
+version = "2.0.0"
 extra["packageName"] = "func"
 
 dependencies {
-    compile(kotlin("reflect"))
+    api(kotlin("reflect"))
 }
