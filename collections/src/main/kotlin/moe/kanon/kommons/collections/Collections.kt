@@ -30,7 +30,7 @@ private object EmptyCollection : AbstractCollection<Nothing>() {
 
     override fun isEmpty(): Boolean = true
 
-    override fun iterator(): Iterator<Nothing> = EmptyIterator
+    override fun iterator(): Iterator<Nothing> = emptyIterator()
 }
 
 private class SingletonCollection<T>(val item: T) : AbstractCollection<T>() {
