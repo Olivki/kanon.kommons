@@ -107,16 +107,16 @@ sealed class Either<out L, out R> : Identifiable {
     abstract val isRight: Boolean
 
     /**
-     * Returns a [left-side-projection][LeftProjection] of `this` either instance.
+     * Returns a [left-side-projection][EitherProjection.LeftProjection] of `this` either instance.
      */
     @get:JvmName("left")
-    val left: LeftProjection<L, R> by lazy { LeftProjection(this) }
+    val left: EitherProjection.LeftProjection<L, R> by lazy { EitherProjection.LeftProjection(this) }
 
     /**
-     * Returns a [right-side-projection][RightProjection] of `this` either instance.
+     * Returns a [right-side-projection][EitherProjection.RightProjection] of `this` either instance.
      */
     @get:JvmName("right")
-    val right: RightProjection<L, R> by lazy { RightProjection(this) }
+    val right: EitherProjection.RightProjection<L, R> by lazy { EitherProjection.RightProjection(this) }
 
     /**
      * Returns the [value][Left.value] of `this` if it is [left][Left], or throws a [NoSuchElementException] if `this`
@@ -305,192 +305,192 @@ sealed class EitherProjection<out L, out R> : Identifiable {
         is LeftProjection -> Either.Right(value)
         is RightProjection -> Either.Left(value)
     }
-}
 
-/**
- * Represents a projection of the [left-side][Either.Left] in a [disjoint-union][Either].
- */
-class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
-    Identifiable by either {
-    override val isLeft: Boolean = true
-    override val isRight: Boolean = false
+    /**
+     * Represents a projection of the [left-side][Either.Left] in a [disjoint-union][Either].
+     */
+    class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
+        Identifiable by either {
+        override val isLeft: Boolean = true
+        override val isRight: Boolean = false
 
-    val iterator: Iterator<L>
-        get() = when (either) {
-            is Either.Left -> SingletonIterator(either.value)
-            is Either.Right -> EmptyIterator
+        val iterator: Iterator<L>
+            get() = when (either) {
+                is Either.Left -> SingletonIterator(either.value)
+                is Either.Right -> EmptyIterator
+            }
+
+        val value: L
+            @JvmName("get")
+            get() = when (either) {
+                is Either.Left -> either.value
+                is Either.Right -> throw NoSuchElementException("Retrieving left-side value from right-side")
+            }
+
+        inline fun <U> map(transformer: (L) -> U): Either<U, R> = when (either) {
+            is Either.Left -> Either.Left(transformer(either.value))
+            is Either.Right -> either
         }
 
-    val value: L
-        @JvmName("get")
-        get() = when (either) {
-            is Either.Left -> either.value
-            is Either.Right -> throw NoSuchElementException("Retrieving left-side value from right-side")
+        inline fun <U> flatMap(transformer: (L) -> Either<U, @UnsafeVariance R>): Either<U, R> = when (either) {
+            is Either.Left -> transformer(either.value)
+            is Either.Right -> either
         }
 
-    inline fun <U> map(transformer: (L) -> U): Either<U, R> = when (either) {
-        is Either.Left -> Either.Left(transformer(either.value))
-        is Either.Right -> either
-    }
-
-    inline fun <U> flatMap(transformer: (L) -> Either<U, @UnsafeVariance R>): Either<U, R> = when (either) {
-        is Either.Left -> transformer(either.value)
-        is Either.Right -> either
-    }
-
-    inline fun forEach(action: (L) -> Unit) = when (either) {
-        is Either.Left -> action(either.value)
-        is Either.Right -> Unit
-    }
-
-    inline fun any(predicate: (L) -> Boolean): Boolean = when (either) {
-        is Either.Left -> predicate(either.value)
-        is Either.Right -> false
-    }
-
-    inline fun all(predicate: (L) -> Boolean): Boolean = when (either) {
-        is Either.Left -> predicate(either.value)
-        is Either.Right -> true
-    }
-
-    inline fun none(predicate: (L) -> Boolean): Boolean = when (either) {
-        is Either.Left -> !predicate(either.value)
-        is Either.Right -> true
-    }
-
-    /**
-     * Returns whether or not the specified [item] is equal to the [value][Either.Left.value] if `this` is
-     * [left][Either.Left], or  returns `false` if `this` is [right][Either.Right].
-     */
-    operator fun contains(item: @UnsafeVariance L): Boolean = when (either) {
-        is Either.Left -> item == either.value
-        is Either.Right -> false
-    }
-
-    /**
-     * Returns [Some] if `this` is `left`, or [None] if `this` is `right`.
-     */
-    fun toOptional(): Option<L> = when (either) {
-        is Either.Left -> Some(either.value)
-        is Either.Right -> None
-    }
-
-    /**
-     * Returns [Success] if `this` is `left`, or [Failure] if `this` is `right`.
-     */
-    fun toTry(): Try<L> = when (either) {
-        is Either.Left -> Success(either.value)
-        is Either.Right -> Failure(WrongJunctionException("Expected left-side, got right-side"))
-    }
-
-
-    /**
-     * Returns a [Iterable] that's based on the [iterator] of `this`.
-     */
-    fun asIterable(): Iterable<L> = Iterable { iterator }
-
-    /**
-     * Returns a [Sequence] that's based on the [iterator] of `this`.
-     */
-    fun asSequence(): Sequence<L> = Sequence { iterator }
-
-    override fun toString(): String = "LeftProjection[$either]"
-}
-
-/**
- * Represents a projection of the [right-side][Either.Right] in a [disjoint-union][Either].
- */
-class RightProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
-    Identifiable by either {
-    override val isLeft: Boolean = false
-    override val isRight: Boolean = true
-
-    /**
-     * Returns a [SingletonIterator] if `this` is [right][Either.Right], or a [EmptyIterator] if `this` is
-     * [left][Either.Left].
-     */
-    val iterator: Iterator<R>
-        get() = when (either) {
-            is Either.Left -> EmptyIterator
-            is Either.Right -> SingletonIterator(either.value)
+        inline fun forEach(action: (L) -> Unit) = when (either) {
+            is Either.Left -> action(either.value)
+            is Either.Right -> Unit
         }
 
-    val value: R
-        @JvmName("get")
-        get() = when (either) {
-            is Either.Left -> throw NoSuchElementException("Retrieving right-side value from left-side")
-            is Either.Right -> either.value
+        inline fun any(predicate: (L) -> Boolean): Boolean = when (either) {
+            is Either.Left -> predicate(either.value)
+            is Either.Right -> false
         }
 
-    inline fun <U> map(transformer: (R) -> U): Either<L, U> = when (either) {
-        is Either.Left -> either
-        is Either.Right -> Either.Right(transformer(either.value))
-    }
+        inline fun all(predicate: (L) -> Boolean): Boolean = when (either) {
+            is Either.Left -> predicate(either.value)
+            is Either.Right -> true
+        }
 
-    inline fun <U> flatMap(transformer: (R) -> Either<@UnsafeVariance L, U>): Either<L, U> = when (either) {
-        is Either.Left -> either
-        is Either.Right -> transformer(either.value)
-    }
+        inline fun none(predicate: (L) -> Boolean): Boolean = when (either) {
+            is Either.Left -> !predicate(either.value)
+            is Either.Right -> true
+        }
 
-    inline fun any(predicate: (R) -> Boolean): Boolean = when (either) {
-        is Either.Left -> false
-        is Either.Right -> predicate(either.value)
-    }
+        /**
+         * Returns whether or not the specified [item] is equal to the [value][Either.Left.value] if `this` is
+         * [left][Either.Left], or  returns `false` if `this` is [right][Either.Right].
+         */
+        operator fun contains(item: @UnsafeVariance L): Boolean = when (either) {
+            is Either.Left -> item == either.value
+            is Either.Right -> false
+        }
 
-    inline fun all(predicate: (R) -> Boolean): Boolean = when (either) {
-        is Either.Left -> true
-        is Either.Right -> predicate(either.value)
-    }
+        /**
+         * Returns [Some] if `this` is `left`, or [None] if `this` is `right`.
+         */
+        fun toOptional(): Option<L> = when (either) {
+            is Either.Left -> Some(either.value)
+            is Either.Right -> None
+        }
 
-    inline fun none(predicate: (R) -> Boolean): Boolean = when (either) {
-        is Either.Left -> true
-        is Either.Right -> predicate(either.value)
-    }
+        /**
+         * Returns [Success] if `this` is `left`, or [Failure] if `this` is `right`.
+         */
+        fun toTry(): Try<L> = when (either) {
+            is Either.Left -> Success(either.value)
+            is Either.Right -> Failure(WrongJunctionException("Expected left-side, got right-side"))
+        }
 
-    /**
-     * Executes the given [action] if `this` is the [right-side][Either.Right].
-     */
-    inline fun forEach(action: (R) -> Unit) {
-        if (either is Either.Right) action(either.value)
-    }
 
-    /**
-     * Returns whether or not the specified [item] is equal to the [value][Either.Right.value] if `this` is
-     * [right][Either.Right], or returns `false` if `this` is [left][Either.Left].
-     */
-    operator fun contains(item: @UnsafeVariance R): Boolean = when (either) {
-        is Either.Left -> false
-        is Either.Right -> item == either.value
-    }
+        /**
+         * Returns a [Iterable] that's based on the [iterator] of `this`.
+         */
+        fun asIterable(): Iterable<L> = Iterable { iterator }
 
-    /**
-     * Returns [Some] if `this` is `right`, or [None] if `this` is `left`.
-     */
-    fun toOptional(): Option<R> = when (either) {
-        is Either.Left -> None
-        is Either.Right -> Some(either.value)
-    }
+        /**
+         * Returns a [Sequence] that's based on the [iterator] of `this`.
+         */
+        fun asSequence(): Sequence<L> = Sequence { iterator }
 
-    /**
-     * Returns [Success] if `this` is `right`, or [Failure] if `this` is `left`.
-     */
-    fun toTry(): Try<R> = when (either) {
-        is Either.Left -> Failure(WrongJunctionException("Expected right-side, got left-side"))
-        is Either.Right -> Success(either.value)
+        override fun toString(): String = "LeftProjection[$either]"
     }
 
     /**
-     * Returns a [Iterable] that's based on the [iterator] of `this`.
+     * Represents a projection of the [right-side][Either.Right] in a [disjoint-union][Either].
      */
-    fun asIterable(): Iterable<R> = Iterable { iterator }
+    class RightProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
+        Identifiable by either {
+        override val isLeft: Boolean = false
+        override val isRight: Boolean = true
 
-    /**
-     * Returns a [Sequence] that's based on the [iterator] of `this`.
-     */
-    fun asSequence(): Sequence<R> = Sequence { iterator }
+        /**
+         * Returns a [SingletonIterator] if `this` is [right][Either.Right], or a [EmptyIterator] if `this` is
+         * [left][Either.Left].
+         */
+        val iterator: Iterator<R>
+            get() = when (either) {
+                is Either.Left -> EmptyIterator
+                is Either.Right -> SingletonIterator(either.value)
+            }
+
+        val value: R
+            @JvmName("get")
+            get() = when (either) {
+                is Either.Left -> throw NoSuchElementException("Retrieving right-side value from left-side")
+                is Either.Right -> either.value
+            }
+
+        inline fun <U> map(transformer: (R) -> U): Either<L, U> = when (either) {
+            is Either.Left -> either
+            is Either.Right -> Either.Right(transformer(either.value))
+        }
+
+        inline fun <U> flatMap(transformer: (R) -> Either<@UnsafeVariance L, U>): Either<L, U> = when (either) {
+            is Either.Left -> either
+            is Either.Right -> transformer(either.value)
+        }
+
+        inline fun any(predicate: (R) -> Boolean): Boolean = when (either) {
+            is Either.Left -> false
+            is Either.Right -> predicate(either.value)
+        }
+
+        inline fun all(predicate: (R) -> Boolean): Boolean = when (either) {
+            is Either.Left -> true
+            is Either.Right -> predicate(either.value)
+        }
+
+        inline fun none(predicate: (R) -> Boolean): Boolean = when (either) {
+            is Either.Left -> true
+            is Either.Right -> predicate(either.value)
+        }
+
+        /**
+         * Executes the given [action] if `this` is the [right-side][Either.Right].
+         */
+        inline fun forEach(action: (R) -> Unit) {
+            if (either is Either.Right) action(either.value)
+        }
+
+        /**
+         * Returns whether or not the specified [item] is equal to the [value][Either.Right.value] if `this` is
+         * [right][Either.Right], or returns `false` if `this` is [left][Either.Left].
+         */
+        operator fun contains(item: @UnsafeVariance R): Boolean = when (either) {
+            is Either.Left -> false
+            is Either.Right -> item == either.value
+        }
+
+        /**
+         * Returns [Some] if `this` is `right`, or [None] if `this` is `left`.
+         */
+        fun toOptional(): Option<R> = when (either) {
+            is Either.Left -> None
+            is Either.Right -> Some(either.value)
+        }
+
+        /**
+         * Returns [Success] if `this` is `right`, or [Failure] if `this` is `left`.
+         */
+        fun toTry(): Try<R> = when (either) {
+            is Either.Left -> Failure(WrongJunctionException("Expected right-side, got left-side"))
+            is Either.Right -> Success(either.value)
+        }
+
+        /**
+         * Returns a [Iterable] that's based on the [iterator] of `this`.
+         */
+        fun asIterable(): Iterable<R> = Iterable { iterator }
+
+        /**
+         * Returns a [Sequence] that's based on the [iterator] of `this`.
+         */
+        fun asSequence(): Sequence<R> = Sequence { iterator }
 
 
-    override fun toString(): String = "RightProjection[$either]"
+        override fun toString(): String = "RightProjection[$either]"
+    }
 }
 
 /**
@@ -498,8 +498,8 @@ class RightProjection<out L, out R> internal constructor(val either: Either<L, R
  */
 fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
     contract {
-        returns(true) implies (this@isLeft is LeftProjection<L, R>)
-        returns(false) implies (this@isLeft is RightProjection<L, R>)
+        returns(true) implies (this@isLeft is EitherProjection.LeftProjection<L, R>)
+        returns(false) implies (this@isLeft is EitherProjection.RightProjection<L, R>)
     }
     return this.isLeft
 }
@@ -509,8 +509,8 @@ fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
  */
 fun <L, R> EitherProjection<L, R>.isRight(): Boolean {
     contract {
-        returns(true) implies (this@isRight is RightProjection<L, R>)
-        returns(false) implies (this@isRight is LeftProjection<L, R>)
+        returns(true) implies (this@isRight is EitherProjection.RightProjection<L, R>)
+        returns(false) implies (this@isRight is EitherProjection.LeftProjection<L, R>)
     }
     return this.isRight
 }
