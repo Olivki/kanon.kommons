@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
 package moe.kanon.kommons
 
 /**
- * Represents a class that does not "exist".◘
+ * Represents a class that does not "exist".
  *
  * Any class that inherits from this will not be identifiable by most systems. Therefore only classes that are used for
  * very specific circumstances *(i.e; `object`s used for DSL syntax)* should be the only ones to ever inherit from it.
  */
+@Deprecated(message = "The usage of this class are questionable at best.")
 abstract class Ghost {
     final override fun equals(other: Any?): Boolean = false
 
