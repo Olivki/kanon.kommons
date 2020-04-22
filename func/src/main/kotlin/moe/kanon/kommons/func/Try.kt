@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -291,12 +291,13 @@ sealed class Try<out T> : Identifiable {
     /**
      * Returns a [Either] instance based on `this`.
      *
-     * @return if `this` is a [failure][Failure] then a [right-side][Right] containing the [cause] will be returned,
-     * otherwise if `this` is a [success][Success] then a [left-side][Left] containing the [value] will be returned.
+     * @return if `this` is a [failure][Failure] then a [right-side][Either.Right] containing the [cause] will be
+     * returned, otherwise if `this` is a [success][Success] then a [left-side][Either.Left] containing the [value]
+     * will be returned.
      */
     fun toEither(): Either<Throwable, T> = when (this) {
-        is Failure -> Left(underlyingCause)
-        is Success -> Right(item)
+        is Failure -> Either.Left(underlyingCause)
+        is Success -> Either.Right(item)
     }
 
     abstract operator fun component1(): T
