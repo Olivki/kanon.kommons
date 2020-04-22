@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,22 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Properties
 
-/*
- * This class was mainly made for "fun", it's actual usage is questionable, might be removed at a later date.
- */
-
-/**
- * A simple facade for the [System] class.
- */
+@Deprecated(message = "Questionable class, will be removed in later versions.")
 object Sys {
     /**
      * The "standard" output stream.
      */
     var out: PrintStream
-        @JvmName("out") get() = System.out
+        @Deprecated(
+            message = "Use 'System.out' instead.",
+            replaceWith = ReplaceWith("System.out")
+        )
+        @JvmName("out")
+        get() = System.out
+        @Deprecated(
+            message = "Use 'System.setOut(value)' instead.",
+            replaceWith = ReplaceWith("System.setOut(value)")
+        )
         set(value) {
             System.setOut(value)
         }
@@ -45,7 +48,16 @@ object Sys {
      * The "standard" input stream.
      */
     var `in`: InputStream
-        @JvmName("in") get() = System.`in`
+        @Deprecated(
+            message = "Use 'System.`in`' instead.",
+            replaceWith = ReplaceWith("System.`in`")
+        )
+        @JvmName("in")
+        get() = System.`in`
+        @Deprecated(
+            message = "Use 'System.setIn(value)' instead.",
+            replaceWith = ReplaceWith("System.setIn(value)")
+        )
         set(value) {
             System.setIn(value)
         }
@@ -54,19 +66,44 @@ object Sys {
      * The "standard" error output stream.
      */
     var error: PrintStream
-        @JvmName("error") get() = System.err
+        @Deprecated(
+            message = "Use 'System.err' instead.",
+            replaceWith = ReplaceWith("System.err")
+        )
+        @JvmName("error")
+        get() = System.err
+        @Deprecated(
+            message = "Use 'System.setErr(value)' instead.",
+            replaceWith = ReplaceWith("System.setErr(value)")
+        )
         set(value) {
             System.setErr(value)
         }
 
     var securityManager: SecurityManager
+        @Deprecated(
+            message = "Use 'System.getSecurityManager()' instead.",
+            replaceWith = ReplaceWith("System.getSecurityManager()")
+        )
         get() = System.getSecurityManager()
+        @Deprecated(
+            message = "Use 'System.setSecurityManager(value)' instead.",
+            replaceWith = ReplaceWith("System.setSecurityManager(value)")
+        )
         set(value) {
             System.setSecurityManager(value)
         }
 
     var properties: Properties
+        @Deprecated(
+            message = "Use 'System.getProperties()' instead.",
+            replaceWith = ReplaceWith("System.getProperties()")
+        )
         get() = System.getProperties()
+        @Deprecated(
+            message = "Use 'System.setProperties(value)' instead.",
+            replaceWith = ReplaceWith("System.setProperties(value)")
+        )
         set(value) {
             System.setProperties(value)
         }
@@ -74,18 +111,40 @@ object Sys {
     /**
      * Returns an unmodifiable string map view of the current system environment variables.
      */
-    // this is 'lazy' as to ensure that we won't trigger any unwanted security exceptions just from this object being created
+    @Deprecated(
+        message = "Use 'System.getenv()' instead.",
+        replaceWith = ReplaceWith("System.getenv()")
+    )
     val env: StringMap<String> by lazy { System.getenv() }
 
-    val timeMillis: Long get() = System.currentTimeMillis()
+    @Deprecated(
+        message = "Use 'System.currentTimeMillis()' instead.",
+        replaceWith = ReplaceWith("System.currentTimeMillis()")
+    )
+    val timeMillis: Long
+        get() = System.currentTimeMillis()
 
-    val nanoTime: Long get() = System.nanoTime()
+    @Deprecated(
+        message = "Use 'System.nanoTime()' instead.",
+        replaceWith = ReplaceWith("System.nanoTime()")
+    )
+    val nanoTime: Long
+        get() = System.nanoTime()
 
     /**
      * Returns the current [nanoTime] in milli-second format.
      */
-    val nanoTimeMillis: Long get() = nanoTime / 1000000
+    @Deprecated(
+        message = "Use 'System.nanoTime() / 1_000_000' instead.",
+        replaceWith = ReplaceWith("(System.nanoTime() / 1_000_000)")
+    )
+    val nanoTimeMillis: Long
+        get() = nanoTime / 1_000_000
 
+    @Deprecated(
+        message = "Use 'System.lineSeparator()' instead.",
+        replaceWith = ReplaceWith("System.lineSeparator()")
+    )
     val lineSeparator: String = System.lineSeparator()
 
     val os: OperatingSystem = OperatingSystem
@@ -93,16 +152,32 @@ object Sys {
     val user: User = User
 
     // -- PROPERTIES -- \\
+    @Deprecated(
+        message = "Use 'getProp(key)' instead.",
+        replaceWith = ReplaceWith("getProp(key)", "moe.kanon.kommons")
+    )
     @JvmName("getProperty")
     operator fun get(key: String): String =
         getOrNull(key) ?: throw NoSuchElementException("No system property found under the given key <$key>")
 
+    @Deprecated(
+        message = "Use 'getPropOrDefault(key)' instead.",
+        replaceWith = ReplaceWith("getPropOrDefault(key, default)", "moe.kanon.kommons")
+    )
     @JvmName("getPropertyOrElse")
     fun getOrElse(key: String, default: String): String = System.getProperty(key, default)
 
+    @Deprecated(
+        message = "Use 'getPropOrNull(key)' instead.",
+        replaceWith = ReplaceWith("getPropOrNull(key)", "moe.kanon.kommons")
+    )
     @JvmName("getPropertyOrNull")
     fun getOrNull(key: String): String? = System.getProperty(key)
 
+    @Deprecated(
+        message = "Use 'setProp(key, value)' instead.",
+        replaceWith = ReplaceWith("setProp(key, value)", "moe.kanon.kommons")
+    )
     @JvmName("setProperty")
     operator fun set(key: String, value: String): String = System.setProperty(key, value)
 
@@ -113,9 +188,17 @@ object Sys {
      *
      * An environment variable is a system-dependent external named value.
      */
+    @Deprecated(
+        message = "Use 'getEnv(name)' instead.",
+        replaceWith = ReplaceWith("getEnv(name)", "moe.kanon.kommons")
+    )
     fun getEnv(name: String): String =
         getEnvOrNull(name) ?: throw NoSuchElementException("No environment variable found under given name <$name>")
 
+    @Deprecated(
+        message = "Use 'getEnvOrNull(name) ?: default' instead.",
+        replaceWith = ReplaceWith("getEnvOrNull(name) ?: default", "moe.kanon.kommons")
+    )
     /**
      * Returns the value of the environment variable stored under the given [name], or [default] if none is found.
      *
@@ -123,6 +206,10 @@ object Sys {
      */
     fun getEnvOrElse(name: String, default: String): String = getEnvOrNull(name) ?: default
 
+    @Deprecated(
+        message = "Use 'getEnvOrNull(name)' instead.",
+        replaceWith = ReplaceWith("getEnvOrNull(name)", "moe.kanon.kommons")
+    )
     /**
      * Returns the value of the environment variable stored under the given [name], or `null` if none is found.
      *
@@ -135,6 +222,7 @@ object Sys {
     /**
      * An object encapsulating very basic information regarding the current operating system the JVM is being ran under.
      */
+    @Deprecated(message = "Questionable class, will be removed in later versions.")
     object OperatingSystem {
         /**
          * Returns the name of the current operating system, as specified by the `"os.name"` system property.
@@ -150,6 +238,7 @@ object Sys {
     /**
      * An object encapsulating basic information regarding the current user.
      */
+    @Deprecated(message = "Questionable class, will be removed in later versions.")
     object User {
         /**
          * Returns the name of the current user, as specified by the `"user.name"` system property.
@@ -172,6 +261,10 @@ object Sys {
          *
          * Note that on Windows this will return the app-data directory located inside of roaming.
          */
+        @Deprecated(
+            message = "Use 'createDataDirectory(appName)' from kommons.io instead.",
+            replaceWith = ReplaceWith("createDataDirectory()", "moe.kanon.kommons.io.paths")
+        )
         val dataDir: Path by lazy {
             when (OPERATING_SYSTEM) {
                 OperatingSystem.MAC_OS_X -> Paths.get(USER_HOME, "Library", "Application Support")
@@ -185,6 +278,10 @@ object Sys {
          *
          * Note that on Windows this will return the app-data directory located inside of roaming.
          */
+        @Deprecated(
+            message = "Use 'createConfigDirectory(appName)' from kommons.io instead.",
+            replaceWith = ReplaceWith("createConfigDirectory()", "moe.kanon.kommons.io.paths")
+        )
         val configDir: Path by lazy {
             when (OPERATING_SYSTEM) {
                 OperatingSystem.MAC_OS_X -> dataDir
@@ -199,6 +296,10 @@ object Sys {
          * Note that Windows does *not* have a specific directory just for caches, so this will return a path pointing
          * towards a directory called "Cache" inside of the local app data directory.
          */
+        @Deprecated(
+            message = "Use 'createCacheDirectory(appName)' from kommons.io instead.",
+            replaceWith = ReplaceWith("createCacheDirectory()", "moe.kanon.kommons.io.paths")
+        )
         val cacheDir: Path by lazy {
             when (OPERATING_SYSTEM) {
                 OperatingSystem.MAC_OS_X -> Paths.get(USER_HOME, "Library", "Caches")
@@ -213,6 +314,10 @@ object Sys {
          * Note that Windows does *not* have a specific directory just for caches, so this will return a path pointing
          * towards a directory called "Logs" inside of the local app data directory.
          */
+        @Deprecated(
+            message = "Use 'createLogDirectory(appName)' from kommons.io instead.",
+            replaceWith = ReplaceWith("createLogDirectory()", "moe.kanon.kommons.io.paths")
+        )
         val logDir: Path by lazy {
             when (OPERATING_SYSTEM) {
                 OperatingSystem.MAC_OS_X -> Paths.get(USER_HOME, "Library", "Logs")
