@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,7 @@ package moe.kanon.kommons.collections
 import java.util.Collections
 import java.util.EnumSet
 
-// -- FACTORY FUNCTIONS -- \\
-/**
- * Returns an [unmodifiable view][Collections.unmodifiableSet] of `this` set.
- */
-fun <T> Set<T>.asUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
-
-/**
- * Returns a new [Set] that *only* contains the given [item].
- */
-@JvmName("singletonOf")
-fun <T> singletonSetOf(item: T): Set<T> = object : AbstractSet<T>() {
+private class SingletonSet<T>(val item: T) : AbstractSet<T>() {
     override val size: Int = 1
 
     override fun contains(element: @UnsafeVariance T): Boolean = element == item
@@ -42,6 +32,18 @@ fun <T> singletonSetOf(item: T): Set<T> = object : AbstractSet<T>() {
 
     override fun iterator(): Iterator<T> = singletonIteratorOf(item)
 }
+
+// -- FACTORY FUNCTIONS -- \\
+/**
+ * Returns an [unmodifiable view][Collections.unmodifiableSet] of `this` set.
+ */
+fun <T> Set<T>.asUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
+
+/**
+ * Returns a new [Set] that *only* contains the given [item].
+ */
+@JvmName("singletonOf")
+fun <T> singletonSetOf(item: T): Set<T> = SingletonSet(item)
 
 // -- ENUM SET -- \\
 /**
