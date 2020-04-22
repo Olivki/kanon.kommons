@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,19 @@ import moe.kanon.kommons.PortOf
  * this should only be used in very rare circumstances.
  */
 typealias JBoolean = java.lang.Boolean
+
+@Deprecated(
+    message = "Use 'Boolean' instead.",
+    replaceWith = ReplaceWith("Boolean", "kotlin"),
+    level = DeprecationLevel.ERROR
+)
 typealias Bool = Boolean
 
 /**
  * Returns the binary representation of `this` boolean.
  */
-val Boolean.binary: Int get() = if (this) 1 else 0
+val Boolean.binary: Int
+    get() = if (this) 1 else 0
 
 /**
  * Returns the hashCode of the specified [bool].
