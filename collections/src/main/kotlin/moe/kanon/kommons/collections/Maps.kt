@@ -121,7 +121,7 @@ fun <K, V> Map<K, V>.joinToString(
  */
 @Deprecated(
     message = "The name does not follow naming convention",
-    replaceWith = ReplaceWith("getOrThrow(key, lazyMessage)", "moe.kanon.kommons.collections"),
+    replaceWith = ReplaceWith("this.getOrThrow(key, lazyMessage)", "moe.kanon.kommons.collections"),
     level = DeprecationLevel.ERROR
 )
 inline fun <K, V> Map<K, V>.getValueOrThrow(key: K, lazyMessage: () -> Any): V =
