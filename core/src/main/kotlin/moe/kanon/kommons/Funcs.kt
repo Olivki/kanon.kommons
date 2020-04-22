@@ -31,12 +31,24 @@ inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationExc
  */
 inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
 
+/**
+ * Writes the given [out] message and a line-separator to the standard output stream.
+ */
 @JvmOverloads
 inline fun writeOut(out: Any? = "") = println(out)
 
+/**
+ * Writes the given [out] message and a line-separator to the standard error stream.
+ */
 @JvmOverloads
 inline fun writeError(out: Any? = "") = System.err.println(out)
 
+/**
+ * Writes the given [out] message and a line-separator to the standard output stream, and then reads a line from the
+ * standard input stream using `readLine`.
+ *
+ * @see [readLine]
+ */
 @JvmOverloads
 fun readIn(out: Any? = ""): String? {
     if (out != null) writeOut(out)
