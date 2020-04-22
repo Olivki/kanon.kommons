@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,8 @@ inline fun <reified E : Enum<E>> valueAt(index: Int): E =
  *  Enum.MORE_VERBOSE_ENUM.normalizedName -> "More Verbose Enum"
  * ```
  */
-inline val <reified E : Enum<E>> E.normalizedName: String get() = this.name.normalizeWordCasing('_')
+inline val <reified E : Enum<E>> E.normalizedName: String
+    get() = this.name.normalizeWordCasing('_')
 
 /**
  * The indirect successor or predecessor at the given [offset], where:
@@ -124,6 +125,10 @@ inline infix fun <reified E : Enum<E>> E.neighbour(offset: Int): E =
 
 // TODO: Documentation
 
-inline val <reified E : Enum<E>> E.successor: E @JvmName("successorOf") get() = this.neighbour(1)
+inline val <reified E : Enum<E>> E.successor: E
+    @JvmName("successorOf")
+    get() = this.neighbour(1)
 
-inline val <reified E : Enum<E>> E.predecessor: E @JvmName("predecessorOf") get() = this.neighbour(-1)
+inline val <reified E : Enum<E>> E.predecessor: E
+    @JvmName("predecessorOf")
+    get() = this.neighbour(-1)
