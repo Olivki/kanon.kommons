@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,11 @@
 
 package moe.kanon.kommons.func.tuples
 
-import moe.kanon.kommons.affirmThat
-import moe.kanon.kommons.checkThat
 import moe.kanon.kommons.requireThat
-import java.lang.UnsupportedOperationException
 import kotlin.reflect.typeOf
 
 /**
- * A [tuple][Tuple0] that can store a variable arity amount of values inside of it.
+ * A tuple that can store a variable arity amount of values inside of it.
  *
  * To retrieve values from this tuple use either the [get] or [invoke] operators for `null`-safe retrieval.
  */
@@ -31,7 +28,8 @@ class TupleN(private vararg val objects: Any?) : Iterable<Any?> {
     /**
      * Returns how many objects are stored in `this` tuple.
      */
-    val size: Int get() = objects.size
+    val size: Int
+        get() = objects.size
 
     // -- GET VALUE -- \\
     /**
@@ -42,8 +40,9 @@ class TupleN(private vararg val objects: Any?) : Iterable<Any?> {
      * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size], the value stored under the given
      * `index` is `null` or the value stored under `index` is *not* of the given [type][T]
      */
-    @UseExperimental(ExperimentalStdlibApi::class)
-    @JvmSynthetic inline operator fun <reified T> get(index: Int): T {
+    @JvmSynthetic
+    @OptIn(ExperimentalStdlibApi::class)
+    inline operator fun <reified T> get(index: Int): T {
         val value = getRaw(index)
         requireThat(value is T) { "Value stored under index <$index> is not of type <${typeOf<T>()}>" }
         return value
@@ -57,7 +56,8 @@ class TupleN(private vararg val objects: Any?) : Iterable<Any?> {
      * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size], the value stored under the given
      * `index` is `null` or the value stored under `index` is *not* of the given [type][T]
      */
-    @JvmSynthetic inline operator fun <reified T> invoke(index: Int): T = this[index]
+    @JvmSynthetic
+    inline operator fun <reified T> invoke(index: Int): T = this[index]
 
     /**
      * Returns the `nullable` value stored under the given [index], cast to [T].
@@ -67,8 +67,9 @@ class TupleN(private vararg val objects: Any?) : Iterable<Any?> {
      * @throws [IllegalArgumentException] if `index` < `0`, `index` > [size] or the value stored under `index` is *not*
      * of the given [type][T]
      */
-    @UseExperimental(ExperimentalStdlibApi::class)
-    @JvmSynthetic inline fun <reified T> getNullable(index: Int): T? {
+    @JvmSynthetic
+    @OptIn(ExperimentalStdlibApi::class)
+    inline fun <reified T> getNullable(index: Int): T? {
         val value = getRawNullable(index)
         requireThat(value is T?) { "Value stored under index <$index> is not of type <${typeOf<T>()}?>" }
         return value
@@ -108,10 +109,16 @@ class TupleN(private vararg val objects: Any?) : Iterable<Any?> {
         this === other -> true
         this.javaClass != other?.javaClass -> false
         other !is TupleN -> false
-        else -> objects.contentEquals(other.objects)
+        else -> objects.contentDeepEquals(other.objects)
     }
 
-    override fun hashCode(): Int = objects.contentHashCode()
+    override fun hashCode(): Int = objects.contentDeepHashCode()
 
-    override fun toString(): String = "(${objects.joinToString()})"
+    override fun toString(): String = when {
+        objects.isEmpty() -> "()"
+        else -> {
+            val content = objects.contentDeepToString()
+            "(${content.substring(1 until content.length)})"
+        }
+    }
 }
