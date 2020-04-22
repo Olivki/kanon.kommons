@@ -39,12 +39,20 @@ val <T> Sequence<T>.size: Int
 /**
  * Returns `true` if `this` sequence has no elements, otherwise returns `false`.
  */
+@Deprecated(
+    message = "Use 'none()' instead.",
+    replaceWith = ReplaceWith("this.none()", "kotlin.sequences")
+)
 val <T> Sequence<T>.isEmpty: Boolean
     get() = none()
 
 /**
  * Returns `true` if `this` sequence has elements, otherwise returns `false`.
  */
+@Deprecated(
+    message = "Use 'any()' instead.",
+    replaceWith = ReplaceWith("this.any()", "kotlin.sequences")
+)
 val <T> Sequence<T>.isNotEmpty: Boolean
     get() = any()
 
