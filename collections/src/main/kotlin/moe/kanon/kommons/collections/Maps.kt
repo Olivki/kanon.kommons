@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,19 +120,22 @@ fun <K, V> Map<K, V>.joinToString(
  * the result of invoking [toString] on the given [lazyMessage] function.
  */
 @Deprecated(
-    "The name does not follow naming convention",
-    ReplaceWith("getOrThrow(key, lazyMessage)", "moe.kanon.kommons.collections"),
-    DeprecationLevel.ERROR
+    message = "The name does not follow naming convention",
+    replaceWith = ReplaceWith("getOrThrow(key, lazyMessage)", "moe.kanon.kommons.collections"),
+    level = DeprecationLevel.ERROR
 )
 inline fun <K, V> Map<K, V>.getValueOrThrow(key: K, lazyMessage: () -> Any): V =
     this[key] ?: throw NoSuchElementException(lazyMessage().toString())
 
 /**
  * Returns the value stored under the given [key], or throws a [NoSuchElementException] where the `message` is set to
- * the result of invoking [toString] on the given [lazyMessage] function.
+ * the result of invoking [toString] on the given [lazyMessage] function if no value is stored under `key`.
  */
-inline fun <K, V> Map<K, V>.getOrThrow(key: K, lazyMessage: () -> Any): V =
-    this[key] ?: throw NoSuchElementException(lazyMessage().toString())
+@Suppress("UNCHECKED_CAST")
+inline fun <K, V> Map<K, V>.getOrThrow(key: K, lazyMessage: () -> Any): V {
+    if (key !in this) throw NoSuchElementException(lazyMessage().toString())
+    return this[key] as V
+}
 
 /**
  * Executes the specified [action] every time an `entry` matches the specified [predicate].
