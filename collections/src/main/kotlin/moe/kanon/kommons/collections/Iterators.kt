@@ -83,15 +83,7 @@ private object EmptyListIterator : ListIterator<Nothing> {
     override fun previousIndex(): Int = INDEX_NOT_FOUND
 }
 
-/**
- * Returns a [ListIterator] instance that iterates over no elements.
- */
-fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
-
-/**
- * Returns a new [ListIterator] instance that only iterates over the given [item].
- */
-fun <T> singletonListIteratorOf(item: T): ListIterator<T> = object : ListIterator<T> {
+private class SingletonListIterator<T>(val item: T) : ListIterator<T> {
     private var hasNext = true
 
     override fun hasNext(): Boolean = hasNext
@@ -106,6 +98,16 @@ fun <T> singletonListIteratorOf(item: T): ListIterator<T> = object : ListIterato
 
     override fun previousIndex(): Int = 0
 }
+
+/**
+ * Returns a [ListIterator] instance that iterates over no elements.
+ */
+fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
+
+/**
+ * Returns a new [ListIterator] instance that only iterates over the given [item].
+ */
+fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
 
 // -- ZIPPED ITERATOR -- \\
 /**
