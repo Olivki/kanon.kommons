@@ -21,6 +21,8 @@ package moe.kanon.kommons.func
 
 import moe.kanon.kommons.Identifiable
 import moe.kanon.kommons.PortOf
+import moe.kanon.kommons.func.Try.Failure
+import moe.kanon.kommons.func.Try.Success
 import moe.kanon.kommons.requireNonFatal
 import kotlin.contracts.contract
 
@@ -47,19 +49,22 @@ sealed class Try<out T> : Identifiable {
         /**
          * Returns a new [failure][Failure] carrying a [GenericTryException] with the given [message] and [cause].
          */
+        @JvmStatic
         @JvmOverloads
-        @JvmStatic fun <T> failure(message: String, cause: Throwable? = null): Try<T> =
+        fun <T> failure(message: String, cause: Throwable? = null): Try<T> =
             Failure(GenericTryException(message, cause))
 
         /**
          * Returns a new [failure][Failure] wrapped around the given [exception].
          */
-        @JvmStatic fun <T> failure(exception: Exception): Try<T> = Failure(exception)
+        @JvmStatic
+        fun <T> failure(exception: Exception): Try<T> = Failure(exception)
 
         /**
          * Returns a new [success][Success] wrapped around the given [value].
          */
-        @JvmStatic fun <T> success(value: T): Try<T> = Success(value)
+        @JvmStatic
+        fun <T> success(value: T): Try<T> = Success(value)
 
         /**
          * Wraps [value] in a `try catch` block, and returns the result of invoking it; [Success] if no exceptions
@@ -71,8 +76,9 @@ sealed class Try<out T> : Identifiable {
          * Note that any exceptions that are considered **fatal** are simply passed up the trace and are ***not***
          * caught by this function. A exception is generally considered to be fatal if it a child of [Error].
          */
+        @JvmStatic
         @JvmName("run")
-        @JvmStatic inline operator fun <T> invoke(value: () -> T): Try<T> = try {
+        inline operator fun <T> invoke(value: () -> T): Try<T> = try {
             Success(value())
         } catch (t: Throwable) {
             requireNonFatal(t)
@@ -123,7 +129,8 @@ sealed class Try<out T> : Identifiable {
      * is a [failure][Failure].
      */
     val value: T
-        @JvmName("get") get() = when (this) {
+        @JvmName("get")
+        get() = when (this) {
             is Failure -> throw NoSuchElementException("Failure contains no value")
             is Success -> item
         }
@@ -303,51 +310,51 @@ sealed class Try<out T> : Identifiable {
     abstract operator fun component1(): T
 
     abstract operator fun component2(): Throwable
-}
 
-/**
- * Represents an unsuccessful [result][Try].
- *
- * @property [underlyingCause] The [Throwable] that's the cause of the operation failing.
- */
-class Failure(val underlyingCause: Throwable) : Try<Nothing>() {
-    override val isFailure: Boolean = true
-    override val isSuccess: Boolean = false
+    /**
+     * Represents an unsuccessful [result][Try].
+     *
+     * @property [underlyingCause] The [Throwable] that's the cause of the operation failing.
+     */
+    class Failure(val underlyingCause: Throwable) : Try<Nothing>() {
+        override val isFailure: Boolean = true
+        override val isSuccess: Boolean = false
 
-    val message: String? = underlyingCause.message
+        val message: String? = underlyingCause.message
 
-    override fun component1(): Nothing = throw NoSuchElementException("Can't retrieve item from Failure")
+        override fun component1(): Nothing = throw NoSuchElementException("Can't retrieve item from Failure")
 
-    override fun component2(): Throwable = underlyingCause
+        override fun component2(): Throwable = underlyingCause
 
-    override fun equals(other: Any?): Boolean = underlyingCause == other
+        override fun equals(other: Any?): Boolean = underlyingCause == other
 
-    override fun hashCode(): Int = underlyingCause.hashCode()
+        override fun hashCode(): Int = underlyingCause.hashCode()
 
-    override fun toString(): String = when (val name = underlyingCause::class.simpleName) {
-        null -> "Failure[\"${underlyingCause.message}\"]"
-        else -> "Failure { $name(\"${underlyingCause.message}\") }"
+        override fun toString(): String = when (val name = underlyingCause::class.simpleName) {
+            null -> "Failure[\"${underlyingCause.message}\"]"
+            else -> "Failure { $name(\"${underlyingCause.message}\") }"
+        }
     }
-}
 
-/**
- * Represents a successful [result][Try].
- *
- * @property [item] The underlying value that `this` result is wrapped around.
- */
-class Success<out T>(val item: T) : Try<T>() {
-    override val isFailure: Boolean = false
-    override val isSuccess: Boolean = true
+    /**
+     * Represents a successful [result][Try].
+     *
+     * @property [item] The underlying value that `this` result is wrapped around.
+     */
+    class Success<out T>(val item: T) : Try<T>() {
+        override val isFailure: Boolean = false
+        override val isSuccess: Boolean = true
 
-    override fun component1(): T = item
+        override fun component1(): T = item
 
-    override fun component2(): Throwable = throw NoSuchElementException("Can't retrieve cause from Success")
+        override fun component2(): Throwable = throw NoSuchElementException("Can't retrieve cause from Success")
 
-    override fun equals(other: Any?): Boolean = item == other
+        override fun equals(other: Any?): Boolean = item == other
 
-    override fun hashCode(): Int = item.hashCode()
+        override fun hashCode(): Int = item.hashCode()
 
-    override fun toString(): String = "Success[$item]"
+        override fun toString(): String = "Success[$item]"
+    }
 }
 
 // -- EXCEPTIONS -- \\
@@ -360,36 +367,36 @@ class GenericTryException internal constructor(message: String, cause: Throwable
 
 // -- EXTENSIONS -- \\
 /**
- * Returns `true` if this is a [success][Success], otherwise `false`.
+ * Returns `true` if this is a [success][Try.Success], otherwise `false`.
  */
 fun <T> Try<T>.isSuccess(): Boolean {
     contract {
-        returns(true) implies (this@isSuccess is Success<T>)
-        returns(false) implies (this@isSuccess is Failure)
+        returns(true) implies (this@isSuccess is Try.Success<T>)
+        returns(false) implies (this@isSuccess is Try.Failure)
     }
     return this.isSuccess
 }
 
 /**
- * Returns `true` if this is a [failure][Failure], otherwise `false`.
+ * Returns `true` if this is a [failure][Try.Failure], otherwise `false`.
  */
 fun <T> Try<T>.isFailure(): Boolean {
     contract {
-        returns(true) implies (this@isFailure is Failure)
-        returns(false) implies (this@isFailure is Success<T>)
+        returns(true) implies (this@isFailure is Try.Failure)
+        returns(false) implies (this@isFailure is Try.Success<T>)
     }
     return this.isFailure
 }
 
 /**
- * Returns a new [failure][Failure] wrapped around `this` throwable.
+ * Returns a new [failure][Try.Failure] wrapped around `this` throwable.
  */
-fun <T> Throwable.toFailure(): Try<T> = Failure(this)
+fun <T> Throwable.toFailure(): Try<T> = Try.Failure(this)
 
 /**
- * Returns a new [success][Success] wrapped around `this` value.
+ * Returns a new [success][Try.Success] wrapped around `this` value.
  */
-fun <T> T.toSuccess(): Try<T> = Success(this)
+fun <T> T.toSuccess(): Try<T> = Try.Success(this)
 
 // -- FAKE FACTORY FUNCTIONS -- \\
 fun Byte.Companion.tryParse(input: String): Try<Byte> = Try { input.toByte() }

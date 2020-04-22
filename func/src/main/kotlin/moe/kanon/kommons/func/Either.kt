@@ -375,11 +375,11 @@ sealed class EitherProjection<out L, out R> : Identifiable {
         }
 
         /**
-         * Returns [Success] if `this` is `left`, or [Failure] if `this` is `right`.
+         * Returns [success][Try.Success] if `this` is `left`, or [failure][Try.Failure] if `this` is `right`.
          */
         fun toTry(): Try<L> = when (either) {
-            is Either.Left -> Success(either.value)
-            is Either.Right -> Failure(WrongJunctionException("Expected left-side, got right-side"))
+            is Either.Left -> Try.Success(either.value)
+            is Either.Right -> Try.Failure(WrongJunctionException("Expected left-side, got right-side"))
         }
 
 
@@ -471,11 +471,11 @@ sealed class EitherProjection<out L, out R> : Identifiable {
         }
 
         /**
-         * Returns [Success] if `this` is `right`, or [Failure] if `this` is `left`.
+         * Returns [success][Try.Success] if `this` is `right`, or [failure][Try.Failure] if `this` is `left`.
          */
         fun toTry(): Try<R> = when (either) {
-            is Either.Left -> Failure(WrongJunctionException("Expected right-side, got left-side"))
-            is Either.Right -> Success(either.value)
+            is Either.Left -> Try.Failure(WrongJunctionException("Expected right-side, got left-side"))
+            is Either.Right -> Try.Success(either.value)
         }
 
         /**
