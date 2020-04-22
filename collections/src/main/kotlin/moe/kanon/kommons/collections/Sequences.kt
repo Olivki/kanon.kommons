@@ -28,8 +28,9 @@ import moe.kanon.kommons.requireThat
  * elements are available in `this` sequence this may be a costly invocation.
  */
 @Deprecated(
-    message = "the name might make the user think there is no penalty to invoking this property",
-    replaceWith = ReplaceWith("count()", "kotlin.sequences")
+    message = "Use 'count()' instead.",
+    replaceWith = ReplaceWith("this.count()", "kotlin.sequences"),
+    level = DeprecationLevel.ERROR
 )
 val <T> Sequence<T>.size: Int
     @JvmName("sizeOf")
