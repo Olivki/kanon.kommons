@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,15 +60,6 @@ fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = UnmodifiableIterator(this)
 
 // -- LIST ITERATOR -- \\
-/**
- * Returns an unmodifiable view of `this` iterator.
- *
- * Any attempts to invoke the `remove`, `set` and/or `add` operations will result in a [UnsupportedOperationException]
- * being thrown.
- */
-@JvmName("unmodifiableListIterator")
-fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = object : ListIterator<T> by this {}
-
 private object EmptyListIterator : ListIterator<Nothing> {
     override fun hasNext(): Boolean = false
 
@@ -99,6 +90,8 @@ private class SingletonListIterator<T>(val item: T) : ListIterator<T> {
     override fun previousIndex(): Int = 0
 }
 
+private class UnmodifiableListIterator<T>(val delegate: ListIterator<T>) : ListIterator<T> by delegate
+
 /**
  * Returns a [ListIterator] instance that iterates over no elements.
  */
@@ -108,6 +101,15 @@ fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
  * Returns a new [ListIterator] instance that only iterates over the given [item].
  */
 fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
+
+/**
+ * Returns an unmodifiable view of `this` iterator.
+ *
+ * Any attempts to invoke the `remove`, `set` and/or `add` operations will result in a [UnsupportedOperationException]
+ * being thrown.
+ */
+@JvmName("unmodifiableListIterator")
+fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = UnmodifiableListIterator(this)
 
 // -- ZIPPED ITERATOR -- \\
 /**
