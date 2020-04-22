@@ -107,10 +107,10 @@ sealed class Either<out L, out R> : Identifiable {
     abstract val isRight: Boolean
 
     /**
-     * Returns a [left-side-projection][EitherProjection.LeftProjection] of `this` either instance.
+     * Returns a [left-side-projection][EitherProjection.Left] of `this` either instance.
      */
     @get:JvmName("left")
-    val left: EitherProjection.LeftProjection<L, R> by lazy { EitherProjection.LeftProjection(this) }
+    val left: EitherProjection.Left<L, R> by lazy { EitherProjection.Left(this) }
 
     /**
      * Returns a [right-side-projection][EitherProjection.RightProjection] of `this` either instance.
@@ -302,14 +302,14 @@ sealed class EitherProjection<out L, out R> : Identifiable {
      * it will return `left`.
      */
     fun swap(): Either<R, L> = when (this) {
-        is LeftProjection -> Either.Right(value)
+        is Left -> Either.Right(value)
         is RightProjection -> Either.Left(value)
     }
 
     /**
      * Represents a projection of the [left-side][Either.Left] in a [disjoint-union][Either].
      */
-    class LeftProjection<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
+    class Left<out L, out R> internal constructor(val either: Either<L, R>) : EitherProjection<L, R>(),
         Identifiable by either {
         override val isLeft: Boolean = true
         override val isRight: Boolean = false
@@ -498,7 +498,7 @@ sealed class EitherProjection<out L, out R> : Identifiable {
  */
 fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
     contract {
-        returns(true) implies (this@isLeft is EitherProjection.LeftProjection<L, R>)
+        returns(true) implies (this@isLeft is EitherProjection.Left<L, R>)
         returns(false) implies (this@isLeft is EitherProjection.RightProjection<L, R>)
     }
     return this.isLeft
@@ -510,7 +510,7 @@ fun <L, R> EitherProjection<L, R>.isLeft(): Boolean {
 fun <L, R> EitherProjection<L, R>.isRight(): Boolean {
     contract {
         returns(true) implies (this@isRight is EitherProjection.RightProjection<L, R>)
-        returns(false) implies (this@isRight is EitherProjection.LeftProjection<L, R>)
+        returns(false) implies (this@isRight is EitherProjection.Left<L, R>)
     }
     return this.isRight
 }
