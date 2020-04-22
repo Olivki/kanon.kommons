@@ -358,10 +358,7 @@ sealed class Try<out T> : Identifiable {
 }
 
 // -- EXCEPTIONS -- \\
-class FailedPredicateException @JvmOverloads constructor(
-    message: String = "Predicate did not match",
-    cause: Throwable? = null
-) : RuntimeException(message, cause)
+class FailedPredicateException @PublishedApi internal constructor() : RuntimeException("Predicate did not match.")
 
 class GenericTryException internal constructor(message: String, cause: Throwable? = null) : Exception(message, cause)
 
