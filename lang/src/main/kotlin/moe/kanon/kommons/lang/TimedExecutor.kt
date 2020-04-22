@@ -34,13 +34,13 @@ data class TimedExecutor(val threshold: Long) {
      */
     val canExecute: Boolean
         @JvmName("canExecute")
-        get() = (Sys.nanoTimeMillis - lastPoll) >= threshold
+        get() = ((System.nanoTime() / 1_000_000) - lastPoll) >= threshold
 
     /**
      * Refreshes the [lastPoll] property to be set to the current nano-time.
      */
     fun refreshPolling() {
-        lastPoll = Sys.nanoTimeMillis
+        lastPoll = (System.nanoTime() / 1_000_000)
     }
 
     /**
