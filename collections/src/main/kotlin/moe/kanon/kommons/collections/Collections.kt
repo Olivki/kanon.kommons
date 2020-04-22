@@ -21,7 +21,7 @@ package moe.kanon.kommons.collections
 import java.util.Collections
 
 // -- FACTORY FUNCTIONS -- \\
-internal object EmptyCollection : AbstractCollection<Nothing>() {
+private object EmptyCollection : AbstractCollection<Nothing>() {
     override val size: Int = 0
 
     override fun contains(element: Nothing): Boolean = false
