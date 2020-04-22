@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package moe.kanon.kommons.lang
 
-import java.lang.Exception
-
 /**
  * Thrown to indicate that a problem occurred when attempting to parse a string into a value.
  *
@@ -29,10 +27,11 @@ open class ParseException @JvmOverloads constructor(
     cause: Throwable? = null
 ) : Exception(message, cause) {
     companion object {
-        @JvmStatic fun from(string: String): ParseException =
-            ParseException(string, "Failed to parse the string <$string>")
+        @JvmStatic
+        fun from(string: String): ParseException = ParseException(string, "Failed to parse the string <$string>")
 
-        @JvmStatic fun from(string: String, cause: Throwable): ParseException =
+        @JvmStatic
+        fun from(string: String, cause: Throwable): ParseException =
             ParseException(string, "Failed to parse the string <$string>, cause <${cause.message}>", cause)
     }
 }
