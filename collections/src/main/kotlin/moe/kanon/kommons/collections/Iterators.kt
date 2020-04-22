@@ -32,7 +32,7 @@ private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
 @JvmName("unmodifiable")
 fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = object : Iterator<T> by this {}
 
-internal object EmptyIterator : Iterator<Nothing> {
+private object EmptyIterator : Iterator<Nothing> {
     override fun hasNext(): Boolean = false
 
     override fun next(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
@@ -65,7 +65,7 @@ fun <T> singletonIteratorOf(item: T): Iterator<T> = object : AbstractIterator<T>
 @JvmName("unmodifiableListIterator")
 fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = object : ListIterator<T> by this {}
 
-internal object EmptyListIterator : ListIterator<Nothing> {
+private object EmptyListIterator : ListIterator<Nothing> {
     override fun hasNext(): Boolean = false
 
     override fun hasPrevious(): Boolean = false
