@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,12 +74,16 @@ fun <T> TwoDimList(width: Int, height: Int, default: T): TwoDimList<T> = List(wi
  *
  * @throws [NoSuchElementException] if `this` list is empty.
  */
-val <T> List<T>.head: T @JvmName("headOf") get() = this.first()
+val <T> List<T>.head: T
+    @JvmName("headOf")
+    get() = this.first()
 
 /**
  * Returns all the elements in `this` list except for the first.
  */
-val <T> List<T>.tail: List<T> @JvmName("tailOf") get() = this.drop(1)
+val <T> List<T>.tail: List<T>
+    @JvmName("tailOf")
+    get() = this.drop(1)
 
 /**
  * Returns `true` if all elements in `this` iterable are the same or `false` if they are not.
