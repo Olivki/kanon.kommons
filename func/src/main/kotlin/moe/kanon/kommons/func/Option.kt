@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,8 +78,9 @@ sealed class Option<out T> : Identifiable {
          * Returns a [Some] containing the specified [value], or [None] if `value` is `null`.
          */
         // enables the syntax of 'Optional(67)'
+        @JvmStatic
         @JvmName("of")
-        @JvmStatic operator fun <T> invoke(value: T?): Option<T> = when (value) {
+        operator fun <T> invoke(value: T?): Option<T> = when (value) {
             null -> None
             else -> Some(value)
         }
@@ -112,7 +113,8 @@ sealed class Option<out T> : Identifiable {
         /**
          * Returns [None] cast to [T].
          */
-        @JvmStatic fun <T> empty(): Option<T> = None
+        @JvmStatic
+        fun <T> empty(): Option<T> = None
     }
 
     /**
@@ -129,7 +131,8 @@ sealed class Option<out T> : Identifiable {
      * Returns the [item][Some.item] if `this` is [Some], or throws a [NoSuchElementException] if `this` is [None].
      */
     val value: T
-        @JvmName("get") get() = when (this) {
+        @JvmName("get")
+        get() = when (this) {
             is None -> throw NoSuchElementException("No value is present in this optional")
             is Some -> item
         }
@@ -343,7 +346,8 @@ fun <T> T?.toOption(): Option<T> = Option(this)
  * If a value is not present in `this` then the resulting `Optional` will be [None].
  */
 val <T> JOptional<T>.kotlin: Option<T>
-    @JvmName("fromJava") get() = when {
+    @JvmName("fromJava")
+    get() = when {
         this.isPresent -> Some(this.get())
         else -> None
     }
