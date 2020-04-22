@@ -24,7 +24,7 @@ apply(plugin = "name.remal.maven-publish-bintray")
 // Project Specific Variables
 project.group = "moe.kanon.kommons"
 project.description = "Various extensions and utilities for the Kotlin programming language."
-val gitUrl = "https://gitlab.com/Olivki/kanon-kommons/"
+val gitUrl = "https://github.com/Olivki/kanon.kommons"
 
 repositories {
     jcenter()
