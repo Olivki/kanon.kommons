@@ -25,17 +25,7 @@ import java.util.Collections
 
 typealias TwoDimList<T> = List<List<T>>
 
-// -- FACTORY FUNCTIONS -- \\
-/**
- * Returns an [unmodifiable view][Collections.unmodifiableList] of `this` list.
- */
-fun <T> List<T>.asUnmodifiableList(): List<T> = Collections.unmodifiableList(this)
-
-/**
- * Returns a new [List] that *only* contains the specified [item].
- */
-@JvmName("singletonOf")
-fun <T> singletonListOf(item: T): List<T> = object : AbstractList<T>() {
+private class SingletonList<T>(val item: T) : AbstractList<T>() {
     override val size: Int = 1
 
     override fun contains(element: @UnsafeVariance T): Boolean = element == item
@@ -60,6 +50,18 @@ fun <T> singletonListOf(item: T): List<T> = object : AbstractList<T>() {
     override fun subList(fromIndex: Int, toIndex: Int): List<T> =
         if (fromIndex == 0 && toIndex == 0) this else emptyList()
 }
+
+// -- FACTORY FUNCTIONS -- \\
+/**
+ * Returns an [unmodifiable view][Collections.unmodifiableList] of `this` list.
+ */
+fun <T> List<T>.asUnmodifiableList(): List<T> = Collections.unmodifiableList(this)
+
+/**
+ * Returns a new [List] that *only* contains the specified [item].
+ */
+@JvmName("singletonOf")
+fun <T> singletonListOf(item: T): List<T> = SingletonList(item)
 
 /**
  * Creates a new two-dimensional list from the specified [width] and [height], with all values set to the specified
