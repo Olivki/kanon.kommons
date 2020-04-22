@@ -120,7 +120,7 @@ inline fun <T, X : Throwable> Iterable<T>.throwOnMatch(predicate: (T) -> Boolean
 /**
  * Returns `true` if all elements in `this` iterable are the same or `false` if they are not.
  */
-fun <T> Iterable<T>.allEqual(): Boolean = if (this.isEmpty) false else this.all { it == first() }
+fun <T> Iterable<T>.allEqual(): Boolean = if (this.none<Any?>()) false else this.all { it == first() }
 
 /**
  * Returns how many times the specified [item] appears in `this` iterable.
@@ -166,8 +166,8 @@ inline fun <T> Iterable<T>.unique(predicate: (T) -> Boolean): Boolean = this.cou
  * Returns whether or not `this` iterable contains the specified [content].
  */
 tailrec infix operator fun <T> Iterable<T>.contains(content: Iterable<T>): Boolean = when {
-    content.isEmpty -> true
-    this.isEmpty -> content.isEmpty
+    content.none() -> true
+    this.none() -> content.none()
     this.take(content.size) == content -> true
     else -> this.drop(1) contains content
 }
