@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ package moe.kanon.kommons
 
 /**
  * A category is a light-weight [enum][Enum] with a very loose contract.
- *
- * TODO: Better doc
  */
+@Deprecated(message = "Questionable usage, use 'enum class' or 'sealed class' instead.")
 interface Category<T> : Comparable<Category<T>> {
     val name: String
 
     override fun compareTo(other: Category<T>): Int
 
+    @Deprecated(message = "Questionable usage, use 'enum class' or 'sealed class' instead.")
     interface Companion<C : Category<C>> {
         val categories: List<C>
 
