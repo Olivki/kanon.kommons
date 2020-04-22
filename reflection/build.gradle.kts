@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ plugins {
 }
 
 description = "Provides some basic utilities for working with reflection in Kotlin"
-version = "0.6.0"
+version = "0.6.0" // TODO: This version has not been released yet
 extra["packageName"] = "reflection"
 
 dependencies {
