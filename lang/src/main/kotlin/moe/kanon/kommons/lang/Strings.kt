@@ -161,3 +161,8 @@ fun String.normalizeWordCasing(vararg delimiters: Char = charArrayOf(' ')): Stri
  * Returns `true` if all the characters in `this` sequence are upper case, otherwise `false`.
  */
 fun CharSequence.isUpperCase(): Boolean = this.all { it.isUpperCase() }
+
+/**
+ * Returns `true` if all the characters in `this` sequence are lower case, otherwise `false`.
+ */
+fun CharSequence.isLowerCase(): Boolean = this.all { it.isLowerCase() }
