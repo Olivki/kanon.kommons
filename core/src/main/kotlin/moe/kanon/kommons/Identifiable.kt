@@ -28,8 +28,6 @@ package moe.kanon.kommons
  * ### Port-Of Links
  * 1. [ceylon.language.Identifiable](https://github.com/eclipse/ceylon/blob/master/language/src/ceylon/language/Identifiable.ceylon)
  */
-// TODO: Function documentation
-@MarkerType
 @PortOf("ceylon.language.Identifiable")
 interface Identifiable : Representable {
     override fun equals(other: Any?): Boolean
