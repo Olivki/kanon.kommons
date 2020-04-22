@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ import kotlin.contracts.contract
 
 @PublishedApi
 internal const val FAILED_CHECK = "State did not satisfy the given condition"
+
 @PublishedApi
 internal const val FAILED_REQUIRE = "Argument did not satisfy the given condition"
+
 @PublishedApi
 internal const val FAILED_ASSERTION = "Assertion failed"
 
@@ -37,7 +39,8 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
 
 // -- EXCEPTIONS -- \\
 // TODO: Better clarify what errors are *actually* fatal, as not all errors are *actually* fatal (which breaks the contract set forth by Error, but oh well)
-@FakeKeyword inline fun requireNonFatal(throwable: Throwable) {
+@FakeKeyword
+inline fun requireNonFatal(throwable: Throwable) {
     contract {
         returns() implies (throwable !is Error)
     }
@@ -49,19 +52,24 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
  * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] returns
  * `false`.
  */
-@FakeKeyword inline fun affirmThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun affirmThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     if (!condition()) throw UnsupportedOperationException(lazyMsg().toString())
 }
 
 /**
  * Throws a [UnsupportedOperationException] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun affirmThat(condition: () -> Boolean) = affirmThat(condition) { UNSUPPORTED_OPERATION }
+@FakeKeyword
+inline fun affirmThat(condition: () -> Boolean) {
+    affirmThat(condition) { UNSUPPORTED_OPERATION }
+}
 
 /**
  * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
  */
-@FakeKeyword inline fun affirmThat(condition: Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun affirmThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
@@ -71,7 +79,10 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
 /**
  * Throws a [UnsupportedOperationException] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun affirmThat(condition: Boolean) = affirmThat(condition) { UNSUPPORTED_OPERATION }
+@FakeKeyword
+inline fun affirmThat(condition: Boolean) {
+    affirmThat(condition) { UNSUPPORTED_OPERATION }
+}
 
 /**
  * Throws a [UnsupportedOperationException] with a default prefix and the specified [code] if the given [condition] is
@@ -80,26 +91,33 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
-@FakeKeyword inline fun affirmThat(condition: Boolean, code: String) =
+@FakeKeyword
+inline fun affirmThat(condition: Boolean, code: String) {
     affirmThat(condition) { "$UNSUPPORTED_OPERATION: ($code)" }
+}
 
 // -- CHECK -- \\
 /**
  * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun checkThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun checkThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     if (!condition()) throw IllegalStateException(lazyMsg().toString())
 }
 
 /**
  * Throws a [IllegalStateException] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun checkThat(condition: () -> Boolean) = checkThat(condition) { FAILED_CHECK }
+@FakeKeyword
+inline fun checkThat(condition: () -> Boolean) {
+    checkThat(condition) { FAILED_CHECK }
+}
 
 /**
  * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
  */
-@FakeKeyword inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
@@ -109,7 +127,10 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
 /**
  * Throws a [IllegalStateException] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun checkThat(condition: Boolean) = checkThat(condition) { FAILED_CHECK }
+@FakeKeyword
+inline fun checkThat(condition: Boolean) {
+    checkThat(condition) { FAILED_CHECK }
+}
 
 /**
  * Throws a [IllegalStateException] with a default prefix and the specified [code] if the given [condition] is `false`.
@@ -117,27 +138,33 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
-@FakeKeyword inline fun checkThat(condition: Boolean, code: String) =
+@FakeKeyword
+inline fun checkThat(condition: Boolean, code: String) {
     checkThat(condition) { "$FAILED_CHECK: ($code)" }
+}
 
 // -- REQUIRE -- \\
 /**
  * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     if (!condition()) throw IllegalArgumentException(lazyMsg().toString())
 }
 
 /**
  * Throws an [IllegalArgumentException] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun requireThat(condition: () -> Boolean) =
+@FakeKeyword
+inline fun requireThat(condition: () -> Boolean) {
     requireThat(condition) { FAILED_REQUIRE }
+}
 
 /**
  * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
  */
-@FakeKeyword inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
@@ -147,7 +174,10 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
 /**
  * Throws an [IllegalArgumentException] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun requireThat(condition: Boolean) = requireThat(condition) { FAILED_REQUIRE }
+@FakeKeyword
+inline fun requireThat(condition: Boolean) {
+    requireThat(condition) { FAILED_REQUIRE }
+}
 
 /**
  * Throws an [IllegalArgumentException] with a default prefix and the specified [code] if the given [condition] is
@@ -156,26 +186,33 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
-@FakeKeyword inline fun requireThat(condition: Boolean, code: String) =
+@FakeKeyword
+inline fun requireThat(condition: Boolean, code: String) {
     requireThat(condition) { "$FAILED_REQUIRE: ($code)" }
+}
 
 // -- ASSERTIONS -- \\
 /**
  * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun assertThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun assertThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     if (!condition()) throw AssertionError(lazyMsg().toString())
 }
 
 /**
  * Throws a [AssertionError] with a default message if the given [condition] returns `false`.
  */
-@FakeKeyword inline fun assertThat(condition: () -> Boolean) = assertThat(condition) { FAILED_ASSERTION }
+@FakeKeyword
+inline fun assertThat(condition: () -> Boolean) {
+    assertThat(condition) { FAILED_ASSERTION }
+}
 
 /**
  * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] is `false`.
  */
-@FakeKeyword inline fun assertThat(condition: Boolean, lazyMsg: () -> Any) {
+@FakeKeyword
+inline fun assertThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
@@ -185,7 +222,10 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
 /**
  * Throws a [AssertionError] with a default message if the given [condition] is `false`.
  */
-@FakeKeyword inline fun assertThat(condition: Boolean) = assertThat(condition) { FAILED_ASSERTION }
+@FakeKeyword
+inline fun assertThat(condition: Boolean) {
+    assertThat(condition) { FAILED_ASSERTION }
+}
 
 /**
  * Throws an [AssertionError] with a default prefix and the specified [code] if the given [condition] is `false`.
@@ -193,5 +233,7 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
-@FakeKeyword inline fun assertThat(condition: Boolean, code: String) =
+@FakeKeyword
+inline fun assertThat(condition: Boolean, code: String) {
     assertThat(condition) { "$FAILED_ASSERTION: ($code)" }
+}
