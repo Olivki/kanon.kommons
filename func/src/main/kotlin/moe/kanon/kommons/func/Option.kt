@@ -300,42 +300,42 @@ sealed class Option<out T> : Identifiable {
     fun asSequence(): Sequence<T> = Sequence { iterator }
 
     abstract operator fun component1(): T
+
+    /**
+     * Represents an empty [Option] value.
+     */
+    object None : Option<Nothing>() {
+        override val isPresent: Boolean = false
+        override val isEmpty: Boolean = true
+
+        override fun hashCode(): Int = 0
+
+        override fun equals(other: Any?): Boolean = other is None
+
+        override operator fun component1(): Nothing = throw NoSuchElementException()
+
+        override fun toString(): String = "None"
+    }
+
+    /**
+     * Represents a present [Option] value.
+     */
+    data class Some<out T>(val item: T) : Option<T>() {
+        override val isPresent: Boolean = true
+        override val isEmpty: Boolean = false
+
+        override fun hashCode(): Int = item.hashCode()
+
+        override fun equals(other: Any?): Boolean = item?.equals(other) ?: false
+
+        override fun toString(): String = "Some[$item]"
+    }
 }
 
-/**
- * Represents an empty [Option] value.
- */
-object None : Option<Nothing>() {
-    override val isPresent: Boolean = false
-    override val isEmpty: Boolean = true
-
-    override fun hashCode(): Int = 0
-
-    override fun equals(other: Any?): Boolean = other is None
-
-    override operator fun component1(): Nothing = throw NoSuchElementException()
-
-    override fun toString(): String = "None"
-}
-
-typealias Just<T> = Some<T>
+typealias Just<T> = Option.Some<T>
 
 /**
- * Represents a present [Option] value.
- */
-data class Some<out T>(val item: T) : Option<T>() {
-    override val isPresent: Boolean = true
-    override val isEmpty: Boolean = false
-
-    override fun hashCode(): Int = item.hashCode()
-
-    override fun equals(other: Any?): Boolean = item?.equals(other) ?: false
-
-    override fun toString(): String = "Some[$item]"
-}
-
-/**
- * Returns a [Some] containing `this`, or [None] if `this` is `null`.
+ * Returns a [Option.Some] containing `this`, or [Option.None] if `this` is `null`.
  */
 @JvmName("fromNullable")
 fun <T> T?.toOption(): Option<T> = Option(this)
@@ -343,13 +343,13 @@ fun <T> T?.toOption(): Option<T> = Option(this)
 /**
  * Converts `this` [java.util.Optional] to a [Option] instance.
  *
- * If a value is not present in `this` then the resulting `Optional` will be [None].
+ * If a value is not present in `this` then the resulting `Optional` will be [Option.None].
  */
 val <T> JOptional<T>.kotlin: Option<T>
     @JvmName("fromJava")
     get() = when {
-        this.isPresent -> Some(this.get())
-        else -> None
+        this.isPresent -> Option.Some(this.get())
+        else -> Option.None
     }
 
 /**
@@ -358,8 +358,8 @@ val <T> JOptional<T>.kotlin: Option<T>
 @JvmName("isSome")
 fun <T> Option<T>.isPresent(): Boolean {
     contract {
-        returns(true) implies (this@isPresent is Some<T>)
-        returns(false) implies (this@isPresent is None)
+        returns(true) implies (this@isPresent is Option.Some<T>)
+        returns(false) implies (this@isPresent is Option.None)
     }
     return this.isPresent
 }
@@ -370,19 +370,21 @@ fun <T> Option<T>.isPresent(): Boolean {
 @JvmName("isNone")
 fun <T> Option<T>.isEmpty(): Boolean {
     contract {
-        returns(true) implies (this@isEmpty is None)
-        returns(false) implies (this@isEmpty is Some<T>)
+        returns(true) implies (this@isEmpty is Option.None)
+        returns(false) implies (this@isEmpty is Option.Some<T>)
     }
     return this.isEmpty
 }
 
 /**
- * Returns [some][Some] containing the specified [item] if `this` is `true`, or [none][None] if `this` is `false`.
+ * Returns [some][Option.Some] containing the specified [item] if `this` is `true`, or [none][Option.None] if `this` is
+ * `false`.
  */
-fun <T> Boolean.asSome(item: T): Option<T> = if (this) Some(item) else None
+fun <T> Boolean.asSome(item: T): Option<T> = if (this) Option.Some(item) else Option.None
 
 /**
- * Returns [some][Some] containing the specified [lazyItem] if `this` is `true`, or [none][None] if `this` is `false`.
+ * Returns [some][Option.Some] containing the specified [lazyItem] if `this` is `true`, or [none][Option.None] if
+ * `this` is `false`.
  *
  * Note that this function *lazily* evaluates the [lazyItem], meaning that `item` will only ever be evaluated if `this`
  * is `true`, and never if `this` is `false`.
@@ -395,9 +397,9 @@ fun <T> Boolean.asSome(item: T): Option<T> = if (this) Some(item) else None
  * If using the `Boolean.asSome(item: T)` function instead, the above code would fail at runtime with a
  * [IndexOutOfBoundsException].
  */
-inline fun <T> Boolean.asSome(lazyItem: () -> T): Option<T> = if (this) Some(lazyItem()) else None
+inline fun <T> Boolean.asSome(lazyItem: () -> T): Option<T> = if (this) Option.Some(lazyItem()) else Option.None
 
-inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
+inline fun <T> maybe(scope: () -> Maybe<T> = { Option.None }): Maybe<T> = scope()
 
 // -- ITERABLE -- \\
 /**
@@ -406,27 +408,28 @@ inline fun <T> maybe(scope: () -> Maybe<T> = { None }): Maybe<T> = scope()
 fun <T> Iterable<T>.singleOrNone(): Option<T> = Option(singleOrNull())
 
 /**
- * Returns the first element, or [None] if `this` collection is empty.
+ * Returns the first element, or [none][Option.None] if `this` collection is empty.
  */
 fun <T> Iterable<T>.firstOrNone(): Option<T> = Option(firstOrNull())
 
 /**
- * Returns the first element matching the specified [predicate], or [None] if none is found.
+ * Returns the first element matching the specified [predicate], or [none][Option.None] if none is found.
  */
 inline fun <T> Iterable<T>.firstOrNone(predicate: (T) -> Boolean) = Option(firstOrNull(predicate))
 
 /**
- * Returns the last element, or [None] if `this` collection is empty.
+ * Returns the last element, or [none][Option.None] if `this` collection is empty.
  */
 fun <T> Iterable<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 
 /**
- * Returns the last element matching the specified [predicate], or [None] if none is found.
+ * Returns the last element matching the specified [predicate], or [none][Option.None] if none is found.
  */
 inline fun <T> Iterable<T>.lastOrNone(predicate: (T) -> Boolean): Option<T> = Option(lastOrNull(predicate))
 
 /**
- * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` collection.
+ * Returns the element at the given [index], or [none][Option.None] if the `index` is out of bounds of `this`
+ * collection.
  */
 fun <T> Iterable<T>.elementAtOrNone(index: Int): Option<T> = Option(elementAtOrNull(index))
 
@@ -439,35 +442,35 @@ fun <T> Iterable<T>.elementAtOrNone(index: Int): Option<T> = Option(elementAtOrN
 fun <T> Sequence<T>.singleOrNone(): Option<T> = Option(singleOrNull())
 
 /**
- * Returns the first element, or [None] if `this` sequence is empty.
+ * Returns the first element, or [none][Option.None] if `this` sequence is empty.
  *
  * The operation is _terminal_.
  */
 fun <T> Sequence<T>.firstOrNone(): Option<T> = Option(firstOrNull())
 
 /**
- * Returns the first element matching the specified [predicate], or [None] if none is found.
+ * Returns the first element matching the specified [predicate], or [none][Option.None] if none is found.
  *
  * The operation is _terminal_.
  */
 inline fun <T> Sequence<T>.firstOrNone(predicate: (T) -> Boolean) = Option(firstOrNull(predicate))
 
 /**
- * Returns the last element, or [None] if `this` sequence is empty.
+ * Returns the last element, or [none][Option.None] if `this` sequence is empty.
  *
  * The operation is _terminal_.
  */
 fun <T> Sequence<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 
 /**
- * Returns the last element matching the specified [predicate], or [None] if none is found.
+ * Returns the last element matching the specified [predicate], or [none][Option.None] if none is found.
  *
  * The operation is _terminal_.
  */
 inline fun <T> Sequence<T>.lastOrNone(predicate: (T) -> Boolean): Option<T> = Option(lastOrNull(predicate))
 
 /**
- * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` collection.
+ * Returns the element at the given [index], or [none][Option.None] if the `index` is out of bounds of `this` collection.
  *
  * The operation is _terminal_.
  */
@@ -480,23 +483,24 @@ fun <T> Sequence<T>.elementAtOrNone(index: Int): Option<T> = Option(elementAtOrN
 fun <T> List<T>.singleOrNone(): Option<T> = Option(singleOrNull())
 
 /**
- * Returns the element at the given [index], or [None] if the `index` is out of bounds of `this` list.
+ * Returns the element at the given [index], or [none][Option.None] if the `index` is out of bounds of `this` list.
  */
 fun <T> List<T>.getOrNone(index: Int): Option<T> = Option(getOrNull(index))
 
 /**
- * Returns the first element, or [None] if `this` list is empty.
+ * Returns the first element, or [none][Option.None] if `this` list is empty.
  */
 fun <T> List<T>.firstOrNone(): Option<T> = Option(firstOrNull())
 
 /**
- * Returns the last element, or [None] if `this` list is empty.
+ * Returns the last element, or [none][Option.None] if `this` list is empty.
  */
 fun <T> List<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 
 // -- MAP -- \\
 /**
- * Returns the value stored under the given [key] in `this` map, or [None] if no value is stored under the given `key`.
+ * Returns the value stored under the given [key] in `this` map, or [none][Option.None] if no value is stored under the
+ * given `key`.
  */
 @Deprecated(
     message = "The name does not follow naming convention",
@@ -506,102 +510,103 @@ fun <T> List<T>.lastOrNone(): Option<T> = Option(lastOrNull())
 fun <K, V> Map<K, V>.getValueOrNone(key: K): Option<V> = Option(this[key])
 
 /**
- * Returns the value stored under the given [key] in `this` map, or [None] if no value is stored under the given `key`.
+ * Returns the value stored under the given [key] in `this` map, or [none][Option.None] if no value is stored under the
+ * given `key`.
  */
 fun <K, V> Map<K, V>.getOrNone(key: K): Option<V> = Option(this[key])
 
 // -- TO... FUNCTIONS -- \\
 /**
- * Parses `this` string as a signed [Byte] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Byte] number and returns the result or [none][Option.None] if `this` string is not
+ * a valid representation of a number.
  */
 fun String.toByteOrNone(): Option<Byte> = Option(this.toByteOrNull())
 
 /**
- * Parses `this` string as a signed [Byte] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Byte] number and returns the result or [none][Option.None] if `this` string is not
+ * a valid representation of a number.
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
 fun String.toByteOrNone(radix: Int): Option<Byte> = Option(this.toByteOrNull(radix))
 
 /**
- * Parses `this` string as a signed [Short] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Short] number and returns the result or [none][Option.None] if `this` string is
+ * not a valid representation of a number.
  */
 fun String.toShortOrNone(): Option<Short> = Option(this.toShortOrNull())
 
 /**
- * Parses `this` string as a signed [Short] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Short] number and returns the result or [none][Option.None] if `this` string is
+ * not a valid representation of a number.
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
 fun String.toShortOrNone(radix: Int): Option<Short> = Option(this.toShortOrNull(radix))
 
 /**
- * Parses `this` string as a signed [Int] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Int] number and returns the result or [none][Option.None] if `this` string is not
+ * a valid representation of a number.
  */
 fun String.toIntOrNone(): Option<Int> = Option(this.toIntOrNull())
 
 /**
- * Parses `this` string as a signed [Int] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Int] number and returns the result or [none][Option.None] if `this` string is not
+ * a valid representation of a number.
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
 fun String.toIntOrNone(radix: Int): Option<Int> = Option(this.toIntOrNull(radix))
 
 /**
- * Parses `this` string as a signed [Long] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Long] number and returns the result or [none][Option.None] if `this` string is not
+ * a valid representation of a number.
  */
 fun String.toLongOrNone(): Option<Long> = Option(this.toLongOrNull())
 
 /**
- * Parses `this` string as a signed [Long] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Long] number and returns the result or [none][Option.None] if `this` string is not
+ * a valid representation of a number.
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
 fun String.toLongOrNone(radix: Int): Option<Long> = Option(this.toLongOrNull(radix))
 
 /**
- * Parses `this` string as a signed [BigInteger] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [BigInteger] number and returns the result or [none][Option.None] if `this` string
+ * is not a valid representation of a number.
  */
 fun String.toBigIntegerOrNone(): Option<BigInteger> = Option(this.toBigIntegerOrNull())
 
 /**
- * Parses `this` string as a signed [BigInteger] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [BigInteger] number and returns the result or [none][Option.None] if `this` string
+ * is not a valid representation of a number.
  *
  * @throws IllegalArgumentException when [radix] is not a valid radix for string to number conversion.
  */
 fun String.toBigIntegerOrNone(radix: Int): Option<BigInteger> = Option(this.toBigIntegerOrNull(radix))
 
 /**
- * Parses `this` string as a signed [Float] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Float] number and returns the result or [none][Option.None] if `this` string is
+ * not a valid representation of a number.
  */
 fun String.toFloatOrNone(): Option<Float> = Option(this.toFloatOrNull())
 
 /**
- * Parses `this` string as a signed [Double] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [Double] number and returns the result or [none][Option.None] if `this` string is
+ * not a valid representation of a number.
  */
 fun String.toDoubleOrNone(): Option<Double> = Option(this.toDoubleOrNull())
 
 /**
- * Parses `this` string as a signed [BigDecimal] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [BigDecimal] number and returns the result or [none][Option.None] if `this` string
+ * is not a valid representation of a number.
  */
 fun String.toBigDecimal(): Option<BigDecimal> = Option(this.toBigDecimalOrNull())
 
 /**
- * Parses `this` string as a signed [BigDecimal] number and returns the result or [None] if `this` string is not a valid
- * representation of a number.
+ * Parses `this` string as a signed [BigDecimal] number and returns the result or [none][Option.None] if `this` string
+ * is not a valid representation of a number.
  *
  * @param [context] specifies the precision and the rounding mode
  * @throws [ArithmeticException] if the rounding is needed, but the rounding mode is

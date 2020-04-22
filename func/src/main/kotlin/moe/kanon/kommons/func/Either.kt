@@ -367,11 +367,11 @@ sealed class EitherProjection<out L, out R> : Identifiable {
         }
 
         /**
-         * Returns [Some] if `this` is `left`, or [None] if `this` is `right`.
+         * Returns [Option.Some] if `this` is `left`, or [Option.None] if `this` is `right`.
          */
         fun toOptional(): Option<L> = when (either) {
-            is Either.Left -> Some(either.value)
-            is Either.Right -> None
+            is Either.Left -> Option.Some(either.value)
+            is Either.Right -> Option.None
         }
 
         /**
@@ -463,11 +463,11 @@ sealed class EitherProjection<out L, out R> : Identifiable {
         }
 
         /**
-         * Returns [Some] if `this` is `right`, or [None] if `this` is `left`.
+         * Returns [Option.Some] if `this` is `right`, or [Option.None] if `this` is `left`.
          */
         fun toOptional(): Option<R> = when (either) {
-            is Either.Left -> None
-            is Either.Right -> Some(either.value)
+            is Either.Left -> Option.None
+            is Either.Right -> Option.Some(either.value)
         }
 
         /**
