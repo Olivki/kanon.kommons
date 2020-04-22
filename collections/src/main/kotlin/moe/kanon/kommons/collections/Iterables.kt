@@ -57,23 +57,21 @@ val <T> Iterable<T>.tail: List<T>
  * Returns `true` if `this` iterable has no elements to iterate over or `false` if it does.
  */
 @Deprecated(
-    message = "Use 'isEmpty()' function instead.",
-    replaceWith = ReplaceWith("this.isEmpty()", "moe.kanon.kommons.collections")
+    message = "Use 'none()' instead.",
+    replaceWith = ReplaceWith("this.none()", "kotlin.collections")
 )
 val Iterable<*>.isEmpty: Boolean
-    @JvmName("isEmptyDeprecated")
-    get() = isEmpty()
+    get() = none()
 
 /**
  * Returns `false` if `this` iterable has no elements to iterate over or `true` if it does.
  */
 @Deprecated(
-    message = "Use 'isNotEmpty()' function instead.",
-    replaceWith = ReplaceWith("this.isNotEmpty()", "moe.kanon.kommons.collections")
+    message = "Use 'any()' instead.",
+    replaceWith = ReplaceWith("this.any()", "kotlin.collections")
 )
 val Iterable<*>.isNotEmpty: Boolean
-    @JvmName("isNotEmptyDeprecated")
-    get() = isNotEmpty()
+    get() = any()
 
 val <T : Comparable<T>> Iterable<T>.sortOrder: SortOrder
     get() = when (this.sorted()) {
@@ -85,22 +83,6 @@ val <T : Comparable<T>> Iterable<T>.sortOrder: SortOrder
 enum class SortOrder { ASCENDING, DESCENDING, NONE }
 
 // -- UTILITY FUNCTIONS -- \\
-/**
- * Returns `true` if `this` iterable has no elements to iterate over, otherwise `false`.
- */
-fun Iterable<*>.isEmpty(): Boolean = when (this) {
-    is Collection -> isEmpty()
-    else -> none()
-}
-
-/**
- * Returns `true` if `this` iterable has elements to iterate over, otherwise `false`.
- */
-fun Iterable<*>.isNotEmpty(): Boolean = when (this) {
-    is Collection -> !isEmpty()
-    else -> any()
-}
-
 /**
  * Returns the hash-code from combining all the elements in `this` iterable.
  */
