@@ -38,7 +38,7 @@ annotation class KommonsExperimental
 // used for forcing specific coloring of functions in intellij
 @DslMarker
 @MustBeDocumented
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class FakeKeyword
 
 /**
