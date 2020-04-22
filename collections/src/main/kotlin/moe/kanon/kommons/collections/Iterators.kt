@@ -23,15 +23,6 @@ import moe.kanon.kommons.INDEX_NOT_FOUND
 
 private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
 
-/**
- * Returns an unmodifiable view of `this` iterator.
- *
- * Any attempts to invoke the `remove` operation on the returned instance will result in a
- * [UnsupportedOperationException] being thrown.
- */
-@JvmName("unmodifiable")
-fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = object : Iterator<T> by this {}
-
 private object EmptyIterator : Iterator<Nothing> {
     override fun hasNext(): Boolean = false
 
@@ -45,6 +36,8 @@ private class SingletonIterator<T>(val item: T) : AbstractIterator<T>() {
     }
 }
 
+private class UnmodifiableIterator<T>(val delegate: Iterator<T>) : Iterator<T> by delegate
+
 /**
  * Returns an [Iterator] instance that iterates over no elements.
  */
@@ -56,6 +49,15 @@ fun <T> emptyIterator(): Iterator<T> = EmptyIterator
  */
 @JvmName("singletonOf")
 fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
+
+/**
+ * Returns an unmodifiable view of `this` iterator.
+ *
+ * Any attempts to invoke the `remove` operation on the returned instance will result in a
+ * [UnsupportedOperationException] being thrown.
+ */
+@JvmName("unmodifiable")
+fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = UnmodifiableIterator(this)
 
 // -- LIST ITERATOR -- \\
 /**
