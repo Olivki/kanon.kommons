@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@
 
 package moe.kanon.kommons
 
-import java.util.*
-
-@PublishedApi internal const val UNSUPPORTED_OPERATION = "Operation is not supported"
+@PublishedApi
+internal const val UNSUPPORTED_OPERATION = "Operation is not supported"
 
 /**
  * Throws a [UnsupportedOperationException] with the specified [message].
@@ -32,12 +31,14 @@ inline fun UNSUPPORTED(message: String): Nothing = throw UnsupportedOperationExc
  */
 inline fun UNSUPPORTED(): Nothing = throw UnsupportedOperationException(UNSUPPORTED_OPERATION)
 
+@JvmOverloads
+inline fun writeOut(out: Any? = "") = println(out)
 
-@JvmOverloads inline fun writeOut(out: Any? = "") = println(out)
+@JvmOverloads
+inline fun writeError(out: Any? = "") = System.err.println(out)
 
-@JvmOverloads inline fun writeError(out: Any? = "") = System.err.println(out)
-
-@JvmOverloads inline fun readIn(out: Any? = ""): String {
-    writeOut(out)
-    return Scanner(System.`in`).nextLine()
+@JvmOverloads
+fun readIn(out: Any? = ""): String? {
+    if (out != null) writeOut(out)
+    return readLine()
 }
