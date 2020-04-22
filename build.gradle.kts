@@ -1,6 +1,5 @@
 import name.remal.gradle_plugins.dsl.extensions.convention
 import name.remal.gradle_plugins.dsl.extensions.get
-import name.remal.gradle_plugins.dsl.extensions.implementation
 import name.remal.gradle_plugins.plugins.publish.bintray.RepositoryHandlerBintrayExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -100,11 +99,11 @@ subprojects {
 // make sure that the correct sub-projects inherit from the core project
 configure(subprojects.filterNot { it.name == "core" }) {
     dependencies {
-        implementation(project(":core"))
+        api(project(":core"))
     }
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "4.10.3"
+    gradleVersion = "6.1"
     distributionType = Wrapper.DistributionType.BIN
 }
