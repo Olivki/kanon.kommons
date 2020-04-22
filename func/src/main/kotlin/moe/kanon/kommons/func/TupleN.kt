@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package moe.kanon.kommons.func.tuples
+package moe.kanon.kommons.func
 
 import moe.kanon.kommons.requireThat
 import kotlin.reflect.typeOf
