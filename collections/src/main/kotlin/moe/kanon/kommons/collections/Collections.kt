@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,18 @@ internal object EmptyCollection : AbstractCollection<Nothing>() {
     override fun iterator(): Iterator<Nothing> = EmptyIterator
 }
 
+private class SingletonCollection<T>(val item: T) : AbstractCollection<T>() {
+    override val size: Int = 0
+
+    override fun contains(element: @UnsafeVariance T): Boolean = item == element
+
+    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean = elements.all { it == item }
+
+    override fun isEmpty(): Boolean = false
+
+    override fun iterator(): Iterator<T> = singletonIteratorOf(item)
+}
+
 /**
  * Returns an empty [Collection].
  */
@@ -43,17 +55,7 @@ fun <T> emptyCollection(): Collection<T> = EmptyCollection
  * Returns a new [Collection] that *only* contains the specified [item].
  */
 @JvmName("singletonOf")
-fun <E> singletonCollectionOf(item: E): Collection<E> = object : AbstractCollection<E>() {
-    override val size: Int = 0
-
-    override fun contains(element: @UnsafeVariance E): Boolean = item == element
-
-    override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = elements.all { it == item }
-
-    override fun isEmpty(): Boolean = false
-
-    override fun iterator(): Iterator<E> = singletonIteratorOf(item)
-}
+fun <T> singletonCollectionOf(item: T): Collection<T> = SingletonCollection(item)
 
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableCollection] of `this` collection.
