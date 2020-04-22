@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import kotlin.properties.ReadWriteProperty
  * This is made to keep in line with the [Delegates] object offered by the Kotlin standard library.
  */
 @Deprecated(
-    "Ambiguous name in relation to what it does",
-    ReplaceWith("KDelegates", "moe.kanon.kommons.lang.delegates"),
-    DeprecationLevel.ERROR
+    message = "Ambiguous name in relation to what it does",
+    replaceWith = ReplaceWith("KDelegates", "moe.kanon.kommons.lang.delegates"),
+    level = DeprecationLevel.ERROR
 )
 object Delegate {
     /**
