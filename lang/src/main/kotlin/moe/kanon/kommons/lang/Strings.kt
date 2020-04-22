@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,6 +158,6 @@ fun String.normalizeWordCasing(vararg delimiters: Char = charArrayOf(' ')): Stri
     this.toLowerCase().capitalizeWords(*delimiters)
 
 /**
- * Returns whether or not all the characters in `this` [String] are uppercase.
+ * Returns `true` if all the characters in `this` sequence are upper case, otherwise `false`.
  */
-fun String.isUpperCase(): Boolean = this.all { it.isUpperCase() }
+fun CharSequence.isUpperCase(): Boolean = this.all { it.isUpperCase() }
