@@ -18,8 +18,6 @@
 
 package moe.kanon.kommons.func
 
-import moe.kanon.kommons.func.tuples.Tuple4
-
 // -- TYPE-ALIASES -- \\
 // -- CONSUMERS -- \\
 /**
@@ -169,20 +167,6 @@ typealias BiSupplier<A, B> = () -> Pair<A, B>
  * @param [C] the type of the third result supplied by `this` supplier
  */
 typealias TriSupplier<A, B, C> = () -> Triple<A, B, C>
-
-/**
- * Represents a supplier of a four results.
- *
- * This is the four-arity specialization of [Supplier].
- *
- * There is no requirement that a new or distinct result be returned each time the supplier is invoked.
- *
- * @param [A] the type of the first result supplied by `this` supplier
- * @param [B] the type of the second result supplied by `this` supplier
- * @param [C] the type of the third result supplied by `this` supplier
- * @param [D] the type of the fourth result supplied by `this` supplier
- */
-typealias QuadSupplier<A, B, C, D> = () -> Tuple4<A, B, C, D>
 
 // -- PREDICATES -- \\
 /**
