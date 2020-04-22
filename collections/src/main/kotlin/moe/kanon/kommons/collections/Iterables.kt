@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import moe.kanon.kommons.requireThat
  * Returns the size of `this` iterable.
  */
 val <T> Iterable<T>.size: Int
-    @JvmName("sizeOf") get() = when (this) {
+    @JvmName("sizeOf")
+    get() = when (this) {
         is Collection -> size
         else -> count()
     }
@@ -35,26 +36,38 @@ val <T> Iterable<T>.size: Int
  *
  * @throws [NoSuchElementException] if `this` list is iterable.
  */
-val <T> Iterable<T>.head: T @JvmName("headOf") get() = first()
+val <T> Iterable<T>.head: T
+    @JvmName("headOf")
+    get() = first()
 
 /**
  * Returns all the elements in `this` iterable except for the first.
  */
-val <T> Iterable<T>.tail: List<T> @JvmName("tailOf") get() = drop(1)
+val <T> Iterable<T>.tail: List<T>
+    @JvmName("tailOf")
+    get() = drop(1)
 
 /**
  * Returns `true` if `this` iterable has no elements to iterate over or `false` if it does.
  */
+@Deprecated(
+    message = "Use 'isEmpty()' function instead.",
+    replaceWith = ReplaceWith("this.isEmpty()", "moe.kanon.kommons.collections")
+)
 val Iterable<*>.isEmpty: Boolean
-    get() = when (this) {
-        is Collection -> isEmpty()
-        else -> none()
-    }
+    @JvmName("isEmptyDeprecated")
+    get() = isEmpty()
 
 /**
  * Returns `false` if `this` iterable has no elements to iterate over or `true` if it does.
  */
-val Iterable<*>.isNotEmpty: Boolean get() = !isEmpty
+@Deprecated(
+    message = "Use 'isNotEmpty()' function instead.",
+    replaceWith = ReplaceWith("this.isNotEmpty()", "moe.kanon.kommons.collections")
+)
+val Iterable<*>.isNotEmpty: Boolean
+    @JvmName("isNotEmptyDeprecated")
+    get() = isNotEmpty()
 
 val <T : Comparable<T>> Iterable<T>.sortOrder: SortOrder
     get() = when (this.sorted()) {
@@ -66,6 +79,22 @@ val <T : Comparable<T>> Iterable<T>.sortOrder: SortOrder
 enum class SortOrder { ASCENDING, DESCENDING, NONE }
 
 // -- UTILITY FUNCTIONS -- \\
+/**
+ * Returns `true` if `this` iterable has no elements to iterate over, otherwise `false`.
+ */
+fun Iterable<*>.isEmpty(): Boolean = when (this) {
+    is Collection -> isEmpty()
+    else -> none()
+}
+
+/**
+ * Returns `true` if `this` iterable has elements to iterate over, otherwise `false`.
+ */
+fun Iterable<*>.isNotEmpty(): Boolean = when (this) {
+    is Collection -> !isEmpty()
+    else -> any()
+}
+
 /**
  * Returns the hash-code from combining all the elements in `this` iterable.
  */
