@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Oliver Berg
+ * Copyright 2019-2020 Oliver Berg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ package moe.kanon.kommons.lang
 /**
  * Returns the [hash][Any.hashCode] of `this` value, or `0` if `this` is `null`.
  */
-val Any?.hash: Int @JvmName("hashOf") get() = this?.hashCode() ?: 0
+val Any?.hash: Int
+    @JvmName("hashOf")
+    get() = this?.hashCode() ?: 0
 
 /**
  * Returns the same hash code for the given object as would be returned by the default [Any.hashCode] function,
@@ -29,13 +31,16 @@ val Any?.hash: Int @JvmName("hashOf") get() = this?.hashCode() ?: 0
  *
  * @see System.identityHashCode
  */
-val Any?.identityHash: Int @JvmName("identityHashOf") get() = System.identityHashCode(this)
+val Any?.identityHash: Int
+    @JvmName("identityHashOf")
+    get() = System.identityHashCode(this)
 
 /**
  * Attempts to always return a human-readable `String` representation of `this` string.
  */
 val Any?.string: String
-    @JvmName("stringOf") get() = when (this) {
+    @JvmName("stringOf")
+    get() = when (this) {
         null -> "null"
         is Array<*> -> this.contentDeepToString()
         is Iterable<*> -> "[${this.joinToString()}]"
