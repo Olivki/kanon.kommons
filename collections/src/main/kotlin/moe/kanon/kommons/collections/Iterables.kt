@@ -366,7 +366,7 @@ inline fun <T> Iterable<T>.mapTo(destination: DoubleArray, transform: (T) -> Dou
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [Array].
  */
-inline fun <T, R> Iterable<T>.mapToTypedArray(transform: (T) -> R): Array<R> = mapTo(createArray(this.size), transform)
+inline fun <T, reified R> Iterable<T>.mapToTypedArray(transform: (T) -> R): Array<R> = mapTo(createArray(this.size), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
@@ -555,7 +555,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: DoubleArray, transform: (i:
  * @param [transform] function that takes the index of an element and the element itself and returns the result of the
  * transform applied to the element.
  */
-inline fun <T, R> Iterable<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> =
+inline fun <T, reified R> Iterable<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> =
     mapIndexedTo(createArray(this.size), transform)
 
 /**
@@ -642,7 +642,7 @@ inline fun <T> Iterable<T>.mapIndexedToDoubleArray(transform: (i: Int, e: T) -> 
 /**
  * Returns a new generic [Array] populated by the elements of `this` iterable.
  */
-fun <T> Iterable<T>.toTypedArray(): Array<T> = mapToTypedArray { it }
+inline fun <reified T> Iterable<T>.toTypedArray(): Array<T> = mapToTypedArray { it }
 
 /**
  * Returns a new [BooleanArray] populated by the elements of `this` iterable.

@@ -386,7 +386,7 @@ inline fun <T> Sequence<T>.mapTo(destination: DoubleArray, transform: (T) -> Dou
  *
  * The operation is _terminal_.
  */
-inline fun <T, R> Sequence<T>.mapToTypedArray(transform: (T) -> R): Array<R> {
+inline fun <T, reified R> Sequence<T>.mapToTypedArray(transform: (T) -> R): Array<R> {
     val destination = createArray<R>(this.count())
     var index = 0
     for (element in this) destination[index++] = transform(element)
@@ -643,7 +643,7 @@ inline fun <T> Sequence<T>.mapIndexedTo(destination: DoubleArray, transform: (i:
  * @param [transform] function that takes the index of an element and the element itself and returns the result of the
  * transform applied to the element.
  */
-inline fun <T, R> Sequence<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> {
+inline fun <T, reified R> Sequence<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> {
     val destination = createArray<R>(this.count())
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
@@ -784,7 +784,7 @@ inline fun <T> Sequence<T>.mapIndexedToDoubleArray(transform: (i: Int, e: T) -> 
  *
  * The operation is _terminal_.
  */
-fun <T> Sequence<T>.toTypedArray(): Array<T> {
+inline fun <reified T> Sequence<T>.toTypedArray(): Array<T> {
     val result = createArray<T>(this.count())
     var index = 0
     for (element in this) result[index++] = element

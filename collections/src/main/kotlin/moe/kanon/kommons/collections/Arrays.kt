@@ -22,13 +22,13 @@ package moe.kanon.kommons.collections
  * Creates a new generic [Array] of the specified [size] filled with `null` values.
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> createArray(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
+inline fun <reified T> createArray(size: Int): Array<T> = arrayOfNulls<T>(size) as Array<T>
 
 /**
  * Creates a new generic [Array] of the specified [size] filled with the specified [default] value.
  */
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> createArray(size: Int, default: T): Array<T> = Array<Any>(size) { default } as Array<T>
+inline fun <reified T : Any> createArray(size: Int, default: T): Array<T> = Array(size) { default }
 
 // TODO: implement an actual proper way of doing this rather than just having it be a wrapper
 
