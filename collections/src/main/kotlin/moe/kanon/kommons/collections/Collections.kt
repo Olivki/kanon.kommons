@@ -54,6 +54,10 @@ fun <T> emptyCollection(): Collection<T> = EmptyCollection
 /**
  * Returns a new [Collection] that *only* contains the specified [item].
  */
+@Deprecated(
+    message = "Use 'collectionOf(item)' instead.",
+    replaceWith = ReplaceWith("collectionOf(item)", "moe.kanon.kommons.collections")
+)
 fun <T> singletonCollectionOf(item: T): Collection<T> = collectionOf(item)
 
 /**
