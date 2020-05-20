@@ -41,6 +41,14 @@ fun <T> List<T>.asUnmodifiableList(): List<T> = Collections.unmodifiableList(thi
 fun <T> singletonListOf(item: T): List<T> = listOf(item)
 
 /**
+ * Returns a new [List] containing of [size] amount of copies of the given [element].
+ *
+ * The returned `List` is very tiny as it only contains a *single* reference to the given [element], it is also
+ * [Serializable].
+ */
+fun <T> filledListOf(size: Int, element: T): List<T> = Collections.nCopies(size, element)
+
+/**
  * Creates a new two-dimensional list from the specified [width] and [height], with all values set to the specified
  * [default].
  */
