@@ -52,6 +52,11 @@ private class SingletonCollection<T>(val item: T) : AbstractCollection<T>() {
 fun <T> emptyCollection(): Collection<T> = EmptyCollection
 
 /**
+ * Returns an empty [Collection].
+ */
+fun <T> collectionOf(): Collection<T> = emptyCollection()
+
+/**
  * Returns a new [Collection] that *only* contains the specified [item].
  */
 @Deprecated(
