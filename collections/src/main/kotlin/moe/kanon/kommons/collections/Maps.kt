@@ -53,7 +53,11 @@ fun <K, V> singletonMapOf(key: K, value: V): Map<K, V> = SingletonMap(key, value
  * Returns a new [Map] that only contains the given [value][Pair.second] mapped to the given [key][Pair.first].
  */
 @JvmName("singletonOf")
-fun <K, V> singletonMapOf(pair: Pair<K, V>): Map<K, V> = SingletonMap(pair.first, pair.second)
+@Deprecated(
+    message = "Use 'mapOf(pair)' instead.",
+    replaceWith = ReplaceWith("mapOf(pair)", "kotlin.collections")
+)
+fun <K, V> singletonMapOf(pair: Pair<K, V>): Map<K, V> = mapOf(pair)
 
 // java
 /**
