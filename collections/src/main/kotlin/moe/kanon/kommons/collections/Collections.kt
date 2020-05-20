@@ -54,8 +54,13 @@ fun <T> emptyCollection(): Collection<T> = EmptyCollection
 /**
  * Returns a new [Collection] that *only* contains the specified [item].
  */
+fun <T> singletonCollectionOf(item: T): Collection<T> = collectionOf(item)
+
+/**
+ * Returns a new [Collection] that *only* contains the specified [element].
+ */
 @JvmName("singletonOf")
-fun <T> singletonCollectionOf(item: T): Collection<T> = SingletonCollection(item)
+fun <T> collectionOf(element: T): Collection<T> = SingletonCollection(element)
 
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableCollection] of `this` collection.
