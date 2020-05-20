@@ -19,37 +19,10 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.INDEX_NOT_FOUND
 import moe.kanon.kommons.requireThat
 import java.util.Collections
 
 typealias TwoDimList<T> = List<List<T>>
-
-private class SingletonList<T>(val item: T) : AbstractList<T>() {
-    override val size: Int = 1
-
-    override fun contains(element: @UnsafeVariance T): Boolean = element == item
-
-    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean = elements.all { it == item }
-
-    override fun get(index: Int): T = if (index == 0) item else throw IndexOutOfBoundsException()
-
-    override fun indexOf(element: @UnsafeVariance T): Int = if (element == item) 0 else INDEX_NOT_FOUND
-
-    override fun isEmpty(): Boolean = false
-
-    override fun iterator(): Iterator<T> = singletonIteratorOf(item)
-
-    override fun lastIndexOf(element: @UnsafeVariance T): Int = if (element == item) 0 else INDEX_NOT_FOUND
-
-    override fun listIterator(): ListIterator<T> = singletonListIteratorOf(item)
-
-    override fun listIterator(index: Int): ListIterator<T> =
-        if (index == 0) singletonListIteratorOf(item) else emptyListIterator()
-
-    override fun subList(fromIndex: Int, toIndex: Int): List<T> =
-        if (fromIndex == 0 && toIndex == 0) this else emptyList()
-}
 
 // -- FACTORY FUNCTIONS -- \\
 /**
@@ -61,7 +34,11 @@ fun <T> List<T>.asUnmodifiableList(): List<T> = Collections.unmodifiableList(thi
  * Returns a new [List] that *only* contains the specified [item].
  */
 @JvmName("singletonOf")
-fun <T> singletonListOf(item: T): List<T> = SingletonList(item)
+@Deprecated(
+    message = "Use 'listOf(item)' instead.",
+    replaceWith = ReplaceWith("listOf(item)", "kotlin.collections")
+)
+fun <T> singletonListOf(item: T): List<T> = listOf(item)
 
 /**
  * Creates a new two-dimensional list from the specified [width] and [height], with all values set to the specified
