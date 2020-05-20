@@ -46,8 +46,13 @@ private class SingletonMap<K, out V>(key: K, value: V) : AbstractMap<K, V>() {
 /**
  * Returns a new [Map] that only contains the given [value] mapped to the given [key].
  */
-@JvmName("singletonOf")
 fun <K, V> singletonMapOf(key: K, value: V): Map<K, V> = SingletonMap(key, value)
+
+/**
+ * Returns a new [Map] that only contains the given [value] mapped to the given [key].
+ */
+@JvmName("singletonOf")
+fun <K, V> mapOf(key: K, value: V): Map<K, V> = Collections.singletonMap(key, value)
 
 /**
  * Returns a new [Map] that only contains the given [value][Pair.second] mapped to the given [key][Pair.first].
