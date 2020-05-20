@@ -21,18 +21,6 @@ package moe.kanon.kommons.collections
 import java.util.Collections
 import java.util.EnumSet
 
-private class SingletonSet<T>(val item: T) : AbstractSet<T>() {
-    override val size: Int = 1
-
-    override fun contains(element: @UnsafeVariance T): Boolean = element == item
-
-    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean = elements.all { it == item }
-
-    override fun isEmpty(): Boolean = false
-
-    override fun iterator(): Iterator<T> = singletonIteratorOf(item)
-}
-
 // -- FACTORY FUNCTIONS -- \\
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableSet] of `this` set.
@@ -43,7 +31,11 @@ fun <T> Set<T>.asUnmodifiableSet(): Set<T> = Collections.unmodifiableSet(this)
  * Returns a new [Set] that *only* contains the given [item].
  */
 @JvmName("singletonOf")
-fun <T> singletonSetOf(item: T): Set<T> = SingletonSet(item)
+@Deprecated(
+    message = "Use 'setOf(item)' instead.",
+    replaceWith = ReplaceWith("setOf(item)", "kotlin.collections")
+)
+fun <T> singletonSetOf(item: T): Set<T> = setOf(item)
 
 // -- ENUM SET -- \\
 /**
