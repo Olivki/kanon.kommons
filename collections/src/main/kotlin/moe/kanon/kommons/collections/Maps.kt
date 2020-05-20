@@ -22,31 +22,15 @@ import java.util.Collections
 import java.util.EnumMap
 import java.util.TreeMap
 
-// -- CLASSES -- \\
-private class SingletonMap<K, out V>(key: K, value: V) : AbstractMap<K, V>() {
-    private val entry: Entry<K, V> = Entry(key, value)
-
-    override val entries: Set<Map.Entry<K, V>> = singletonSetOf(entry)
-    override val keys: Set<K> = singletonSetOf(entry.key)
-    override val size: Int = 1
-    override val values: Collection<V> = singletonCollectionOf(entry.value)
-
-    override fun containsKey(key: @UnsafeVariance K): Boolean = key == entry.key
-
-    override fun containsValue(value: @UnsafeVariance V): Boolean = value == entry.value
-
-    override fun get(key: K): V? = if (key == entry.key) entry.value else null
-
-    override fun isEmpty(): Boolean = false
-
-    private data class Entry<out K, out V>(override val key: K, override val value: V) : Map.Entry<K, V>
-}
-
 // -- FACTORY FUNCTIONS -- \\
 /**
  * Returns a new [Map] that only contains the given [value] mapped to the given [key].
  */
-fun <K, V> singletonMapOf(key: K, value: V): Map<K, V> = SingletonMap(key, value)
+@Deprecated(
+    message = "Use 'mapOf(key, value)' instead.",
+    replaceWith = ReplaceWith("mapOf(key, value)", "moe.kanon.kommons.collections")
+)
+fun <K, V> singletonMapOf(key: K, value: V): Map<K, V> = mapOf(key, value)
 
 /**
  * Returns a new [Map] that only contains the given [value] mapped to the given [key].
@@ -64,7 +48,6 @@ fun <K, V> mapOf(key: K, value: V): Map<K, V> = Collections.singletonMap(key, va
 )
 fun <K, V> singletonMapOf(pair: Pair<K, V>): Map<K, V> = mapOf(pair)
 
-// java
 /**
  * Returns an [unmodifiable view][Collections.unmodifiableMap] of `this` map.
  */
