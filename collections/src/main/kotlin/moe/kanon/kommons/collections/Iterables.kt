@@ -23,13 +23,11 @@ import moe.kanon.kommons.requireThat
 // -- UTILITY PROPERTIES -- \\
 /**
  * Returns the count of how many elements are contained within `this` iterable.
- *
- * Unlike the [Iterable.count] function provided in the Kotlin std-lib, this property returns the value of
- * [Collection.size] if `this` is a `Collection`, otherwise it returns the value of `Iterable.count`.
- *
- * @see [Collection.size]
- * @see [Iterable.count]
  */
+@Deprecated(
+    message = "Use 'count()' instead.",
+    replaceWith = ReplaceWith("this.count()", "kotlin.collections")
+)
 val <T> Iterable<T>.size: Int
     @JvmName("sizeOf")
     get() = when (this) {
