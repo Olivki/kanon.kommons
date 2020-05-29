@@ -34,7 +34,7 @@ private object EmptyCollection : AbstractCollection<Nothing>() {
 }
 
 private class SingletonCollection<T>(val item: T) : AbstractCollection<T>() {
-    override val size: Int = 0
+    override val size: Int = 1
 
     override fun contains(element: @UnsafeVariance T): Boolean = item == element
 
