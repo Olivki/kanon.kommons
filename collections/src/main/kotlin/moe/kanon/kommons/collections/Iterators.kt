@@ -29,10 +29,16 @@ private object EmptyIterator : Iterator<Nothing> {
     override fun next(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
 }
 
-private class SingletonIterator<T>(val item: T) : AbstractIterator<T>() {
+private class SingletonIterator<T>(item: T) : AbstractIterator<T>() {
+    private var item: T? = item
+
     override fun computeNext() {
-        setNext(item)
-        done()
+        if (item != null) {
+            setNext(item!!)
+            item = null
+        } else {
+            done()
+        }
     }
 }
 
@@ -47,6 +53,7 @@ fun <T> emptyIterator(): Iterator<T> = EmptyIterator
 /**
  * Returns a new [Iterator] that only iterates over the given [item].
  */
+// TODO: refactor to 'iteratorOf'
 @JvmName("singletonOf")
 fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 
@@ -100,6 +107,7 @@ fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
 /**
  * Returns a new [ListIterator] instance that only iterates over the given [item].
  */
+// TODO: refactor to 'iteratorOf'
 fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
 
 /**
