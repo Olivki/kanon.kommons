@@ -94,36 +94,22 @@ inline fun affirmThat(condition: Boolean, code: String) {
 }
 
 // -- CHECK -- \\
+// new
 /**
  * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-inline fun checkThat(condition: () -> Boolean, lazyMsg: () -> Any) {
-    if (!condition()) throw IllegalStateException(lazyMsg().toString())
+inline fun check(condition: () -> Boolean, lazyMsg: () -> Any) {
+    if (!condition()) {
+        val message = lazyMsg()
+        throw IllegalStateException(message.toString())
+    }
 }
 
 /**
  * Throws a [IllegalStateException] with a default message if the given [condition] returns `false`.
  */
-inline fun checkThat(condition: () -> Boolean) {
-    checkThat(condition) { FAILED_CHECK }
-}
-
-/**
- * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
- */
-inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
-    contract {
-        returns() implies (condition)
-    }
-
-    if (!condition) throw IllegalStateException(lazyMsg().toString())
-}
-
-/**
- * Throws a [IllegalStateException] with a default message if the given [condition] is `false`.
- */
-inline fun checkThat(condition: Boolean) {
-    checkThat(condition) { FAILED_CHECK }
+inline fun check(condition: () -> Boolean) {
+    check(condition) { FAILED_CHECK }
 }
 
 /**
@@ -132,8 +118,71 @@ inline fun checkThat(condition: Boolean) {
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
+inline fun check(condition: Boolean, code: String) {
+    contract {
+        returns() implies condition
+    }
+
+    check(condition) { "$FAILED_CHECK: ($code)" }
+}
+
+// old
+/**
+ * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'check(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("check(condition, lazyMsg)", "moe.kanon.kommons")
+)
+inline fun checkThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+    check(condition, lazyMsg)
+}
+
+/**
+ * Throws a [IllegalStateException] with a default message if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'check(condition)' instead.",
+    replaceWith = ReplaceWith("check(condition)", "moe.kanon.kommons")
+)
+inline fun checkThat(condition: () -> Boolean) {
+    check(condition) { FAILED_CHECK }
+}
+
+/**
+ * Throws a [IllegalStateException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'check(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("check(condition, lazyMsg)", "kotlin")
+)
+inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
+    check(condition, lazyMsg)
+}
+
+/**
+ * Throws a [IllegalStateException] with a default message if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'check(condition)' instead.",
+    replaceWith = ReplaceWith("check(condition)", "kotlin")
+)
+inline fun checkThat(condition: Boolean) {
+    check(condition) { FAILED_CHECK }
+}
+
+/**
+ * Throws a [IllegalStateException] with a default prefix and the specified [code] if the given [condition] is `false`.
+ *
+ * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
+ * form.
+ */
+@Deprecated(
+    message = "Use 'check(condition, code)' instead.",
+    replaceWith = ReplaceWith("check(condition, code)", "moe.kanon.kommons")
+)
 inline fun checkThat(condition: Boolean, code: String) {
-    checkThat(condition) { "$FAILED_CHECK: ($code)" }
+    check(condition) { "$FAILED_CHECK: ($code)" }
 }
 
 // -- REQUIRE -- \\
@@ -142,7 +191,10 @@ inline fun checkThat(condition: Boolean, code: String) {
  * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
 inline fun require(condition: () -> Boolean, lazyMsg: () -> Any) {
-    if (!condition()) throw IllegalArgumentException(lazyMsg().toString())
+    if (!condition()) {
+        val message = lazyMsg()
+        throw IllegalArgumentException(message.toString())
+    }
 }
 
 /**
@@ -176,7 +228,7 @@ inline fun require(condition: Boolean, code: String) {
     replaceWith = ReplaceWith("require(condition, lazyMsg)", "moe.kanon.kommons")
 )
 inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
-    if (!condition()) throw IllegalArgumentException(lazyMsg().toString())
+    require(condition, lazyMsg)
 }
 
 /**
@@ -187,7 +239,7 @@ inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("require(condition)", "moe.kanon.kommons")
 )
 inline fun requireThat(condition: () -> Boolean) {
-    require(condition, { FAILED_REQUIRE })
+    require(condition) { FAILED_REQUIRE }
 }
 
 /**
@@ -241,7 +293,10 @@ internal object _Assertions {
  */
 inline fun assert(condition: () -> Boolean, lazyMsg: () -> Any) {
     if (_Assertions.ENABLED) {
-        if (!condition()) throw AssertionError(lazyMsg().toString())
+        if (!condition()) {
+            val message = lazyMsg()
+            throw AssertionError(message.toString())
+        }
     }
 }
 
@@ -258,7 +313,7 @@ inline fun assert(condition: () -> Boolean) {
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
-fun assert(condition: Boolean, code: String) {
+inline fun assert(condition: Boolean, code: String) {
     assert(condition) { "$FAILED_ASSERTION: ($code)" }
 }
 
