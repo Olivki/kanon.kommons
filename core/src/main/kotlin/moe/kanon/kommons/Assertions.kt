@@ -38,11 +38,13 @@ inline infix fun <T> T.satisfies(condition: (T) -> Boolean): T =
     if (!condition(this)) throw IllegalStateException("<$this> does not satisfy the given condition") else this
 
 // -- EXCEPTIONS -- \\
-// TODO: Better clarify what errors are *actually* fatal, as not all errors are *actually* fatal (which breaks the contract set forth by Error, but oh well)
+// TODO: Better clarify what errors are *actually* fatal, as not all errors are *actually* fatal (which breaks the
+//       contract set forth by Error, but oh well)
 inline fun requireNonFatal(throwable: Throwable) {
     contract {
         returns() implies (throwable !is Error)
     }
+
     if (throwable is Error) throw throwable
 }
 
@@ -69,6 +71,7 @@ inline fun affirmThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
+
     if (!condition) throw UnsupportedOperationException(lazyMsg().toString())
 }
 
@@ -112,6 +115,7 @@ inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
+
     if (!condition) throw IllegalStateException(lazyMsg().toString())
 }
 
@@ -154,6 +158,7 @@ inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
+
     if (!condition) throw IllegalArgumentException(lazyMsg().toString())
 }
 
@@ -197,6 +202,7 @@ inline fun assertThat(condition: Boolean, lazyMsg: () -> Any) {
     contract {
         returns() implies (condition)
     }
+
     if (!condition) throw AssertionError(lazyMsg().toString())
 }
 
