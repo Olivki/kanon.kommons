@@ -73,7 +73,11 @@ fun <T> iteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 /**
  * Returns a new [Iterator] that iterates over the given [items].
  */
-@JvmName("of")
+fun <T> iteratorOf(vararg items: T): Iterator<T> = items.iterator()
+
+/**
+ * Returns a new [Iterator] that iterates over the given [items].
+ */
 fun <T> iteratorFor(vararg items: T): Iterator<T> = items.iterator()
 
 /**
