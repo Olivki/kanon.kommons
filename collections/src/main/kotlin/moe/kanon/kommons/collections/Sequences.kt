@@ -18,8 +18,6 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.requireThat
-
 // -- UTILITY PROPERTIES -- \\
 /**
  * Returns the size of `this` [Sequence].
@@ -158,7 +156,7 @@ fun <T> Sequence<T>.occurrencesOf(item: T): Int = this.count { it == item }
  * The operation is _terminal_.
  */
 fun <T> Sequence<T>.sampleSize(n: Int): List<T> {
-    requireThat(n <= count()) { "'n' is larger than sequence size" }
+    require(n <= count()) { "'n' is larger than sequence size" }
     return this.toList().shuffled().take(n)
 }
 
@@ -170,7 +168,7 @@ fun <T> Sequence<T>.sampleSize(n: Int): List<T> {
  * @throws [IllegalArgumentException] if [n] is negative
  */
 infix fun <T> Sequence<T>.rotateLeft(n: Int): List<T> {
-    requireThat(n >= 0) { "Can't rotate by a negative amount" }
+    require(n >= 0) { "Can't rotate by a negative amount" }
     val list = this.toList()
     return list.slice(n until list.size) + list.slice(0 until n)
 }
@@ -183,7 +181,7 @@ infix fun <T> Sequence<T>.rotateLeft(n: Int): List<T> {
  * @throws [IllegalArgumentException] if [n] is negative
  */
 infix fun <T> Sequence<T>.rotateRight(n: Int): List<T> {
-    requireThat(n >= 0) { "Can't rotate by a negative amount" }
+    require(n >= 0) { "Can't rotate by a negative amount" }
     val list = this.toList()
     return list.takeLast(n % list.size) + list.dropLast(n % list.size)
 }
@@ -265,7 +263,7 @@ infix fun <T> Sequence<T>.indicesOf(element: T): IntArray = this.asSequence()
  * sequence is working on, that might cause some serious overhead, overhead which is completely not needed, as we know
  * that the array that we provide is of the correct size.
  *
- * One could also say that we should just remove the 'requireThat' check in each 'mapTo' function, but that would go
+ * One could also say that we should just remove the 'require' check in each 'mapTo' function, but that would go
  * against the behaviour of the other 'mapTo' functions provided by the std-lib, and that might cause behaviour that
  * the user did not intend for.
  */

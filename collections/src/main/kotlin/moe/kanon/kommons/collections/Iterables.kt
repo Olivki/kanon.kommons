@@ -19,7 +19,6 @@
 package moe.kanon.kommons.collections
 
 import moe.kanon.kommons.require
-import moe.kanon.kommons.requireThat
 
 // -- UTILITY PROPERTIES -- \\
 /**
@@ -231,7 +230,7 @@ inline fun <T, R> Iterable<T>.scan(identity: R, transformer: (R, T) -> R): List<
  * @throws [IllegalArgumentException] if [n] is negative
  */
 infix fun <T> Iterable<T>.rotateLeft(n: Int): List<T> {
-    requireThat(n >= 0) { "Can't rotate by a negative amount" }
+    require(n >= 0) { "Can't rotate by a negative amount" }
     val list = this.toList()
     return list.slice(n until list.size) + list.slice(0 until n)
 }
@@ -242,7 +241,7 @@ infix fun <T> Iterable<T>.rotateLeft(n: Int): List<T> {
  * @throws [IllegalArgumentException] if [n] is negative
  */
 infix fun <T> Iterable<T>.rotateRight(n: Int): List<T> {
-    requireThat(n >= 0) { "Can't rotate by a negative amount" }
+    require(n >= 0) { "Can't rotate by a negative amount" }
     val list = this.toList()
     return list.takeLast(n % list.size) + list.dropLast(n % list.size)
 }
@@ -251,7 +250,7 @@ infix fun <T> Iterable<T>.rotateRight(n: Int): List<T> {
  * Returns [n] amount of random elements from `this` iterable.
  */
 fun <T> Iterable<T>.sampleSize(n: Int): List<T> {
-    requireThat(n <= count()) { "'n' is larger than collection size" }
+    require(n <= count()) { "'n' is larger than collection size" }
     return this.shuffled().take(n)
 }
 

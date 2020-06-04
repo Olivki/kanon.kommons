@@ -19,7 +19,6 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.requireThat
 import java.util.Collections
 
 typealias TwoDimList<T> = List<List<T>>
@@ -99,8 +98,8 @@ fun <T> List<T>.removeAtIndex(index: Int): List<T> = take(index) + drop(index + 
  */
 @JvmName("sliceFrom")
 infix fun <T> List<T>.from(start: Int): List<T> {
-    requireThat(size > start) { "Given index is larger than list size ($start > $size)" }
-    requireThat(start >= 0) { "Given index can not be negative" }
+    require(size > start) { "Given index is larger than list size ($start > $size)" }
+    require(start >= 0) { "Given index can not be negative" }
     return this.slice(start until size)
 }
 
@@ -126,8 +125,8 @@ infix fun <T> List<T>.fromLast(element: T): List<T> =
  */
 @JvmName("sliceUntil")
 infix fun <T> List<T>.until(end: Int): List<T> {
-    requireThat(size > end) { "Given index is larger than list size ($end > $size)" }
-    requireThat(end >= 0) { "Given index can not be negative" }
+    require(size > end) { "Given index is larger than list size ($end > $size)" }
+    require(end >= 0) { "Given index can not be negative" }
     return this.slice(0..end)
 }
 
