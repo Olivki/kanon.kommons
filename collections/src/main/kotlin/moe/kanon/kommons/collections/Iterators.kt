@@ -53,6 +53,10 @@ fun <T> emptyIterator(): Iterator<T> = EmptyIterator
 /**
  * Returns a new [Iterator] that only iterates over the given [item].
  */
+@Deprecated(
+    message = "Use 'iteratorOf(item)' instead.",
+    replaceWith = ReplaceWith("iteratorOf(item)", "moe.kanon.kommons.collections")
+)
 fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 
 /**
