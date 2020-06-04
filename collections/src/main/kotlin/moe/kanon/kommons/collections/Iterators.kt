@@ -51,18 +51,25 @@ private class UnmodifiableIterator<T>(val delegate: Iterator<T>) : Iterator<T> b
 fun <T> emptyIterator(): Iterator<T> = EmptyIterator
 
 /**
+ * Returns an [Iterator] instance that iterates over no elements.
+ */
+@JvmName("of")
+fun <T> iteratorOf(): Iterator<T> = emptyIterator()
+
+/**
  * Returns a new [Iterator] that only iterates over the given [item].
  */
 @Deprecated(
     message = "Use 'iteratorOf(item)' instead.",
     replaceWith = ReplaceWith("iteratorOf(item)", "moe.kanon.kommons.collections")
 )
+@JvmName("singletonOf")
 fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 
 /**
  * Returns a new [Iterator] that only iterates over the given [item].
  */
-@JvmName("singletonOf")
+@JvmName("of")
 fun <T> iteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 
 /**
