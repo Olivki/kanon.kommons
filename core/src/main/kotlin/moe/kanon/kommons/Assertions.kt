@@ -137,36 +137,19 @@ inline fun checkThat(condition: Boolean, code: String) {
 }
 
 // -- REQUIRE -- \\
+// new
 /**
  * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+inline fun require(condition: () -> Boolean, lazyMsg: () -> Any) {
     if (!condition()) throw IllegalArgumentException(lazyMsg().toString())
 }
 
 /**
  * Throws an [IllegalArgumentException] with a default message if the given [condition] returns `false`.
  */
-inline fun requireThat(condition: () -> Boolean) {
-    requireThat(condition) { FAILED_REQUIRE }
-}
-
-/**
- * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
- */
-inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
-    contract {
-        returns() implies (condition)
-    }
-
-    if (!condition) throw IllegalArgumentException(lazyMsg().toString())
-}
-
-/**
- * Throws an [IllegalArgumentException] with a default message if the given [condition] is `false`.
- */
-inline fun requireThat(condition: Boolean) {
-    requireThat(condition) { FAILED_REQUIRE }
+inline fun require(condition: () -> Boolean) {
+    require(condition) { FAILED_REQUIRE }
 }
 
 /**
@@ -176,8 +159,72 @@ inline fun requireThat(condition: Boolean) {
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
+inline fun require(condition: Boolean, code: String) {
+    contract {
+        returns() implies condition
+    }
+
+    require(condition) { "$FAILED_REQUIRE: ($code)" }
+}
+
+// old
+/**
+ * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'assert(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("require(condition, lazyMsg)", "moe.kanon.kommons")
+)
+inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+    if (!condition()) throw IllegalArgumentException(lazyMsg().toString())
+}
+
+/**
+ * Throws an [IllegalArgumentException] with a default message if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'assert(condition)' instead.",
+    replaceWith = ReplaceWith("require(condition)", "moe.kanon.kommons")
+)
+inline fun requireThat(condition: () -> Boolean) {
+    require(condition, { FAILED_REQUIRE })
+}
+
+/**
+ * Throws an [IllegalArgumentException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'require(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("require(condition, lazyMsg)", "kotlin")
+)
+inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
+    require(condition, lazyMsg)
+}
+
+/**
+ * Throws an [IllegalArgumentException] with a default message if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'require(condition)' instead.",
+    replaceWith = ReplaceWith("require(condition)", "kotlin")
+)
+inline fun requireThat(condition: Boolean) {
+    require(condition) { FAILED_REQUIRE }
+}
+
+/**
+ * Throws an [IllegalArgumentException] with a default prefix and the specified [code] if the given [condition] is
+ * `false`.
+ *
+ * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
+ * form.
+ */
+@Deprecated(
+    message = "Use 'assert(condition, code)' instead.",
+    replaceWith = ReplaceWith("require(condition, code)", "moe.kanon.kommons")
+)
 inline fun requireThat(condition: Boolean, code: String) {
-    requireThat(condition) { "$FAILED_REQUIRE: ($code)" }
+    require(condition, code)
 }
 
 // -- ASSERTIONS -- \\
@@ -199,7 +246,7 @@ inline fun assert(condition: () -> Boolean, lazyMsg: () -> Any) {
 }
 
 /**
- * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
+ * Throws a [AssertionError] with a default message if the given [condition] returns `false`.
  */
 inline fun assert(condition: () -> Boolean) {
     assert(condition) { FAILED_ASSERTION }
