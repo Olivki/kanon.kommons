@@ -63,6 +63,10 @@ fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
 /**
  * Returns a new [ListIterator] instance that only iterates over the given [item].
  */
+@Deprecated(
+    message = "Use 'listIteratorOf(item)' instead.",
+    replaceWith = ReplaceWith("listIteratorOf(item)", "moe.kanon.kommons.collections")
+)
 @JvmName("singletonOf")
 fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
 
