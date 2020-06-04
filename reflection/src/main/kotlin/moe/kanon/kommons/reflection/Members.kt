@@ -18,3 +18,89 @@
 
 package moe.kanon.kommons.reflection
 
+import java.lang.reflect.Member
+import java.lang.reflect.Modifier
+
+/**
+ * Returns `true` if `this` has the `public` modifier, otherwise `false`.
+ */
+val Member.isPublic: Boolean
+    get() = Modifier.isPublic(modifiers)
+
+/**
+ * Returns `true` if `this` has the `private` modifier, otherwise `false`.
+ */
+val Member.isPrivate: Boolean
+    get() = Modifier.isPrivate(modifiers)
+
+/**
+ * Returns `true` if `this` has the `protected` modifier, otherwise `false`.
+ */
+val Member.isProtected: Boolean
+    get() = Modifier.isProtected(modifiers)
+
+/**
+ * Returns `true` if `this` has the `static` modifier, otherwise `false`.
+ */
+val Member.isStatic: Boolean
+    get() = Modifier.isStatic(modifiers)
+
+/**
+ * Returns `true` if `this` has the `final` modifier, otherwise `false`.
+ */
+val Member.isFinal: Boolean
+    get() = Modifier.isFinal(modifiers)
+
+/**
+ * Returns `true` if `this` does *not* have the `final` modifier, otherwise `false`.
+ */
+val Member.isOpen: Boolean
+    get() = !Modifier.isFinal(modifiers)
+
+/**
+ * Returns `true` if `this` has the `synchronized` modifier, otherwise `false`.
+ */
+val Member.isSynchronized: Boolean
+    get() = Modifier.isSynchronized(modifiers)
+
+/**
+ * Returns `true` if `this` has the `volatile` modifier, otherwise `false`.
+ */
+val Member.isVolatile: Boolean
+    get() = Modifier.isVolatile(modifiers)
+
+/**
+ * Returns `true` if `this` has the `transient` modifier, otherwise `false`.
+ */
+val Member.isTransient: Boolean
+    get() = Modifier.isTransient(modifiers)
+
+/**
+ * Returns `true` if `this` has the `native` modifier, otherwise `false`.
+ */
+val Member.isNative: Boolean
+    get() = Modifier.isNative(modifiers)
+
+/**
+ * Returns `true` if `this` has the `interface` modifier, otherwise `false`.
+ */
+val Member.isInterface: Boolean
+    get() = Modifier.isInterface(modifiers)
+
+/**
+ * Returns `true` if `this` has the `abstract` modifier, otherwise `false`.
+ */
+val Member.isAbstract: Boolean
+    get() = Modifier.isAbstract(modifiers)
+
+/**
+ * Returns `true` if `this` does *not* have the `abstract` modifier, otherwise `false`.
+ */
+val Member.isConcrete: Boolean
+    get() = !Modifier.isAbstract(modifiers)
+
+/**
+ * Returns `true` if `this` has the `strict` modifier, otherwise `false`.
+ */
+val Member.isStrict: Boolean
+    get() = Modifier.isStrict(modifiers)
