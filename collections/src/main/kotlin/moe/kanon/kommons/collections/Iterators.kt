@@ -53,9 +53,13 @@ fun <T> emptyIterator(): Iterator<T> = EmptyIterator
 /**
  * Returns a new [Iterator] that only iterates over the given [item].
  */
-// TODO: refactor to 'iteratorOf'
-@JvmName("singletonOf")
 fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
+
+/**
+ * Returns a new [Iterator] that only iterates over the given [item].
+ */
+@JvmName("singletonOf")
+fun <T> iteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 
 /**
  * Returns an unmodifiable view of `this` iterator.
