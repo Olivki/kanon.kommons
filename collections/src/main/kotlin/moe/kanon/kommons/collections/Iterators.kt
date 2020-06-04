@@ -19,9 +19,7 @@
 
 package moe.kanon.kommons.collections
 
-import moe.kanon.kommons.INDEX_NOT_FOUND
-
-private const val EMPTY_ITERATOR = "Can not iterate over a empty iterator"
+private const val EMPTY_ITERATOR = "Can not iterate over an empty iterator."
 
 private object EmptyIterator : Iterator<Nothing> {
     override fun hasNext(): Boolean = false
@@ -73,6 +71,12 @@ fun <T> singletonIteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 fun <T> iteratorOf(item: T): Iterator<T> = SingletonIterator(item)
 
 /**
+ * Returns a new [Iterator] that iterates over the given [items].
+ */
+@JvmName("of")
+fun <T> iteratorFor(vararg items: T): Iterator<T> = items.iterator()
+
+/**
  * Returns an unmodifiable view of `this` iterator.
  *
  * Any attempts to invoke the `remove` operation on the returned instance will result in a
@@ -80,59 +84,6 @@ fun <T> iteratorOf(item: T): Iterator<T> = SingletonIterator(item)
  */
 @JvmName("unmodifiable")
 fun <T> Iterator<T>.asUnmodifiable(): Iterator<T> = UnmodifiableIterator(this)
-
-// -- LIST ITERATOR -- \\
-private object EmptyListIterator : ListIterator<Nothing> {
-    override fun hasNext(): Boolean = false
-
-    override fun hasPrevious(): Boolean = false
-
-    override fun next(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
-
-    override fun nextIndex(): Int = INDEX_NOT_FOUND
-
-    override fun previous(): Nothing = throw UnsupportedOperationException(EMPTY_ITERATOR)
-
-    override fun previousIndex(): Int = INDEX_NOT_FOUND
-}
-
-private class SingletonListIterator<T>(val item: T) : ListIterator<T> {
-    private var hasNext = true
-
-    override fun hasNext(): Boolean = hasNext
-
-    override fun hasPrevious(): Boolean = !hasNext
-
-    override fun next(): T = if (hasNext) item.also { hasNext = false } else throw NoSuchElementException()
-
-    override fun nextIndex(): Int = 0
-
-    override fun previous(): T = if (!hasNext) item.also { hasNext = true } else throw NoSuchElementException()
-
-    override fun previousIndex(): Int = 0
-}
-
-private class UnmodifiableListIterator<T>(val delegate: ListIterator<T>) : ListIterator<T> by delegate
-
-/**
- * Returns a [ListIterator] instance that iterates over no elements.
- */
-fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
-
-/**
- * Returns a new [ListIterator] instance that only iterates over the given [item].
- */
-// TODO: refactor to 'iteratorOf'
-fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
-
-/**
- * Returns an unmodifiable view of `this` iterator.
- *
- * Any attempts to invoke the `remove`, `set` and/or `add` operations will result in a [UnsupportedOperationException]
- * being thrown.
- */
-@JvmName("unmodifiableListIterator")
-fun <T> ListIterator<T>.asUnmodifiable(): ListIterator<T> = UnmodifiableListIterator(this)
 
 // -- ZIPPED ITERATOR -- \\
 /**
@@ -155,10 +106,3 @@ class ZippedIterator<out A, out B>(
  */
 @JvmName("zippedOf")
 infix fun <A, B> Iterator<A>.zipWith(other: Iterator<B>): Iterator<Pair<A, B>> = ZippedIterator(this, other)
-
-// -- OTHER -- \\
-/**
- * Returns a new [Iterator] that iterates over the given [items].
- */
-@JvmName("of")
-fun <T> iteratorFor(vararg items: T): Iterator<T> = items.iterator()
