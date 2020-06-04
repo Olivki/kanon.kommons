@@ -21,26 +21,26 @@ package moe.kanon.kommons.reflection.java
 import java.lang.reflect.AnnotatedElement
 
 /**
- * Returns `true` if an annotation of type [T] is present on `this` element, otherwise `false`.
+ * Returns `true` if an annotation of type [A] is present on `this` element, otherwise `false`.
  *
  * @see [AnnotatedElement.isAnnotationPresent]
  */
-inline fun <reified T : Annotation> AnnotatedElement.isAnnotationPresent(): Boolean =
-    isAnnotationPresent(T::class.java)
+inline fun <reified A : Annotation> AnnotatedElement.isAnnotationPresent(): Boolean =
+    isAnnotationPresent(A::class.java)
 
 /**
- * Returns an annotation of type [T] if such an annotation [is present][AnnotatedElement.isAnnotationPresent] on `this`
+ * Returns an annotation of type [A] if such an annotation [is present][AnnotatedElement.isAnnotationPresent] on `this`
  * element, otherwise `null`.
  */
-inline fun <reified T : Annotation> AnnotatedElement.getAnnotationOrNull(): T? = getAnnotation(T::class.java)
+inline fun <reified A : Annotation> AnnotatedElement.getAnnotationOrNull(): A? = getAnnotation(A::class.java)
 
 /**
- * Returns an annotation of type [T] if such an annotation [is present][AnnotatedElement.isAnnotationPresent] on `this`
+ * Returns an annotation of type [A] if such an annotation [is present][AnnotatedElement.isAnnotationPresent] on `this`
  * element, otherwise throws a [NoSuchElementException].
  *
- * @throws [NoSuchElementException] if no annotation of type [T] is present on `this` element
+ * @throws [NoSuchElementException] if no annotation of type [A] is present on `this` element
  */
-inline fun <reified T : Annotation> AnnotatedElement.getAnnotation(): T = when {
-    isAnnotationPresent<T>() -> getAnnotation(T::class.java)!!
-    else -> throw NoSuchElementException("'$this' is not annotated with '${T::class.java.name}'.")
+inline fun <reified A : Annotation> AnnotatedElement.getAnnotation(): A = when {
+    isAnnotationPresent<A>() -> getAnnotation(A::class.java)!!
+    else -> throw NoSuchElementException("'$this' is not annotated with '${A::class.java.name}'.")
 }
