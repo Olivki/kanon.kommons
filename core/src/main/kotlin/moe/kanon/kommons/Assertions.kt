@@ -181,36 +181,28 @@ inline fun requireThat(condition: Boolean, code: String) {
 }
 
 // -- ASSERTIONS -- \\
+// new
+@PublishedApi
+internal object _Assertions {
+    @JvmField
+    @PublishedApi
+    internal val ENABLED: Boolean = javaClass.desiredAssertionStatus()
+}
+
 /**
  * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-inline fun assertThat(condition: () -> Boolean, lazyMsg: () -> Any) {
-    if (!condition()) throw AssertionError(lazyMsg().toString())
-}
-
-/**
- * Throws a [AssertionError] with a default message if the given [condition] returns `false`.
- */
-inline fun assertThat(condition: () -> Boolean) {
-    assertThat(condition) { FAILED_ASSERTION }
-}
-
-/**
- * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] is `false`.
- */
-inline fun assertThat(condition: Boolean, lazyMsg: () -> Any) {
-    contract {
-        returns() implies (condition)
+inline fun assert(condition: () -> Boolean, lazyMsg: () -> Any) {
+    if (_Assertions.ENABLED) {
+        if (!condition()) throw AssertionError(lazyMsg().toString())
     }
-
-    if (!condition) throw AssertionError(lazyMsg().toString())
 }
 
 /**
- * Throws a [AssertionError] with a default message if the given [condition] is `false`.
+ * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
  */
-inline fun assertThat(condition: Boolean) {
-    assertThat(condition) { FAILED_ASSERTION }
+inline fun assert(condition: () -> Boolean) {
+    assert(condition) { FAILED_ASSERTION }
 }
 
 /**
@@ -219,6 +211,65 @@ inline fun assertThat(condition: Boolean) {
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
+fun assert(condition: Boolean, code: String) {
+    assert(condition) { "$FAILED_ASSERTION: ($code)" }
+}
+
+// old
+/**
+ * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'assert(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("assert(condition, lazyMsg)", "moe.kanon.kommons")
+)
+inline fun assertThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+    if (!condition()) throw AssertionError(lazyMsg().toString())
+}
+
+/**
+ * Throws a [AssertionError] with a default message if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'assert(condition)' instead.",
+    replaceWith = ReplaceWith("assert(condition)", "kotlin")
+)
+inline fun assertThat(condition: () -> Boolean) {
+    assert(condition) { FAILED_ASSERTION }
+}
+
+/**
+ * Throws a [AssertionError] with the result of invoking [lazyMsg] if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'assert(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("assert(condition, lazyMsg)", "kotlin")
+)
+inline fun assertThat(condition: Boolean, lazyMsg: () -> Any) {
+    assert(condition, lazyMsg)
+}
+
+/**
+ * Throws a [AssertionError] with a default message if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'assert(condition)' instead.",
+    replaceWith = ReplaceWith("assert(condition)", "kotlin")
+)
+inline fun assertThat(condition: Boolean) {
+    assert(condition) { FAILED_ASSERTION }
+}
+
+/**
+ * Throws an [AssertionError] with a default prefix and the specified [code] if the given [condition] is `false`.
+ *
+ * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
+ * form.
+ */
+@Deprecated(
+    message = "Use 'assert(condition, code)' instead.",
+    replaceWith = ReplaceWith("assert(condition, code)", "moe.kanon.kommons")
+)
 inline fun assertThat(condition: Boolean, code: String) {
-    assertThat(condition) { "$FAILED_ASSERTION: ($code)" }
+    assert(condition, code)
 }
