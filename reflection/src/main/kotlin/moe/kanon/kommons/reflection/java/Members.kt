@@ -16,7 +16,7 @@
 
 @file:JvmName("KMembers")
 
-package moe.kanon.kommons.reflection
+package moe.kanon.kommons.reflection.java
 
 import java.lang.reflect.Member
 import java.lang.reflect.Modifier
