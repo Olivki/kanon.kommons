@@ -82,6 +82,13 @@ fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterato
 fun <T> listIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
 
 /**
+ * Returns a new [ListIterator] that iterates over the given [items].
+ */
+// TODO: implement our own 'ListIterator' that works over arrays rather than just doing 'asList' on 'items'?
+@JvmName("of")
+fun <T> listIteratorOf(vararg items: T): ListIterator<T> = items.asList().listIterator()
+
+/**
  * Returns an unmodifiable view of `this` iterator.
  *
  * Any attempts to invoke the `remove`, `set` and/or `add` operations will result in a [UnsupportedOperationException]
