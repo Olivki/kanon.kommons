@@ -49,37 +49,48 @@ inline fun requireNonFatal(throwable: Throwable) {
 }
 
 // -- AFFIRM -- \\
+// new
 /**
  * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] returns
  * `false`.
  */
-inline fun affirmThat(condition: () -> Boolean, lazyMsg: () -> Any) {
-    if (!condition()) throw UnsupportedOperationException(lazyMsg().toString())
+inline fun affirm(condition: () -> Boolean, lazyMsg: () -> Any) {
+    if (!condition()) {
+        val message = lazyMsg()
+        throw UnsupportedOperationException(message.toString())
+    }
 }
 
 /**
  * Throws a [UnsupportedOperationException] with a default message if the given [condition] returns `false`.
  */
-inline fun affirmThat(condition: () -> Boolean) {
-    affirmThat(condition) { UNSUPPORTED_OPERATION }
+inline fun affirm(condition: () -> Boolean) {
+    affirm(condition) { UNSUPPORTED_OPERATION }
 }
 
 /**
  * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
  */
-inline fun affirmThat(condition: Boolean, lazyMsg: () -> Any) {
+inline fun affirm(condition: Boolean, lazyMsg: () -> Any) {
     contract {
-        returns() implies (condition)
+        returns() implies condition
     }
 
-    if (!condition) throw UnsupportedOperationException(lazyMsg().toString())
+    if (!condition) {
+        val message = lazyMsg()
+        throw UnsupportedOperationException(message.toString())
+    }
 }
 
 /**
  * Throws a [UnsupportedOperationException] with a default message if the given [condition] is `false`.
  */
-inline fun affirmThat(condition: Boolean) {
-    affirmThat(condition) { UNSUPPORTED_OPERATION }
+inline fun affirm(condition: Boolean) {
+    contract {
+        returns() implies condition
+    }
+
+    affirm(condition) { UNSUPPORTED_OPERATION }
 }
 
 /**
@@ -89,8 +100,77 @@ inline fun affirmThat(condition: Boolean) {
  * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
  * form.
  */
+inline fun affirm(condition: Boolean, code: String) {
+    contract {
+        returns() implies condition
+    }
+
+    affirm(condition) { "$UNSUPPORTED_OPERATION: ($code)" }
+}
+
+// old
+/**
+ * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] returns
+ * `false`.
+ */
+@Deprecated(
+    message = "Use 'affirm(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("affirm(condition, lazyMsg)", "moe.kanon.kommons")
+)
+inline fun affirmThat(condition: () -> Boolean, lazyMsg: () -> Any) {
+    affirm(condition, lazyMsg)
+}
+
+/**
+ * Throws a [UnsupportedOperationException] with a default message if the given [condition] returns `false`.
+ */
+@Deprecated(
+    message = "Use 'affirm(condition)' instead.",
+    replaceWith = ReplaceWith("affirm(condition)", "moe.kanon.kommons")
+)
+inline fun affirmThat(condition: () -> Boolean) {
+    affirm(condition) { UNSUPPORTED_OPERATION }
+}
+
+/**
+ * Throws a [UnsupportedOperationException] with the result of invoking [lazyMsg] if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'affirm(condition, lazyMsg)' instead.",
+    replaceWith = ReplaceWith("affirm(condition, lazyMsg)", "moe.kanon.kommons")
+)
+inline fun affirmThat(condition: Boolean, lazyMsg: () -> Any) {
+    contract {
+        returns() implies condition
+    }
+
+    if (!condition) throw UnsupportedOperationException(lazyMsg().toString())
+}
+
+/**
+ * Throws a [UnsupportedOperationException] with a default message if the given [condition] is `false`.
+ */
+@Deprecated(
+    message = "Use 'affirm(condition)' instead.",
+    replaceWith = ReplaceWith("affirm(condition)", "moe.kanon.kommons")
+)
+inline fun affirmThat(condition: Boolean) {
+    affirm(condition) { UNSUPPORTED_OPERATION }
+}
+
+/**
+ * Throws a [UnsupportedOperationException] with a default prefix and the specified [code] if the given [condition] is
+ * `false`.
+ *
+ * Note that the [code] string *should* be the exact same as what's typed in the [condition] boolean, just in string
+ * form.
+ */
+@Deprecated(
+    message = "Use 'affirm(condition, code)' instead.",
+    replaceWith = ReplaceWith("affirm(condition, code)", "moe.kanon.kommons")
+)
 inline fun affirmThat(condition: Boolean, code: String) {
-    affirmThat(condition) { "$UNSUPPORTED_OPERATION: ($code)" }
+    affirm(condition) { "$UNSUPPORTED_OPERATION: ($code)" }
 }
 
 // -- CHECK -- \\
