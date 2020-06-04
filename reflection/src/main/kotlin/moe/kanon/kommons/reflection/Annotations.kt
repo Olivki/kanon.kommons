@@ -59,7 +59,7 @@ inline fun <reified A : Annotation> KAnnotatedElement.getAnnotationOrNull(): A? 
  * @see [isAnnotationPresent]
  */
 inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A =
-    getAnnotationOrNull<A>() ?: throw NoSuchElementException("<$this> is not annotated with <${A::class}>")
+    getAnnotationOrNull<A>() ?: throw NoSuchElementException("<$this> is not annotated with '${A::class}'.")
 
 /**
  * Invokes the given [scope] function with the first instance of the given [annotation][A] if `this` element is
