@@ -78,7 +78,11 @@ fun <T> iteratorOf(vararg items: T): Iterator<T> = items.iterator()
 /**
  * Returns a new [Iterator] that iterates over the given [items].
  */
-fun <T> iteratorFor(vararg items: T): Iterator<T> = items.iterator()
+@Deprecated(
+    message = "Use 'iteratorOf(items)' instead.",
+    replaceWith = ReplaceWith("iteratorOf(items)", "moe.kanon.kommons.collections")
+)
+fun <T> iteratorFor(vararg items: T): Iterator<T> = iteratorOf(*items)
 
 /**
  * Returns an unmodifiable view of `this` iterator.
