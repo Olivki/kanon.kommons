@@ -67,6 +67,12 @@ fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
 fun <T> singletonListIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
 
 /**
+ * Returns a new [ListIterator] instance that only iterates over the given [item].
+ */
+@JvmName("of")
+fun <T> listIteratorOf(item: T): ListIterator<T> = SingletonListIterator(item)
+
+/**
  * Returns an unmodifiable view of `this` iterator.
  *
  * Any attempts to invoke the `remove`, `set` and/or `add` operations will result in a [UnsupportedOperationException]
