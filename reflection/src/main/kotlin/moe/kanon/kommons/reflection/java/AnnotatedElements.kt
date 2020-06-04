@@ -25,8 +25,7 @@ import java.lang.reflect.AnnotatedElement
  *
  * @see [AnnotatedElement.isAnnotationPresent]
  */
-inline fun <reified A : Annotation> AnnotatedElement.isAnnotationPresent(): Boolean =
-    isAnnotationPresent(A::class.java)
+inline fun <reified A : Annotation> AnnotatedElement.isAnnotationPresent(): Boolean = isAnnotationPresent(A::class.java)
 
 /**
  * Returns an annotation of type [A] if such an annotation [is present][AnnotatedElement.isAnnotationPresent] on `this`
