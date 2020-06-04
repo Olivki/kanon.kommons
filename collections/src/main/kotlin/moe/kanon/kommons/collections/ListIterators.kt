@@ -61,6 +61,11 @@ private class UnmodifiableListIterator<T>(val delegate: ListIterator<T>) : ListI
 fun <T> emptyListIterator(): ListIterator<T> = EmptyListIterator
 
 /**
+ * Returns a [ListIterator] instance that iterates over no elements.
+ */
+fun <T> listIteratorOf(): ListIterator<T> = emptyListIterator()
+
+/**
  * Returns a new [ListIterator] instance that only iterates over the given [item].
  */
 @Deprecated(
