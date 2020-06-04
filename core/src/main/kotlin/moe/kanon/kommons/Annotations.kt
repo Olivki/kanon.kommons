@@ -39,6 +39,7 @@ annotation class KommonsExperimental
 @DslMarker
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
+@Deprecated(message = "Questionable usage, remove all together.")
 annotation class FakeKeyword
 
 /**
