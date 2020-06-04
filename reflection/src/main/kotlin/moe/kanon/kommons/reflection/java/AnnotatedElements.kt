@@ -18,3 +18,29 @@
 
 package moe.kanon.kommons.reflection.java
 
+import java.lang.reflect.AnnotatedElement
+
+/**
+ * Returns `true` if an annotation of type [T] is present on `this`, otherwise `false`.
+ *
+ * @see [AnnotatedElement.isAnnotationPresent]
+ */
+inline fun <reified T : Annotation> AnnotatedElement.isAnnotationPresent(): Boolean =
+    isAnnotationPresent(T::class.java)
+
+/**
+ * Returns an annotation of type [T] if such an annotation [is present][AnnotatedElement.isAnnotationPresent],
+ * otherwise `null`.
+ */
+inline fun <reified T : Annotation> AnnotatedElement.getAnnotationOrNull(): T? = getAnnotation(T::class.java)
+
+/**
+ * Returns an annotation of type [T] if such an annotation [is present][AnnotatedElement.isAnnotationPresent],
+ * otherwise throws a [NoSuchElementException].
+ *
+ * @throws [NoSuchElementException] if no annotation of type [T] is present on `this` element
+ */
+inline fun <reified T : Annotation> AnnotatedElement.getAnnotation(): T = when {
+    isAnnotationPresent<T>() -> getAnnotation(T::class.java)!!
+    else -> throw NoSuchElementException("'$this' is not annotated with '${T::class.java.name}'.")
+}
