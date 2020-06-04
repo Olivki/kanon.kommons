@@ -21,24 +21,52 @@ package moe.kanon.kommons.reflection
 import kotlin.reflect.KAnnotatedElement
 
 /**
- * Returns `true` if `this` element is annotated with the given [annotation][A], otherwise `false`.
+ * Returns `true` if an annotation of type [A] is present on `this` element, otherwise `false`.
  */
-inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean = this.annotations.any { it is A }
+@Deprecated(
+    message = "Use 'isAnnotationPresent()' instead.",
+    replaceWith = ReplaceWith("this.isAnnotationPresent()", "moe.kanon.kommons.reflection")
+)
+inline fun <reified A : Annotation> KAnnotatedElement.hasAnnotation(): Boolean = annotations.any { it is A }
 
 /**
- * Returns the *first* instance of the given [annotation][A] on `this` element, or throws a [NoSuchElementException]
- * if `this` element is not annotated with the given `annotation`.
+ * Returns `true` if an annotation of type [A] is present on `this` element, otherwise `false`.
  */
-inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A = this.annotations
-    .filterIsInstance<A>()
-    .firstOrNull() ?: throw NoSuchElementException("<$this> is not annotated with <${A::class}>")
+inline fun <reified A : Annotation> KAnnotatedElement.isAnnotationPresent(): Boolean = annotations.any { it is A }
+
+/**
+ * Returns a list of all the annotations of type [A] that are present on `this` element, otherwise an empty list.
+ */
+inline fun <reified A : Annotation> KAnnotatedElement.getAnnotations(): List<A> = annotations.filterIsInstance<A>()
+
+/**
+ * Returns the *first* annotation of type [A] that is present on `this` element, otherwise `null`.
+ *
+ * @see [getAnnotations]
+ * @see [getAnnotation]
+ * @see [isAnnotationPresent]
+ */
+inline fun <reified A : Annotation> KAnnotatedElement.getAnnotationOrNull(): A? = getAnnotations<A>().firstOrNull()
+
+/**
+ * Returns the *first* annotation of type [A] that is present on `this` element, otherwise throws a
+ * [NoSuchElementException].
+ *
+ * @throws [NoSuchElementException] if no annotations of type [A] are present on `this` element
+ *
+ * @see [getAnnotations]
+ * @see [getAnnotationOrNull]
+ * @see [isAnnotationPresent]
+ */
+inline fun <reified A : Annotation> KAnnotatedElement.getAnnotation(): A =
+    getAnnotationOrNull<A>() ?: throw NoSuchElementException("<$this> is not annotated with <${A::class}>")
 
 /**
  * Invokes the given [scope] function with the first instance of the given [annotation][A] if `this` element is
  * annotated by it, otherwise does nothing.
  */
 inline fun <reified A : Annotation> KAnnotatedElement.ifHasAnnotation(scope: (A) -> Unit) {
-    if (hasAnnotation<A>()) {
+    if (isAnnotationPresent<A>()) {
         scope(getAnnotation())
     }
 }
@@ -50,8 +78,10 @@ inline fun <reified A : Annotation> KAnnotatedElement.ifHasAnnotation(scope: (A)
  * @return the result of invoking either the [notExists] or [exists] function
  */
 // TODO: Rename?
-inline fun <reified A : Annotation, R> KAnnotatedElement.foldAnnotation(notExists: () -> R, exists: (A) -> R): R =
-    when {
-        this.hasAnnotation<A>() -> exists(getAnnotation())
-        else -> notExists()
-    }
+inline fun <reified A : Annotation, R> KAnnotatedElement.foldAnnotation(
+    notExists: () -> R,
+    exists: (A) -> R
+): R = when {
+    isAnnotationPresent<A>() -> exists(getAnnotation())
+    else -> notExists()
+}
