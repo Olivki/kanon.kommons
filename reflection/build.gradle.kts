@@ -3,11 +3,11 @@ plugins {
 }
 
 description = "Provides some basic utilities for working with reflection in Kotlin"
-version = "0.6.0" // TODO: This version has not been released yet
+version = "0.6.0"
 extra["packageName"] = "reflection"
 
 dependencies {
-    compile(kotlin("reflect"))
+    api(kotlin("reflect"))
 
     // tests
     testImplementation(group = "io.kotlintest", name = "kotlintest-runner-junit5", version = "3.1.11")
