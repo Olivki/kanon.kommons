@@ -80,12 +80,12 @@ fun <T> List<T>.allEqual(): Boolean = if (this.isEmpty()) false else this.all { 
 /**
  * Returns whether or not `this` list starts with [that] list.
  */
-infix fun <T> List<T>.startsWith(that: Iterable<T>): Boolean = this.take(that.size) == that
+infix fun <T> List<T>.startsWith(that: Iterable<T>): Boolean = this.take(that.count()) == that
 
 /**
  * Returns whether or not `this` list ends with [that] list.
  */
-infix fun <T> List<T>.endsWith(that: Iterable<T>): Boolean = this.takeLast(that.size) == that
+infix fun <T> List<T>.endsWith(that: Iterable<T>): Boolean = this.takeLast(that.count()) == that
 
 /**
  * Returns a copy of `this` list with the element at the specified [index] removed.

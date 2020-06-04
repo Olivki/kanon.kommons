@@ -92,7 +92,7 @@ fun Iterable<*>.calculateHashCode(): Int = fold(1) { hash, element -> 31 * hash 
  * otherwise.
  */
 infix fun Iterable<*>.hasSameElementsAs(other: Iterable<*>): Boolean {
-    if (other.size != this.size) return false
+    if (other.count() != this.count()) return false
 
     val otherIterator = other.iterator()
     for (elem in this) {
@@ -167,7 +167,7 @@ inline fun <T> Iterable<T>.unique(predicate: (T) -> Boolean): Boolean = this.cou
 tailrec infix operator fun <T> Iterable<T>.contains(content: Iterable<T>): Boolean = when {
     content.none() -> true
     this.none() -> content.none()
-    this.take(content.size) == content -> true
+    this.take(content.count()) == content -> true
     else -> this.drop(1) contains content
 }
 
@@ -184,7 +184,7 @@ infix fun <T> Iterable<T>.indicesOf(element: T): IntArray = this.asSequence()
  * Returns a new [List] containing all the elements of `this`, with the specified [element] inserted between all of
  * them.
  */
-infix fun <T> Iterable<T>.intersperse(element: T): List<T> = List(this.size) { listOf(this.elementAt(it), element) }
+infix fun <T> Iterable<T>.intersperse(element: T): List<T> = List(this.count()) { listOf(this.elementAt(it), element) }
     .flatten()
     .dropLast(1)
 
@@ -210,7 +210,7 @@ infix fun <T> T.prependTo(iterable: Iterable<T>): List<T> = (listOf(this).plus(i
  *
  * **NOTE**: This implementation uses non stack safe recursion.
  */
-fun <T> Iterable<T>.permutations(): TwoDimList<T> = when (this.size) {
+fun <T> Iterable<T>.permutations(): TwoDimList<T> = when (this.count()) {
     0 -> emptyList()
     1 -> listOf(this.toList())
     else -> foldIndexed(ArrayList()) { index, acc, item ->
@@ -251,7 +251,7 @@ infix fun <T> Iterable<T>.rotateRight(n: Int): List<T> {
  * Returns [n] amount of random elements from `this` iterable.
  */
 fun <T> Iterable<T>.sampleSize(n: Int): List<T> {
-    requireThat(n <= size) { "'n' is larger than collection size" }
+    requireThat(n <= count()) { "'n' is larger than collection size" }
     return this.shuffled().take(n)
 }
 
@@ -275,7 +275,7 @@ fun <T> Iterable<T>.shank(vararg elements: T, startIndex: Int = 0, deleteCount: 
  * given [destination].
  */
 inline fun <T, R> Iterable<T>.mapTo(destination: Array<R>, transform: (T) -> R): Array<R> {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -285,7 +285,7 @@ inline fun <T, R> Iterable<T>.mapTo(destination: Array<R>, transform: (T) -> R):
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: BooleanArray, transform: (T) -> Boolean): BooleanArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -295,7 +295,7 @@ inline fun <T> Iterable<T>.mapTo(destination: BooleanArray, transform: (T) -> Bo
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: CharArray, transform: (T) -> Char): CharArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -305,7 +305,7 @@ inline fun <T> Iterable<T>.mapTo(destination: CharArray, transform: (T) -> Char)
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: ByteArray, transform: (T) -> Byte): ByteArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -315,7 +315,7 @@ inline fun <T> Iterable<T>.mapTo(destination: ByteArray, transform: (T) -> Byte)
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: ShortArray, transform: (T) -> Short): ShortArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -325,7 +325,7 @@ inline fun <T> Iterable<T>.mapTo(destination: ShortArray, transform: (T) -> Shor
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: IntArray, transform: (T) -> Int): IntArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -335,7 +335,7 @@ inline fun <T> Iterable<T>.mapTo(destination: IntArray, transform: (T) -> Int): 
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: LongArray, transform: (T) -> Long): LongArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -345,7 +345,7 @@ inline fun <T> Iterable<T>.mapTo(destination: LongArray, transform: (T) -> Long)
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: FloatArray, transform: (T) -> Float): FloatArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -355,7 +355,7 @@ inline fun <T> Iterable<T>.mapTo(destination: FloatArray, transform: (T) -> Floa
  * given [destination].
  */
 inline fun <T> Iterable<T>.mapTo(destination: DoubleArray, transform: (T) -> Double): DoubleArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     for ((i, e) in withIndex()) destination[i] = transform(e)
     return destination
 }
@@ -365,59 +365,59 @@ inline fun <T> Iterable<T>.mapTo(destination: DoubleArray, transform: (T) -> Dou
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [Array].
  */
-inline fun <T, reified R> Iterable<T>.mapToTypedArray(transform: (T) -> R): Array<R> = mapTo(createArray(this.size), transform)
+inline fun <T, reified R> Iterable<T>.mapToTypedArray(transform: (T) -> R): Array<R> = mapTo(createArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [BooleanArray].
  */
 inline fun <T> Iterable<T>.mapToBooleanArray(transform: (T) -> Boolean): BooleanArray =
-    mapTo(BooleanArray(this.size), transform)
+    mapTo(BooleanArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [CharArray].
  */
-inline fun <T> Iterable<T>.mapToCharArray(transform: (T) -> Char): CharArray = mapTo(CharArray(this.size), transform)
+inline fun <T> Iterable<T>.mapToCharArray(transform: (T) -> Char): CharArray = mapTo(CharArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [ByteArray].
  */
-inline fun <T> Iterable<T>.mapToByteArray(transform: (T) -> Byte): ByteArray = mapTo(ByteArray(this.size), transform)
+inline fun <T> Iterable<T>.mapToByteArray(transform: (T) -> Byte): ByteArray = mapTo(ByteArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [ShortArray].
  */
 inline fun <T> Iterable<T>.mapToShortArray(transform: (T) -> Short): ShortArray =
-    mapTo(ShortArray(this.size), transform)
+    mapTo(ShortArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [IntArray].
  */
-inline fun <T> Iterable<T>.mapToIntArray(transform: (T) -> Int): IntArray = mapTo(IntArray(this.size), transform)
+inline fun <T> Iterable<T>.mapToIntArray(transform: (T) -> Int): IntArray = mapTo(IntArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [LongArray].
  */
-inline fun <T> Iterable<T>.mapToLongArray(transform: (T) -> Long): LongArray = mapTo(LongArray(this.size), transform)
+inline fun <T> Iterable<T>.mapToLongArray(transform: (T) -> Long): LongArray = mapTo(LongArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [FloatArray].
  */
 inline fun <T> Iterable<T>.mapToFloatArray(transform: (T) -> Float): FloatArray =
-    mapTo(FloatArray(this.size), transform)
+    mapTo(FloatArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element of the original collection and appends the results to a
  * newly created [DoubleArray].
  */
 inline fun <T> Iterable<T>.mapToDoubleArray(transform: (T) -> Double): DoubleArray =
-    mapTo(DoubleArray(this.size), transform)
+    mapTo(DoubleArray(this.count()), transform)
 
 // mapIndexedTo
 /**
@@ -428,7 +428,7 @@ inline fun <T> Iterable<T>.mapToDoubleArray(transform: (T) -> Double): DoubleArr
  * transform applied to the element.
  */
 inline fun <T, R> Iterable<T>.mapIndexedTo(destination: Array<R>, transform: (i: Int, e: T) -> R): Array<R> {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -442,7 +442,7 @@ inline fun <T, R> Iterable<T>.mapIndexedTo(destination: Array<R>, transform: (i:
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: BooleanArray, transform: (i: Int, e: T) -> Boolean): BooleanArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -456,7 +456,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: BooleanArray, transform: (i
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: CharArray, transform: (i: Int, e: T) -> Char): CharArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -470,7 +470,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: CharArray, transform: (i: I
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: ByteArray, transform: (i: Int, e: T) -> Byte): ByteArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -484,7 +484,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: ByteArray, transform: (i: I
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: ShortArray, transform: (i: Int, e: T) -> Short): ShortArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -498,7 +498,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: ShortArray, transform: (i: 
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: IntArray, transform: (i: Int, e: T) -> Int): IntArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -512,7 +512,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: IntArray, transform: (i: In
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: LongArray, transform: (i: Int, e: T) -> Long): LongArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -526,7 +526,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: LongArray, transform: (i: I
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: FloatArray, transform: (i: Int, e: T) -> Float): FloatArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -540,7 +540,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: FloatArray, transform: (i: 
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedTo(destination: DoubleArray, transform: (i: Int, e: T) -> Double): DoubleArray {
-    require(this.size <= destination.size, "this.size <= target.size")
+    require(this.count() <= destination.size, "this.size <= target.size")
     var index = 0
     for (element in this) destination[index++] = transform(index, element)
     return destination
@@ -555,7 +555,7 @@ inline fun <T> Iterable<T>.mapIndexedTo(destination: DoubleArray, transform: (i:
  * transform applied to the element.
  */
 inline fun <T, reified R> Iterable<T>.mapIndexedToTypedArray(transform: (i: Int, e: T) -> R): Array<R> =
-    mapIndexedTo(createArray(this.size), transform)
+    mapIndexedTo(createArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -565,7 +565,7 @@ inline fun <T, reified R> Iterable<T>.mapIndexedToTypedArray(transform: (i: Int,
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToBooleanArray(transform: (i: Int, e: T) -> Boolean): BooleanArray =
-    mapIndexedTo(BooleanArray(this.size), transform)
+    mapIndexedTo(BooleanArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -575,7 +575,7 @@ inline fun <T> Iterable<T>.mapIndexedToBooleanArray(transform: (i: Int, e: T) ->
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToCharArray(transform: (i: Int, e: T) -> Char): CharArray =
-    mapIndexedTo(CharArray(this.size), transform)
+    mapIndexedTo(CharArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -585,7 +585,7 @@ inline fun <T> Iterable<T>.mapIndexedToCharArray(transform: (i: Int, e: T) -> Ch
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToByteArray(transform: (i: Int, e: T) -> Byte): ByteArray =
-    mapIndexedTo(ByteArray(this.size), transform)
+    mapIndexedTo(ByteArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -595,7 +595,7 @@ inline fun <T> Iterable<T>.mapIndexedToByteArray(transform: (i: Int, e: T) -> By
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToShortArray(transform: (i: Int, e: T) -> Short): ShortArray =
-    mapIndexedTo(ShortArray(this.size), transform)
+    mapIndexedTo(ShortArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -605,7 +605,7 @@ inline fun <T> Iterable<T>.mapIndexedToShortArray(transform: (i: Int, e: T) -> S
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToIntArray(transform: (i: Int, e: T) -> Int): IntArray =
-    mapIndexedTo(IntArray(this.size), transform)
+    mapIndexedTo(IntArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -615,7 +615,7 @@ inline fun <T> Iterable<T>.mapIndexedToIntArray(transform: (i: Int, e: T) -> Int
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToLongArray(transform: (i: Int, e: T) -> Long): LongArray =
-    mapIndexedTo(LongArray(this.size), transform)
+    mapIndexedTo(LongArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -625,7 +625,7 @@ inline fun <T> Iterable<T>.mapIndexedToLongArray(transform: (i: Int, e: T) -> Lo
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToFloatArray(transform: (i: Int, e: T) -> Float): FloatArray =
-    mapIndexedTo(FloatArray(this.size), transform)
+    mapIndexedTo(FloatArray(this.count()), transform)
 
 /**
  * Applies the given [transform] function to each element and its index in the original collection and appends the
@@ -635,7 +635,7 @@ inline fun <T> Iterable<T>.mapIndexedToFloatArray(transform: (i: Int, e: T) -> F
  * transform applied to the element.
  */
 inline fun <T> Iterable<T>.mapIndexedToDoubleArray(transform: (i: Int, e: T) -> Double): DoubleArray =
-    mapIndexedTo(DoubleArray(this.size), transform)
+    mapIndexedTo(DoubleArray(this.count()), transform)
 
 // to...Array
 /**
