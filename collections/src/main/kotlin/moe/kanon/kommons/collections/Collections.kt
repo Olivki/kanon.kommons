@@ -42,7 +42,7 @@ private class SingletonCollection<T>(val item: T) : AbstractCollection<T>() {
 
     override fun isEmpty(): Boolean = false
 
-    override fun iterator(): Iterator<T> = singletonIteratorOf(item)
+    override fun iterator(): Iterator<T> = iteratorOf(item)
 }
 
 /**
