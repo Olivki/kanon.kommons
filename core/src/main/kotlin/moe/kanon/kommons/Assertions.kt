@@ -90,7 +90,7 @@ inline fun affirm(condition: Boolean) {
         returns() implies condition
     }
 
-    affirm(condition) { UNSUPPORTED_OPERATION }
+    affirm(condition) { "$UNSUPPORTED_OPERATION." }
 }
 
 /**
@@ -155,6 +155,10 @@ inline fun affirmThat(condition: Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("affirm(condition)", "moe.kanon.kommons")
 )
 inline fun affirmThat(condition: Boolean) {
+    contract {
+        returns() implies condition
+    }
+
     affirm(condition) { UNSUPPORTED_OPERATION }
 }
 
@@ -170,6 +174,10 @@ inline fun affirmThat(condition: Boolean) {
     replaceWith = ReplaceWith("affirm(condition, code)", "moe.kanon.kommons")
 )
 inline fun affirmThat(condition: Boolean, code: String) {
+    contract {
+        returns() implies condition
+    }
+
     affirm(condition) { "$UNSUPPORTED_OPERATION: ($code)" }
 }
 
@@ -189,7 +197,7 @@ inline fun check(condition: () -> Boolean, lazyMsg: () -> Any) {
  * Throws a [IllegalStateException] with a default message if the given [condition] returns `false`.
  */
 inline fun check(condition: () -> Boolean) {
-    check(condition) { FAILED_CHECK }
+    check(condition) { "$FAILED_CHECK." }
 }
 
 /**
@@ -226,7 +234,7 @@ inline fun checkThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("check(condition)", "moe.kanon.kommons")
 )
 inline fun checkThat(condition: () -> Boolean) {
-    check(condition) { FAILED_CHECK }
+    check(condition) { "$FAILED_CHECK." }
 }
 
 /**
@@ -237,6 +245,10 @@ inline fun checkThat(condition: () -> Boolean) {
     replaceWith = ReplaceWith("check(condition, lazyMsg)", "kotlin")
 )
 inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
+    contract {
+        returns() implies condition
+    }
+
     check(condition, lazyMsg)
 }
 
@@ -248,7 +260,11 @@ inline fun checkThat(condition: Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("check(condition)", "kotlin")
 )
 inline fun checkThat(condition: Boolean) {
-    check(condition) { FAILED_CHECK }
+    contract {
+        returns() implies condition
+    }
+
+    check(condition) { "$FAILED_CHECK."  }
 }
 
 /**
@@ -262,6 +278,10 @@ inline fun checkThat(condition: Boolean) {
     replaceWith = ReplaceWith("check(condition, code)", "moe.kanon.kommons")
 )
 inline fun checkThat(condition: Boolean, code: String) {
+    contract {
+        returns() implies condition
+    }
+
     check(condition) { "$FAILED_CHECK: ($code)" }
 }
 
@@ -281,7 +301,7 @@ inline fun require(condition: () -> Boolean, lazyMsg: () -> Any) {
  * Throws an [IllegalArgumentException] with a default message if the given [condition] returns `false`.
  */
 inline fun require(condition: () -> Boolean) {
-    require(condition) { FAILED_REQUIRE }
+    require(condition) { "$FAILED_REQUIRE." }
 }
 
 /**
@@ -319,7 +339,7 @@ inline fun requireThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("require(condition)", "moe.kanon.kommons")
 )
 inline fun requireThat(condition: () -> Boolean) {
-    require(condition) { FAILED_REQUIRE }
+    require(condition) { "$FAILED_REQUIRE." }
 }
 
 /**
@@ -330,6 +350,10 @@ inline fun requireThat(condition: () -> Boolean) {
     replaceWith = ReplaceWith("require(condition, lazyMsg)", "kotlin")
 )
 inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
+    contract {
+        returns() implies condition
+    }
+
     require(condition, lazyMsg)
 }
 
@@ -341,7 +365,11 @@ inline fun requireThat(condition: Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("require(condition)", "kotlin")
 )
 inline fun requireThat(condition: Boolean) {
-    require(condition) { FAILED_REQUIRE }
+    contract {
+        returns() implies condition
+    }
+
+    require(condition) { "$FAILED_REQUIRE." }
 }
 
 /**
@@ -356,6 +384,10 @@ inline fun requireThat(condition: Boolean) {
     replaceWith = ReplaceWith("require(condition, code)", "moe.kanon.kommons")
 )
 inline fun requireThat(condition: Boolean, code: String) {
+    contract {
+        returns() implies condition
+    }
+
     require(condition, code)
 }
 
@@ -384,7 +416,7 @@ inline fun assert(condition: () -> Boolean, lazyMsg: () -> Any) {
  * Throws a [AssertionError] with a default message if the given [condition] returns `false`.
  */
 inline fun assert(condition: () -> Boolean) {
-    assert(condition) { FAILED_ASSERTION }
+    assert(condition) { "$FAILED_ASSERTION." }
 }
 
 /**
@@ -417,7 +449,7 @@ inline fun assertThat(condition: () -> Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("assert(condition)", "kotlin")
 )
 inline fun assertThat(condition: () -> Boolean) {
-    assert(condition) { FAILED_ASSERTION }
+    assert(condition) { "$FAILED_ASSERTION." }
 }
 
 /**
@@ -439,7 +471,7 @@ inline fun assertThat(condition: Boolean, lazyMsg: () -> Any) {
     replaceWith = ReplaceWith("assert(condition)", "kotlin")
 )
 inline fun assertThat(condition: Boolean) {
-    assert(condition) { FAILED_ASSERTION }
+    assert(condition) { "$FAILED_ASSERTION." }
 }
 
 /**
