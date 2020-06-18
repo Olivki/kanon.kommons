@@ -91,6 +91,16 @@ fun <E : Enum<E>> enumSetOf(initial: E, vararg rest: E): EnumSet<E> = when (rest
 /**
  * Returns a new [EnumSet] containing the entries of `this` collection.
  */
+fun <E : Enum<E>> EnumSet<E>.toEnumSet(): EnumSet<E> = EnumSet.copyOf(this)
+
+/**
+ * Returns a new [EnumSet] containing the entries of `this` collection.
+ */
+fun <E : Enum<E>> Collection<E>.toEnumSet(): EnumSet<E> = EnumSet.copyOf(this)
+
+/**
+ * Returns a new [EnumSet] containing the entries of `this` collection.
+ */
 inline fun <reified E : Enum<E>> Iterable<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this, E::class.java)
 
 /**
