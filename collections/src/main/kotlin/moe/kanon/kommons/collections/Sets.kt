@@ -89,12 +89,12 @@ fun <E : Enum<E>> enumSetOf(initial: E, vararg rest: E): EnumSet<E> = when (rest
 
 // to...
 /**
- * Returns a new [enum-set][EnumSet] containing the entries of `this` collection.
+ * Returns a new [EnumSet] containing the entries of `this` collection.
  */
 inline fun <reified E : Enum<E>> Iterable<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this, E::class.java)
 
 /**
- * Returns a new [enum-set][EnumSet] containing the entries of `this` array.
+ * Returns a new [EnumSet] containing the entries of `this` array.
  */
 inline fun <reified E : Enum<E>> Array<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this.asIterable(), E::class.java)
 
@@ -104,7 +104,11 @@ inline fun <reified E : Enum<E>> Array<E>.toEnumSet(): EnumSet<E> = convertToEnu
 fun <E : Enum<E>> ClosedRange<E>.toEnumSet(): EnumSet<E> = EnumSet.range(this.start, this.endInclusive)
 
 @PublishedApi
-internal fun <E : Enum<E>> convertToEnumSet(origin: Iterable<E>, clz: Class<E>): EnumSet<E> = when (origin) {
-    is EnumSet<E> -> origin
-    else -> EnumSet.noneOf(clz).apply { addAll(origin) }
+internal fun <E : Enum<E>> convertToEnumSet(origin: Iterable<E>, clz: Class<E>): EnumSet<E> = when {
+    origin.none() -> EnumSet.noneOf(clz)
+    else -> when (origin) {
+        is EnumSet<E> -> EnumSet.copyOf(origin)
+        is Collection<E> -> EnumSet.copyOf(origin)
+        else -> EnumSet.noneOf(clz).apply { addAll(origin) }
+    }
 }
