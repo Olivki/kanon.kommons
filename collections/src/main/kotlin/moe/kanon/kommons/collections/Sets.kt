@@ -101,7 +101,12 @@ fun <E : Enum<E>> Collection<E>.toEnumSet(): EnumSet<E> = EnumSet.copyOf(this)
 /**
  * Returns a new [EnumSet] containing the entries of `this` collection.
  */
-inline fun <reified E : Enum<E>> Iterable<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this, E::class.java)
+inline fun <reified E : Enum<E>> Iterable<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this.asIterable(), E::class.java)
+
+/**
+ * Returns a new [EnumSet] containing the entries of `this` sequence.
+ */
+inline fun <reified E : Enum<E>> Sequence<E>.toEnumSet(): EnumSet<E> = convertToEnumSet(this.asIterable(), E::class.java)
 
 /**
  * Returns a new [EnumSet] containing the entries of `this` array.
