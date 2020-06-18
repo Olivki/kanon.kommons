@@ -48,7 +48,23 @@ inline fun <reified E : Enum<E>> emptyEnumSet(): EnumSet<E> = EnumSet.noneOf(E::
  *
  * @param [E] the [Enum] type to extract the constants from.
  */
-inline fun <reified E : Enum<E>> enumSetOf(): EnumSet<E> = emptyEnumSet<E>().apply { addAll(enumValues<E>()) }
+@Deprecated(
+    message = "Name is ambiguous, please use 'enumSetOfAll'.",
+    replaceWith = ReplaceWith("enumSetOfAll<E>()", "moe.kanon.kommons.collections"),
+    level = DeprecationLevel.ERROR
+)
+inline fun <reified E : Enum<E>> enumSetOf(): EnumSet<E> = enumSetOfAll()
+
+/**
+ * Returns a new [EnumSet] containing all the enum constants of the given [enum][E].
+ *
+ * @param [E] the [Enum] type to extract the constants from.
+ */
+inline fun <reified E : Enum<E>> enumSetOfAll(): EnumSet<E> {
+    val result = emptyEnumSet<E>()
+    result.addAll(enumValues())
+    return result
+}
 
 /**
  * Returns a new [EnumSet] for the given [enum][E] that initially contains the given element.
