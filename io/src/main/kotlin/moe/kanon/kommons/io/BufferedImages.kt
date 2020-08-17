@@ -94,7 +94,7 @@ fun Path.newImageOutputStream(
  * the given [options].
  */
 fun BufferedImage.writeTo(target: Path, vararg options: OpenOption = arrayOf(CREATE, WRITE, TRUNCATE_EXISTING)): Path =
-    this.writeTo(target, target.extension.toLowerCase(), *options)
+    this.writeTo(target, target.extension?.toLowerCase() ?: "", *options)
 
 /**
  * Writes `this` image to the given [target], using the given [format] and the given [options].
