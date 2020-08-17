@@ -23,7 +23,6 @@ import moe.kanon.kommons.CloseableSequence
 import moe.kanon.kommons.io.pathMatcherOf
 import moe.kanon.kommons.io.requireDirectory
 import moe.kanon.kommons.io.requireFileExistence
-import moe.kanon.kommons.io.requireRegularFile
 import moe.kanon.kommons.io.resourceOf
 import java.io.BufferedReader
 import java.io.FileNotFoundException
@@ -333,63 +332,71 @@ fun Path.resolveSiblings(vararg paths: String): Path =
     paths.fold(this) { parent, path -> parent.resolveSibling(path) }
 
 /**
- * The file name of `this` [file][Path] in [String] format.
+ * The [name][Path.getFileName] of `this` file.
  *
- * The setter for this property uses the [renameTo] function with the [StandardCopyOption.COPY_ATTRIBUTES] option selected.
+ * Invoking the setter is equivalent to invoking [renameTo] with [COPY_ATTRIBUTES][StandardCopyOption.COPY_ATTRIBUTES]
+ * set for the `options` parameter.
  *
- * If you want more control over the renaming process, use [renameTo].
- *
- * @see Path.getFileName
- * @see Path.simpleName
- * @see Path.extension
- * @see Path.renameTo
+ * @see [Path.getFileName]
+ * @see [Path.renameTo]
  */
 var Path.name: String
-    get() = this.fileName.toString()
+    get() = fileName.toString()
     set(name) {
-        this.renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)
+        renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
 /**
- * The name of `this` [file][Path] with the extension trimmed from it in [String] format.
+ * The name of `this` file with its extension removed.
  *
- * If the path is a directory, the full name will be returned.
+ * The extension is assumed to be the contents after the *last* occurrence of the `.` character.
  *
- * @throws IOException if the [simpleName] inside of the setter contains a `'.'` character.
+ * If the path is a directory, [name] will be returned.
  *
- * @see Path.name
- * @see Path.extension
+ * @throws [NoSuchFileException] if `this` file does not exist
  */
 var Path.simpleName: String
-    get() = when {
-        this.isDirectory -> name
-        else -> name.substringBeforeLast('.')
-    }
-    set(value) = when {
-        this.name.substringBeforeLast('.') == name /* ??? */ || isDirectory -> name = value
-        value.contains('.') -> throw IOException("Illegal character <'.'> used for 'simpleName'")
-        else -> this.name = "$value.${this.extension}"
+    get() = if (hasExtension) name.substringBeforeLast('.') else name
+    set(value) {
+        requireFileExistence(this) { "Can't set the extension of non-existent file; '$this'" }
+
+        renameTo(extension?.let{ "$value.$it" } ?: value)
     }
 
 /**
- * The extension of the path in [String] format.
+ * The extension of `this` path.
  *
- * @throws IOException when accessing the getter this will be thrown if the path has no extension or it's a directory,
- * when accessing the setter, this will be thrown if the path is that of a directory.
+ * The extension is assumed to be the contents after the *last* occurrence of the `.` character.
  *
- * @see Path.name
- * @see Path.simpleName
+ * If `this` path does not [have an extension][hasExtension] then the `get` will return `null`.
+ *
+ * Invoking the setter of `this` property with `null` as the `value` is equivalent to invoking [renameTo] with the
+ * `name` parameter set to [simpleName] and the `options` parameter set to
+ * [COPY_ATTRIBUTES][StandardCopyOption.COPY_ATTRIBUTES].
+ *
+ * @throws [NoSuchFileException] if `this` file does not exist
+ * @throws [IOException] if an i/o exception occurs
  */
-var Path.extension: String
-    get() = when {
-        this.name.substringBeforeLast('.') != name -> name.substringAfterLast('.')
-        this.isDirectory -> throw IOException("Can't retrieve extension from a directory <$this>")
-        else -> throw IOException("Path <$this> does not have an extension.")
-    }
+var Path.extension: String?
+    get() = if (hasExtension) name.substringAfterLast('.') else null
     set(value) {
-        requireRegularFile(this) { "Can't set the extension of a directory <$this>" }
+        requireFileExistence(this) { "Can't set the extension of non-existent file; '$this'" }
 
-        this.name = "$simpleName.$value"
+        renameTo(value?.let { "$simpleName.$it" } ?: simpleName, StandardCopyOption.COPY_ATTRIBUTES)
+    }
+
+/**
+ * Returns `true` if this path has an extension, otherwise `false`.
+ *
+ * The presence of an extension is determined by whether if the [name] of this path contains the `.` character, but
+ * only if the `.` character is *not* the first nor last character.
+ *
+ * Note that if this path [is a directory][isDirectory] then this will *always* return `false`.
+ */
+val Path.hasExtension: Boolean
+    get() = when {
+        isDirectory -> false
+        else -> name.let { '.' in it && !it.startsWith('.') && it.lastIndexOf('.') != it.lastIndex }
     }
 
 /**
