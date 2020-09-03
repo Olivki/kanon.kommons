@@ -20,37 +20,14 @@
 package moe.kanon.kommons.io.paths
 
 import moe.kanon.kommons.CloseableSequence
-import moe.kanon.kommons.io.pathMatcherOf
-import moe.kanon.kommons.io.requireDirectory
-import moe.kanon.kommons.io.requireFileExistence
-import moe.kanon.kommons.io.resourceOf
-import java.io.BufferedReader
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.io.Reader
-import java.io.UncheckedIOException
+import moe.kanon.kommons.io.*
+import java.io.*
 import java.math.BigInteger
 import java.net.URI
 import java.net.URL
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.nio.file.DirectoryIteratorException
-import java.nio.file.DirectoryStream
-import java.nio.file.FileAlreadyExistsException
-import java.nio.file.FileSystem
-import java.nio.file.FileSystemNotFoundException
-import java.nio.file.FileSystems
-import java.nio.file.FileVisitOption
-import java.nio.file.FileVisitResult
-import java.nio.file.InvalidPathException
-import java.nio.file.NoSuchFileException
-import java.nio.file.NotDirectoryException
-import java.nio.file.OpenOption
-import java.nio.file.Path
-import java.nio.file.PathMatcher
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
-import java.nio.file.StandardOpenOption
+import java.nio.file.*
 import java.nio.file.StandardOpenOption.CREATE
 import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
 import java.nio.file.StandardOpenOption.WRITE
@@ -342,6 +319,14 @@ fun Path.resolveSiblings(vararg paths: String): Path =
  */
 var Path.name: String
     get() = fileName.toString()
+    @Deprecated(
+        message = "Invoking the property setter does not return the new file, resulting in a stale path.",
+        replaceWith = ReplaceWith(
+            expression = "this.renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)",
+            imports = ["moe.kanon.kommons.io.paths.renameTo", "java.nio.file.StandardCopyOption"]
+        ),
+        level = DeprecationLevel.ERROR
+    )
     set(name) {
         renameTo(name, StandardCopyOption.COPY_ATTRIBUTES)
     }
@@ -357,6 +342,18 @@ var Path.name: String
  */
 var Path.simpleName: String
     get() = if (hasExtension) name.substringBeforeLast('.') else name
+    @Deprecated(
+        message = "Invoking the property setter does not return the new file, resulting in a stale path.",
+        replaceWith = ReplaceWith(
+            expression = "this.renameTo(this.extension?.let{ \"\$value.\$it\" } ?: value, StandardCopyOption.COPY_ATTRIBUTES)",
+            imports = [
+                "moe.kanon.kommons.io.paths.renameTo",
+                "moe.kanon.kommons.io.paths.extension",
+                "java.nio.file.StandardCopyOption"
+            ]
+        ),
+        level = DeprecationLevel.ERROR
+    )
     set(value) {
         requireFileExistence(this) { "Can't set the extension of non-existent file; '$this'" }
 
@@ -379,6 +376,18 @@ var Path.simpleName: String
  */
 var Path.extension: String?
     get() = if (hasExtension) name.substringAfterLast('.') else null
+    @Deprecated(
+        message = "Invoking the property setter does not return the new file, resulting in a stale path.",
+        replaceWith = ReplaceWith(
+            expression = "this.renameTo(value?.let { \"\${this.simpleName}.\$it\" } ?: this.simpleName, StandardCopyOption.COPY_ATTRIBUTES)",
+            imports = [
+                "moe.kanon.kommons.io.paths.renameTo",
+                "moe.kanon.kommons.io.paths.simpleName",
+                "java.nio.file.StandardCopyOption"
+            ]
+        ),
+        level = DeprecationLevel.ERROR
+    )
     set(value) {
         requireFileExistence(this) { "Can't set the extension of non-existent file; '$this'" }
 
