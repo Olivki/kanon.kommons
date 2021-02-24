@@ -1,5 +1,7 @@
 ## kanon.kommons
 
+Superseded by [krautils](https://github.com/Olivki/krautils)
+
 This project contains all the modules that make up the `kanon.kommons` project, for more information please look at the each modules individual `README.md` file.
 
 ## License
